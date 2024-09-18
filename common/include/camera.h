@@ -15,6 +15,10 @@ public:
         float far_plane = 10000.0f
     );
 
+    [[nodiscard]] int getWidth() const { return Width; }
+    [[nodiscard]] int getHeight() const { return Height; }
+    [[nodiscard]] float getNearPlane() const { return NearPlane; }
+    [[nodiscard]] float getFarPlane() const { return FarPlane; }
     [[nodiscard]] bool getMovingState() const { return IsMoving; }
     [[nodiscard]] glm::vec3 getCameraPosition() const { return CamPos; }
     [[nodiscard]] const glm::mat4& getViewMatrix() const { return ViewMatrix; }
