@@ -193,7 +193,7 @@ void RendererGL::setLights() const
     ambient_color = glm::vec4( 0.2f, 0.2f, 0.2f, 1.0f );
     diffuse_color = glm::vec4( 0.9f, 0.5f, 0.1f, 1.0f );
     specular_color = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-    const glm::vec3 spotlight_direction( 0.0f, -1.0f, -1.5f );
+    constexpr glm::vec3 spotlight_direction( 0.0f, -1.0f, -1.5f );
     Lights->addLight(
         light_position,
         ambient_color,
@@ -216,7 +216,7 @@ void RendererGL::setObject() const
         false
     );
 
-    const glm::vec4 diffuse_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    constexpr glm::vec4 diffuse_color = { 1.0f, 1.0f, 1.0f, 1.0f };
     Object->setDiffuseReflectionColor( diffuse_color );
 }
 
@@ -232,11 +232,11 @@ void RendererGL::drawObject(const float& scale_factor) const
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
     glUseProgram( ObjectShader->getShaderProgram() );
 
-    const glm::mat4 to_origin = glm::translate( glm::mat4( 1.0f ), glm::vec3( -0.5f, -0.5f, 0.0f ) );
-    const glm::mat4 scale_matrix = glm::scale(
+    const glm::mat4 to_origin = translate( glm::mat4( 1.0f ), glm::vec3( -0.5f, -0.5f, 0.0f ) );
+    const glm::mat4 scale_matrix = scale(
         glm::mat4( 1.0f ), glm::vec3( scale_factor, scale_factor, scale_factor )
     );
-    const glm::mat4 move_back = glm::translate( glm::mat4( 1.0f ), glm::vec3( 0.0f, 0.0f, -50.0f ) );
+    const glm::mat4 move_back = translate( glm::mat4( 1.0f ), glm::vec3( 0.0f, 0.0f, -50.0f ) );
     glm::mat4 to_world = move_back * scale_matrix * to_origin;
     if (DrawMovingObject) {
         to_world = rotate(
@@ -303,7 +303,7 @@ void RendererGL::play()
     setLights();
     setObject();
 
-    const double update_time = 0.1;
+    constexpr double update_time = 0.1;
     double last = glfwGetTime(), time_delta = 0.0;
     while (!glfwWindowShouldClose( Window )) {
         const double now = glfwGetTime();
