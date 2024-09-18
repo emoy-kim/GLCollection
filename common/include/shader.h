@@ -2,22 +2,9 @@
 
 #include "base.h"
 
-class ShaderGL final
+class ShaderGL
 {
 public:
-    enum UNIFORM
-    {
-        WorldMatrix = 0,
-        ViewMatrix,
-        ModelViewProjectionMatrix,
-        Lights,
-        Material = 291,
-        UseTexture = 296,
-        UseLight,
-        LightNum,
-        GlobalAmbient
-    };
-
     enum LIGHT_UNIFORM
     {
         LightSwitch = 0,

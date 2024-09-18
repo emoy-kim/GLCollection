@@ -222,7 +222,7 @@ void RendererGL::setObject() const
 
 void RendererGL::drawObject(const float& scale_factor) const
 {
-    using u = ShaderGL::UNIFORM;
+    using u = LightingShader::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

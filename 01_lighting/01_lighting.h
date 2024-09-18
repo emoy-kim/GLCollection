@@ -3,7 +3,7 @@
 #include "../common/include/light.h"
 #include "../common/include/camera.h"
 #include "../common/include/object.h"
-#include "../common/include/shader.h"
+#include "lighting_shader.h"
 
 class RendererGL
 {
