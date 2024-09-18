@@ -4,25 +4,25 @@
 
 struct LightInfo
 {
-   int LightSwitch;
-   vec4 Position;
-   vec4 AmbientColor;
-   vec4 DiffuseColor;
-   vec4 SpecularColor;
-   vec3 SpotlightDirection;
-   float SpotlightCutoffAngle;
-   float SpotlightFeather;
-   float FallOffRadius;
+    int LightSwitch;
+    vec4 Position;
+    vec4 AmbientColor;
+    vec4 DiffuseColor;
+    vec4 SpecularColor;
+    vec3 SpotlightDirection;
+    float SpotlightCutoffAngle;
+    float SpotlightFeather;
+    float FallOffRadius;
 };
 layout (location = 3) uniform LightInfo Lights[MAX_LIGHTS];
 
 struct MateralInfo
 {
-   vec4 EmissionColor;
-   vec4 AmbientColor;
-   vec4 DiffuseColor;
-   vec4 SpecularColor;
-   float SpecularExponent;
+    vec4 EmissionColor;
+    vec4 AmbientColor;
+    vec4 DiffuseColor;
+    vec4 SpecularColor;
+    float SpecularExponent;
 };
 layout (location = 291) uniform MateralInfo Material;
 
@@ -46,81 +46,80 @@ const float half_pi = 1.57079632679489661923132169163975144f;
 
 bool IsPointLight(in vec4 light_position)
 {
-   return light_position.w != zero;
+    return light_position.w != zero;
 }
 
 float getAttenuation(in vec3 light_vector, in int light_index)
 {
-   float squared_distance = dot( light_vector, light_vector );
-   float distance = sqrt( squared_distance );
-   float radius = Lights[light_index].FallOffRadius;
-   if (distance <= radius) return one;
+    float squared_distance = dot( light_vector, light_vector );
+    float distance = sqrt( squared_distance );
+    float radius = Lights[light_index].FallOffRadius;
+    if (distance <= radius) return one;
 
-   return clamp( radius * radius / squared_distance, zero, one );
+    return clamp( radius * radius / squared_distance, zero, one );
 }
 
 float getSpotlightFactor(in vec3 normalized_light_vector, in int light_index)
 {
-   if (Lights[light_index].SpotlightCutoffAngle >= 180.0f) return one;
+    if (Lights[light_index].SpotlightCutoffAngle >= 180.0f) return one;
 
-   vec4 direction_in_ec = transpose( inverse( ViewMatrix ) ) * vec4(Lights[light_index].SpotlightDirection, zero);
-   vec3 normalized_direction = normalize( direction_in_ec.xyz );
-   float factor = dot( -normalized_light_vector, normalized_direction );
-   float cutoff_angle = radians( clamp( Lights[light_index].SpotlightCutoffAngle, zero, 90.0f ) );
-   if (factor >= cos( cutoff_angle )) {
-      float normalized_angle = acos( factor ) * half_pi / cutoff_angle;
-      float threshold = half_pi * (one - Lights[light_index].SpotlightFeather);
-      return normalized_angle <= threshold ? one :
-         cos( half_pi * (normalized_angle - threshold) / (half_pi - threshold) );
-   }
-   return zero;
+    vec4 direction_in_ec = transpose( inverse( ViewMatrix ) ) * vec4(Lights[light_index].SpotlightDirection, zero);
+    vec3 normalized_direction = normalize( direction_in_ec.xyz );
+    float factor = dot( -normalized_light_vector, normalized_direction );
+    float cutoff_angle = radians( clamp( Lights[light_index].SpotlightCutoffAngle, zero, 90.0f ) );
+    if (factor >= cos( cutoff_angle )) {
+        float normalized_angle = acos( factor ) * half_pi / cutoff_angle;
+        float threshold = half_pi * (one - Lights[light_index].SpotlightFeather);
+        return normalized_angle <= threshold ?
+            one :
+            cos( half_pi * (normalized_angle - threshold) / (half_pi - threshold) );
+    }
+    return zero;
 }
 
 vec4 calculateLightingEquation()
 {
-   vec4 color = Material.EmissionColor + GlobalAmbient * Material.AmbientColor;
+    vec4 color = Material.EmissionColor + GlobalAmbient * Material.AmbientColor;
 
-   for (int i = 0; i < LightNum; ++i) {
-      if (Lights[i].LightSwitch == 0) continue;
-      
-      vec4 light_position_in_ec = ViewMatrix * Lights[i].Position;
-      
-      float final_effect_factor = one;
-      vec3 light_vector = light_position_in_ec.xyz - position_in_ec;
-      if (IsPointLight( light_position_in_ec )) {
-         float attenuation = getAttenuation( light_vector, i );
+    for (int i = 0; i < LightNum; ++i) {
+        if (!bool(Lights[i].LightSwitch)) continue;
 
-         light_vector = normalize( light_vector );
-         float spotlight_factor = getSpotlightFactor( light_vector, i );
-         final_effect_factor = attenuation * spotlight_factor;
-      }
-      else light_vector = normalize( light_position_in_ec.xyz );
-   
-      if (final_effect_factor <= zero) continue;
+        vec4 light_position_in_ec = ViewMatrix * Lights[i].Position;
 
-      vec4 local_color = Lights[i].AmbientColor * Material.AmbientColor;
+        float final_effect_factor = one;
+        vec3 light_vector = light_position_in_ec.xyz - position_in_ec;
+        if (IsPointLight( light_position_in_ec )) {
+            float attenuation = getAttenuation( light_vector, i );
 
-      float diffuse_intensity = max( dot( normal_in_ec, light_vector ), zero );
-      local_color += diffuse_intensity * Lights[i].DiffuseColor * Material.DiffuseColor;
+            light_vector = normalize( light_vector );
+            float spotlight_factor = getSpotlightFactor( light_vector, i );
+            final_effect_factor = attenuation * spotlight_factor;
+        }
+        else light_vector = normalize( light_position_in_ec.xyz );
 
-      vec3 halfway_vector = normalize( light_vector - normalize( position_in_ec ) );
-      float specular_intensity = max( dot( normal_in_ec, halfway_vector ), zero );
-      local_color += 
-         pow( specular_intensity, Material.SpecularExponent ) * 
-         Lights[i].SpecularColor * Material.SpecularColor;
+        if (final_effect_factor <= zero) continue;
 
-      color += local_color * final_effect_factor;
-   }
-   return color;
+        vec4 local_color = Lights[i].AmbientColor * Material.AmbientColor;
+
+        float diffuse_intensity = max( dot( normal_in_ec, light_vector ), zero );
+        local_color += diffuse_intensity * Lights[i].DiffuseColor * Material.DiffuseColor;
+
+        vec3 halfway_vector = normalize( light_vector - normalize( position_in_ec ) );
+        float specular_intensity = max( dot( normal_in_ec, halfway_vector ), zero );
+        local_color +=
+            pow( specular_intensity, Material.SpecularExponent ) *
+            Lights[i].SpecularColor * Material.SpecularColor;
+
+        color += local_color * final_effect_factor;
+    }
+    return color;
 }
 
 void main()
 {
-   if (UseTexture == 0) final_color = vec4(one);
-   else final_color = texture( BaseTexture, tex_coord );
+    if (!bool(UseTexture)) final_color = vec4(one);
+    else final_color = texture( BaseTexture, tex_coord );
 
-   if (UseLight != 0) {
-      final_color *= calculateLightingEquation();
-   }
-   else final_color *= Material.DiffuseColor;
+    if (bool(UseLight)) final_color *= calculateLightingEquation();
+    else final_color *= Material.DiffuseColor;
 }

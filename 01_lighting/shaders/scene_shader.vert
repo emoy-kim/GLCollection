@@ -13,13 +13,13 @@ out vec3 normal_in_ec;
 out vec2 tex_coord;
 
 void main()
-{   
-   vec4 e_position = ViewMatrix * WorldMatrix * vec4(v_position, 1.0f);
-   vec4 e_normal = transpose( inverse( ViewMatrix * WorldMatrix ) ) * vec4(v_normal, 1.0f);
-   position_in_ec = e_position.xyz;
-   normal_in_ec = normalize( e_normal.xyz );
+{
+    vec4 e_position = ViewMatrix * WorldMatrix * vec4(v_position, 1.0f);
+    vec4 e_normal = transpose( inverse( ViewMatrix * WorldMatrix ) ) * vec4(v_normal, 1.0f);
+    position_in_ec = e_position.xyz;
+    normal_in_ec = normalize( e_normal.xyz );
 
-   tex_coord = v_tex_coord;  
+    tex_coord = v_tex_coord;
 
-   gl_Position = ModelViewProjectionMatrix * vec4(v_position, 1.0f);
+    gl_Position = ModelViewProjectionMatrix * vec4(v_position, 1.0f);
 }
