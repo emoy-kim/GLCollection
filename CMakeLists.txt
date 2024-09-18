@@ -20,7 +20,7 @@ endif()
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/common/include/project_constants.h.in
-    ${CMAKE_SOURCE_DIR}/common/include/project_constants.h @ONLY
+    ${CMAKE_SOURCE_DIR}/project_constants.h @ONLY
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/common/include")
