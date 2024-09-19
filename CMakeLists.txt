@@ -53,3 +53,7 @@ set(
 # 01 Lighting
 add_executable(01_lighting 01_lighting/01_lighting.cpp ${COMMON_FILES})
 target_link_libraries(01_lighting ${ALL_LIBS})
+
+# 02 Projector
+add_executable(02_projector 02_projector/02_projector.cpp ${COMMON_FILES})
+target_link_libraries(02_projector ${ALL_LIBS})
