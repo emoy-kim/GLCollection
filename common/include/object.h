@@ -69,58 +69,36 @@ public:
     [[nodiscard]] glm::vec4 getDiffuseReflectionColor() const { return DiffuseReflectionColor; }
     [[nodiscard]] glm::vec4 getSpecularReflectionColor() const { return SpecularReflectionColor; }
     [[nodiscard]] float getSpecularReflectionExponent() const { return SpecularReflectionExponent; }
+    [[nodiscard]] glm::ivec2 getTextureSize(GLuint id) { return TextureIDToSize[id]; }
 
     template<typename T>
-    void addShaderStorageBufferObject(const std::string& name, GLuint binding_index, int data_size)
+    [[nodiscard]] GLuint addCustomBufferObject(int data_size)
     {
-        GLuint buffer;
+        GLuint buffer = 0;
         glCreateBuffers( 1, &buffer );
-        glBindBufferBase( GL_SHADER_STORAGE_BUFFER, binding_index, buffer );
-        glBufferStorage( GL_SHADER_STORAGE_BUFFER, sizeof( T ) * data_size, nullptr, GL_DYNAMIC_DRAW );
-        CustomBuffers[name] = buffer;
-    }
-
-    template<typename T>
-    void addCustomBufferObject(
-        const std::string& name,
-        GLenum target,
-        const std::vector<T>& data,
-        GLenum usage
-    )
-    {
-        GLuint buffer;
-        glCreateBuffers( 1, &buffer );
-        glBindBuffer( target, buffer );
-        glBufferStorage( target, sizeof( T ) * data.size(), data.data(), usage );
-        CustomBuffers[name] = buffer;
-    }
-
-    template<typename T>
-    void updateCustomBufferObject(const std::string& name, const std::vector<T>& data)
-    {
-        const auto it = CustomBuffers.find( name );
-        if (it == CustomBuffers.end()) return;
-
-        glNamedBufferSubData( it->second, 0, sizeof( T ) * data.size(), data.data() );
+        glNamedBufferStorage( buffer, sizeof( T ) * data_size, nullptr, GL_DYNAMIC_STORAGE_BIT );
+        CustomBuffers.emplace_back( buffer );
+        return buffer;
     }
 
 private:
     uint8_t* ImageBuffer;
-    std::vector<GLfloat> DataBuffer;
     GLuint VAO;
     GLuint VBO;
     GLenum DrawMode;
+    std::vector<GLfloat> DataBuffer;
     std::vector<GLuint> TextureID;
-    std::map<std::string, GLuint> CustomBuffers;
+    std::vector<GLuint> CustomBuffers;
+    std::map<GLuint, glm::ivec2> TextureIDToSize;
     GLsizei VerticesCount;
     glm::vec4 EmissionColor;
     glm::vec4 AmbientReflectionColor; // It is usually set to the same color with DiffuseReflectionColor.
-    // Otherwise, it should be in balance with DiffuseReflectionColor.
+                                      // Otherwise, it should be in balance with DiffuseReflectionColor.
     glm::vec4 DiffuseReflectionColor; // the intrinsic color
     glm::vec4 SpecularReflectionColor;
     float SpecularReflectionExponent;
 
-    [[nodiscard]] bool prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale) const;
+    [[nodiscard]] bool prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale);
     void prepareTexture(bool normals_exist) const;
     void prepareVertexBuffer(int n_bytes_per_vertex);
     void prepareNormal() const;

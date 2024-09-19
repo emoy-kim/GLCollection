@@ -23,8 +23,8 @@ ObjectGL::~ObjectGL()
             glDeleteTextures( 1, &texture_id );
     }
     for (const auto& buffer : CustomBuffers) {
-        if (buffer.second != 0)
-            glDeleteBuffers( 1, &buffer.second );
+        if (buffer != 0)
+            glDeleteBuffers( 1, &buffer );
     }
     delete [] ImageBuffer;
 }
@@ -54,7 +54,7 @@ void ObjectGL::setSpecularReflectionExponent(const float& specular_reflection_ex
     SpecularReflectionExponent = specular_reflection_exponent;
 }
 
-bool ObjectGL::prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale) const
+bool ObjectGL::prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale)
 {
     const FREE_IMAGE_FORMAT format = FreeImage_GetFileType( file_path.c_str(), 0 );
     FIBITMAP* texture = FreeImage_Load( format, file_path.c_str() );
@@ -72,11 +72,16 @@ bool ObjectGL::prepareTexture2DUsingFreeImage(const std::string& file_path, bool
 
     const auto width = static_cast<GLsizei>(FreeImage_GetWidth( texture_converted ));
     const auto height = static_cast<GLsizei>(FreeImage_GetHeight( texture_converted ));
-    GLvoid* data = FreeImage_GetBits( texture_converted );
+    const GLvoid* data = FreeImage_GetBits( texture_converted );
     glTextureStorage2D( TextureID.back(), 1, is_grayscale ? GL_R8 : GL_RGBA8, width, height );
     glTextureSubImage2D(
-        TextureID.back(), 0, 0, 0, width, height, is_grayscale ? GL_RED : GL_BGRA, GL_UNSIGNED_BYTE, data
+        TextureID.back(), 0, 0, 0,
+        width, height,
+        is_grayscale ? GL_RED : GL_BGRA,
+        GL_UNSIGNED_BYTE,
+        data
     );
+    TextureIDToSize[TextureID.back()] = glm::ivec2( width, height );
 
     FreeImage_Unload( texture_converted );
     if (n_bits_per_pixel != n_bits) FreeImage_Unload( texture );
@@ -120,6 +125,7 @@ void ObjectGL::addTexture(int width, int height, bool is_grayscale)
     glTextureParameteri( texture_id, GL_TEXTURE_WRAP_T, GL_REPEAT );
     glGenerateTextureMipmap( texture_id );
     TextureID.emplace_back( texture_id );
+    TextureIDToSize[TextureID.back()] = glm::ivec2( width, height );
 }
 
 int ObjectGL::addTexture(const uint8_t* image_buffer, int width, int height, bool is_grayscale)
@@ -205,15 +211,15 @@ void ObjectGL::setObject(GLenum draw_mode, const std::vector<glm::vec3>& vertice
 {
     DrawMode = draw_mode;
     VerticesCount = 0;
-    DataBuffer.clear();
     for (auto& vertex : vertices) {
         DataBuffer.emplace_back( vertex.x );
         DataBuffer.emplace_back( vertex.y );
         DataBuffer.emplace_back( vertex.z );
         VerticesCount++;
     }
-    const int n_bytes_per_vertex = 3 * sizeof( GLfloat );
+    constexpr int n_bytes_per_vertex = 3 * sizeof( GLfloat );
     prepareVertexBuffer( n_bytes_per_vertex );
+    DataBuffer.clear();
 }
 
 void ObjectGL::setObject(
@@ -224,7 +230,6 @@ void ObjectGL::setObject(
 {
     DrawMode = draw_mode;
     VerticesCount = 0;
-    DataBuffer.clear();
     for (size_t i = 0; i < vertices.size(); ++i) {
         DataBuffer.emplace_back( vertices[i].x );
         DataBuffer.emplace_back( vertices[i].y );
@@ -234,9 +239,10 @@ void ObjectGL::setObject(
         DataBuffer.emplace_back( normals[i].z );
         VerticesCount++;
     }
-    const int n_bytes_per_vertex = 6 * sizeof( GLfloat );
+    constexpr int n_bytes_per_vertex = 6 * sizeof( GLfloat );
     prepareVertexBuffer( n_bytes_per_vertex );
     prepareNormal();
+    DataBuffer.clear();
 }
 
 void ObjectGL::setObject(
@@ -249,7 +255,6 @@ void ObjectGL::setObject(
 {
     DrawMode = draw_mode;
     VerticesCount = 0;
-    DataBuffer.clear();
     for (size_t i = 0; i < vertices.size(); ++i) {
         DataBuffer.emplace_back( vertices[i].x );
         DataBuffer.emplace_back( vertices[i].y );
@@ -258,10 +263,11 @@ void ObjectGL::setObject(
         DataBuffer.emplace_back( textures[i].y );
         VerticesCount++;
     }
-    const int n_bytes_per_vertex = 5 * sizeof( GLfloat );
+    constexpr int n_bytes_per_vertex = 5 * sizeof( GLfloat );
     prepareVertexBuffer( n_bytes_per_vertex );
     prepareTexture( false );
     addTexture( texture_file_path, is_grayscale );
+    DataBuffer.clear();
 }
 
 void ObjectGL::setObject(
@@ -273,7 +279,6 @@ void ObjectGL::setObject(
 {
     DrawMode = draw_mode;
     VerticesCount = 0;
-    DataBuffer.clear();
     for (size_t i = 0; i < vertices.size(); ++i) {
         DataBuffer.emplace_back( vertices[i].x );
         DataBuffer.emplace_back( vertices[i].y );
@@ -285,10 +290,11 @@ void ObjectGL::setObject(
         DataBuffer.emplace_back( textures[i].y );
         VerticesCount++;
     }
-    const int n_bytes_per_vertex = 8 * sizeof( GLfloat );
+    constexpr int n_bytes_per_vertex = 8 * sizeof( GLfloat );
     prepareVertexBuffer( n_bytes_per_vertex );
     prepareNormal();
     prepareTexture( true );
+    DataBuffer.clear();
 }
 
 void ObjectGL::setObject(
