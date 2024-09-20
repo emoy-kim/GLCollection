@@ -21,6 +21,9 @@
 #include <sstream>
 #include <fstream>
 #include <chrono>
+#include <memory>
+#include <algorithm>
+#include <stdexcept>
 
 #include "project_constants.h"
 
