@@ -310,6 +310,21 @@ void ObjectGL::setObject(
     addTexture( texture_file_path, is_grayscale );
 }
 
+void ObjectGL::setObject(
+    GLenum draw_mode,
+    const std::vector<glm::vec3>& vertices,
+    const std::vector<glm::vec3>& normals,
+    const std::vector<glm::vec2>& textures,
+    const uint8_t* image_buffer,
+    int width,
+    int height,
+    bool is_grayscale
+)
+{
+    setObject( draw_mode, vertices, normals, textures );
+    addTexture( image_buffer, width, height, is_grayscale );
+}
+
 void ObjectGL::setSquareObject(GLenum draw_mode, bool use_texture)
 {
     std::vector<glm::vec3> square_vertices, square_normals;
@@ -329,6 +344,14 @@ void ObjectGL::setSquareObject(
     std::vector<glm::vec2> square_textures;
     getSquareObject( square_vertices, square_normals, square_textures );
     setObject( draw_mode, square_vertices, square_normals, square_textures, texture_file_path, is_grayscale );
+}
+
+void ObjectGL::setSquareObject(GLenum draw_mode, const uint8_t* image_buffer, int width, int height, bool is_grayscale)
+{
+    std::vector<glm::vec3> square_vertices, square_normals;
+    std::vector<glm::vec2> square_textures;
+    getSquareObject( square_vertices, square_normals, square_textures );
+    setObject( draw_mode, square_vertices, square_normals, square_textures, image_buffer, width, height, is_grayscale );
 }
 
 void ObjectGL::updateDataBuffer(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals)
