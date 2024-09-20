@@ -28,9 +28,11 @@ include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glad/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glfw3/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glm")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/include")
+include_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/include")
 link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glad/lib/linux")
 link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glfw3/lib/linux")
 link_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/lib/linux")
+link_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/lib/linux")
 
 set(
     ALL_LIBS
@@ -40,6 +42,15 @@ set(
         dl
         X11
         freeimage
+
+        avdevice
+        avfilter
+        avformat
+        avcodec
+        swresample
+        swscale
+        avutil
+        x264
 )
 
 set(
@@ -48,6 +59,8 @@ set(
         common/source/camera.cpp
         common/source/object.cpp
         common/source/shader.cpp
+        common/source/file_decoder.cpp
+        common/source/video_reader.cpp
 )
 
 # 01 Lighting
