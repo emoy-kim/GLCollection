@@ -5,7 +5,7 @@
 #include "../common/include/object.h"
 #include "lighting_shader.h"
 
-class RendererGL
+class RendererGL final
 {
 public:
    RendererGL(const RendererGL&) = delete;
