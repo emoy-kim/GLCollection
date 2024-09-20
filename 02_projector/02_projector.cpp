@@ -5,6 +5,7 @@ RendererGL::RendererGL()
       FrameWidth( 1920 ),
       FrameHeight( 1080 ),
       IsVideo( false ),
+      SlideBuffer( nullptr ),
       ClickedPoint( -1, -1 ),
       MainCamera(
           std::make_unique<CameraGL>(
@@ -25,12 +26,18 @@ RendererGL::RendererGL()
       ProjectorPyramidObject( std::make_unique<ObjectGL>() ),
       ScreenObject( std::make_unique<ObjectGL>() ),
       WallObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
+      Lights( std::make_unique<LightGL>() ),
+      Video( std::make_unique<VideoReader>() )
 {
     Renderer = this;
 
     initialize();
     printOpenGLInformation();
+}
+
+RendererGL::~RendererGL()
+{
+    delete [] SlideBuffer;
 }
 
 void RendererGL::printOpenGLInformation()
@@ -310,17 +317,17 @@ void RendererGL::prepareSlide()
         Projector->updateWindowSize( screen_size.x / 100, screen_size.y / 100 );
     }
     else {
-        /*if (Video.isOpened()) Video.release();
+        Video.reset();
+        delete [] SlideBuffer;
 
-        Video.open( video_path );
-        if (!Video.isOpened()) {
-            std::cout << "Cannot Read Video File...\n";
-            return;
-        }
-        Video >> Slide;
-        Projector->updateWindowSize( Slide.cols / 100, Slide.rows / 100 );
-        ScreenObject->reallocateTexture( Slide, 0 );
-        */
+        Video->open( video_path );
+        const int w = Video->getFrameWidth();
+        const int h = Video->getFrameHeight();
+        SlideBuffer = new uint8_t[w * h * 4];
+        if (!Video->read( SlideBuffer, 0 ))
+            throw std::runtime_error( "Could not read a video frame!" );
+        Projector->updateWindowSize( w / 100, h / 100 );
+        ScreenObject->setSquareObject( GL_TRIANGLES, SlideBuffer, w, h );
     }
 }
 
@@ -339,7 +346,7 @@ void RendererGL::setScreenObject()
     screen_vertices.emplace_back( -half_width, half_height, -near_plane );
     screen_vertices.emplace_back( -half_width, -half_height, -near_plane );
 
-    const std::vector<glm::vec3> screen_normals(6, { 0.0f, 0.0f, 1.0f });
+    const std::vector<glm::vec3> screen_normals( 6, { 0.0f, 0.0f, 1.0f } );
 
     std::vector<glm::vec2> screen_textures;
     screen_textures.emplace_back( 1.0f, 0.0f );
@@ -396,7 +403,7 @@ void RendererGL::drawWallObject() const
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
-    constexpr glm::mat4 to_world(1.0f);
+    constexpr glm::mat4 to_world( 1.0f );
     ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
@@ -477,7 +484,9 @@ void RendererGL::drawProjectorObject() const
     ObjectShader->uniform4fv( u::Material + m::AmbientColor, ProjectorPyramidObject->getAmbientReflectionColor() );
     ObjectShader->uniform4fv( u::Material + m::DiffuseColor, ProjectorPyramidObject->getDiffuseReflectionColor() );
     ObjectShader->uniform4fv( u::Material + m::SpecularColor, ProjectorPyramidObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, ProjectorPyramidObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform1f(
+        u::Material + m::SpecularExponent, ProjectorPyramidObject->getSpecularReflectionExponent()
+    );
 
     glBindVertexArray( ProjectorPyramidObject->getVAO() );
     glDrawArrays( ProjectorPyramidObject->getDrawMode(), 0, ProjectorPyramidObject->getVertexNum() );

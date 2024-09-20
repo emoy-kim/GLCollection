@@ -3,9 +3,10 @@
 #include "../common/include/light.h"
 #include "../common/include/camera.h"
 #include "../common/include/object.h"
+#include "../common/include/video_reader.h"
 #include "projector_shader.h"
 
-class RendererGL
+class RendererGL final
 {
 public:
     RendererGL(const RendererGL&) = delete;
@@ -15,7 +16,7 @@ public:
 
 
     RendererGL();
-    ~RendererGL() = default;
+    ~RendererGL();
 
     void play();
 
@@ -27,6 +28,7 @@ private:
     int FrameWidth;
     int FrameHeight;
     bool IsVideo;
+    uint8_t* SlideBuffer;
     glm::ivec2 ClickedPoint;
     std::unique_ptr<CameraGL> MainCamera;
     std::unique_ptr<CameraGL> Projector;
@@ -35,6 +37,7 @@ private:
     std::unique_ptr<ObjectGL> ScreenObject;
     std::unique_ptr<ObjectGL> WallObject;
     std::unique_ptr<LightGL> Lights;
+    std::unique_ptr<VideoReader> Video;
 
     void registerCallbacks() const;
     void initialize();
