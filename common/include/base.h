@@ -10,6 +10,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <gtx/quaternion.hpp>
+#include <gtx/euler_angles.hpp>
 
 #include <FreeImage.h>
 #include <iostream>
