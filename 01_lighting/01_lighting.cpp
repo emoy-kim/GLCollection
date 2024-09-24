@@ -61,17 +61,6 @@ void RendererGL::initialize()
     );
 }
 
-void RendererGL::error(int e, const char* description)
-{
-    std::ignore = e;
-    puts( description );
-}
-
-void RendererGL::cleanup(GLFWwindow* window)
-{
-    glfwSetWindowShouldClose( window, GLFW_TRUE );
-}
-
 void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     std::ignore = scancode;
@@ -114,7 +103,7 @@ void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action,
         break;
         case GLFW_KEY_Q:
         case GLFW_KEY_ESCAPE:
-            cleanupWrapper( window );
+            cleanup( window );
             break;
         default:
             return;
@@ -172,8 +161,8 @@ void RendererGL::reshape(GLFWwindow* window, int width, int height) const
 
 void RendererGL::registerCallbacks() const
 {
-    glfwSetErrorCallback( errorWrapper );
-    glfwSetWindowCloseCallback( Window, cleanupWrapper );
+    glfwSetErrorCallback( error );
+    glfwSetWindowCloseCallback( Window, cleanup );
     glfwSetKeyCallback( Window, keyboardWrapper );
     glfwSetCursorPosCallback( Window, cursorWrapper );
     glfwSetMouseButtonCallback( Window, mouseWrapper );
