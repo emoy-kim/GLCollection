@@ -452,3 +452,76 @@ void ObjectGL::replaceVertices(
         VBO, 0, static_cast<GLsizeiptr>(sizeof( GLfloat ) * VerticesCount * step), DataBuffer.data()
     );
 }
+
+bool ObjectGL::readObjectFile(
+    std::vector<glm::vec3>& vertices,
+    std::vector<glm::vec3>& normals,
+    std::vector<glm::vec2>& textures,
+    const std::string& file_path
+)
+{
+    std::ifstream file( file_path );
+    if (!file.is_open()) {
+        std::cout << "The object file is not correct.\n";
+        return false;
+    }
+
+    std::vector<glm::vec3> vertex_buffer, normal_buffer;
+    std::vector<glm::vec2> texture_buffer;
+    std::vector<int> vertex_indices, normal_indices, texture_indices;
+    while (!file.eof()) {
+        std::string word;
+        file >> word;
+
+        if (word == "v") {
+            glm::vec3 vertex;
+            file >> vertex.x >> vertex.y >> vertex.z;
+            vertex_buffer.emplace_back( vertex );
+        }
+        else if (word == "vt") {
+            glm::vec2 uv;
+            file >> uv.x >> uv.y;
+            texture_buffer.emplace_back( uv );
+        }
+        else if (word == "vn") {
+            glm::vec3 normal;
+            file >> normal.x >> normal.y >> normal.z;
+            normal_buffer.emplace_back( normal );
+        }
+        else if (word == "f") {
+            char c;
+            vertex_indices.emplace_back();
+            file >> vertex_indices.back();
+            file >> c;
+            texture_indices.emplace_back();
+            file >> texture_indices.back();
+            file >> c;
+            normal_indices.emplace_back();
+            file >> normal_indices.back();
+            vertex_indices.emplace_back();
+            file >> vertex_indices.back();
+            file >> c;
+            texture_indices.emplace_back();
+            file >> texture_indices.back();
+            file >> c;
+            normal_indices.emplace_back();
+            file >> normal_indices.back();
+            vertex_indices.emplace_back();
+            file >> vertex_indices.back();
+            file >> c;
+            texture_indices.emplace_back();
+            file >> texture_indices.back();
+            file >> c;
+            normal_indices.emplace_back();
+            file >> normal_indices.back();
+        }
+        else std::getline( file, word );
+    }
+
+    for (uint i = 0; i < vertex_indices.size(); ++i) {
+        vertices.emplace_back( vertex_buffer[vertex_indices[i] - 1] );
+        normals.emplace_back( normal_buffer[normal_indices[i] - 1] );
+        textures.emplace_back( texture_buffer[texture_indices[i] - 1] );
+    }
+    return true;
+}
