@@ -74,6 +74,7 @@ public:
         const std::vector<glm::vec3>& normals,
         const std::vector<glm::vec2>& textures
     );
+    void updateTexture(const uint8_t* image_buffer, int index, int width, int height) const;
     void replaceVertices(const std::vector<glm::vec3>& vertices, bool normals_exist, bool textures_exist);
     void replaceVertices(const std::vector<float>& vertices, bool normals_exist, bool textures_exist);
     [[nodiscard]] GLuint getVAO() const { return VAO; }
@@ -109,9 +110,12 @@ private:
     std::map<GLuint, glm::ivec2> TextureIDToSize;
     GLsizei VerticesCount;
     glm::vec4 EmissionColor;
-    glm::vec4 AmbientReflectionColor; // It is usually set to the same color with DiffuseReflectionColor.
-                                      // Otherwise, it should be in balance with DiffuseReflectionColor.
-    glm::vec4 DiffuseReflectionColor; // the intrinsic color
+
+    // It is usually set to the same color with DiffuseReflectionColor.
+    // Otherwise, it should be in balance with DiffuseReflectionColor.
+    glm::vec4 AmbientReflectionColor;
+
+    glm::vec4 DiffuseReflectionColor; // The intrinsic color
     glm::vec4 SpecularReflectionColor;
     float SpecularReflectionExponent;
 
