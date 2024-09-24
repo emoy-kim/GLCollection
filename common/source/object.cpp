@@ -396,6 +396,17 @@ void ObjectGL::updateDataBuffer(
     glNamedBufferSubData( VBO, 0, static_cast<GLsizeiptr>(sizeof( GLfloat ) * DataBuffer.size()), DataBuffer.data() );
 }
 
+void ObjectGL::updateTexture(const uint8_t* image_buffer, int index, int width, int height) const
+{
+    glTextureSubImage2D(
+        TextureID[index], 0, 0, 0,
+        width, height,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        image_buffer
+    );
+}
+
 void ObjectGL::replaceVertices(
     const std::vector<glm::vec3>& vertices,
     bool normals_exist,
