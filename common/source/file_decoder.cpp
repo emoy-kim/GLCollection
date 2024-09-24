@@ -102,6 +102,7 @@ void FileDecoder::getRGBAImage(uint8_t* image_buffer)
         );
         frame = RGBAFrame;
     }
+    flip( frame );
 
     av_image_copy_to_buffer(
         image_buffer, buffer_size,

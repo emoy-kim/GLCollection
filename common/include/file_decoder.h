@@ -88,4 +88,12 @@ private:
     void getRGBAImage(uint8_t* image_buffer);
     int readFrame(int video_track_id);
     void decode(AVFormatContext* format_context, int video_track_id);
+
+    static void flip(AVFrame* frame)
+    {
+        for (int c = 0; c < 4; ++c) {
+            frame->data[c] += frame->linesize[c] * (frame->height - 1);
+            frame->linesize[c] *= -1;
+        }
+    }
 };
