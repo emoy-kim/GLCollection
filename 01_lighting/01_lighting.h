@@ -8,14 +8,13 @@
 class RendererGL final
 {
 public:
+   RendererGL();
+   ~RendererGL() = default;
+
    RendererGL(const RendererGL&) = delete;
    RendererGL(const RendererGL&&) = delete;
    RendererGL& operator=(const RendererGL&) = delete;
    RendererGL& operator=(const RendererGL&&) = delete;
-
-
-   RendererGL();
-   ~RendererGL() = default;
 
    void play();
 

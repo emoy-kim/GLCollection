@@ -331,7 +331,8 @@ void RendererGL::drawWallObject() const
     ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix, MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
+        u::ModelViewProjectionMatrix,
+        MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
     ObjectShader->uniformMat4fv( u::ProjectorViewMatrix, Projector->getViewMatrix() );
     ObjectShader->uniformMat4fv( u::ProjectorProjectionMatrix, Projector->getProjectionMatrix() );
@@ -374,7 +375,8 @@ void RendererGL::drawScreenObject() const
     ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix, MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
+        u::ModelViewProjectionMatrix,
+        MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
     ObjectShader->uniform1i( u::WhichObject, SCREEN );
 
@@ -400,7 +402,8 @@ void RendererGL::drawProjectorObject() const
     ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix, MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
+        u::ModelViewProjectionMatrix,
+        MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
     ObjectShader->uniform1i( u::WhichObject, PROJECTOR );
 
