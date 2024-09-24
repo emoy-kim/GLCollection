@@ -5,3 +5,6 @@
 
 ## 02 Slide Projector
  ![slideprojector](https://user-images.githubusercontent.com/17864157/63649776-03cb3800-c77d-11e9-8a1f-4e6db8ccfa1f.gif)
+
+## 03 Gimbal Lock
+![gimballock](https://user-images.githubusercontent.com/17864157/62126482-b3da8c00-b30a-11e9-9c47-f4af3243555e.gif)
