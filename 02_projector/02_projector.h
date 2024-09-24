@@ -27,7 +27,9 @@ private:
     GLFWwindow* Window;
     int FrameWidth;
     int FrameHeight;
+    int VideoFrameIndex;
     bool IsVideo;
+    bool Pause;
     uint8_t* SlideBuffer;
     glm::ivec2 ClickedPoint;
     std::unique_ptr<CameraGL> MainCamera;
@@ -44,29 +46,51 @@ private:
 
     static void printOpenGLInformation();
 
-    void error(int error, const char* description) const;
-    void cleanup(GLFWwindow* window);
+    static void error(int e, const char* description)
+    {
+        std::ignore = e;
+        puts( description );
+    }
+
+    static void cleanup(GLFWwindow* window) { glfwSetWindowShouldClose( window, GLFW_TRUE ); }
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
     void cursor(GLFWwindow* window, double xpos, double ypos);
     void mouse(GLFWwindow* window, int button, int action, int mods);
     void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const;
-    void reshape(GLFWwindow* window, int width, int height) const;
-    static void errorWrapper(int error, const char* description);
-    static void cleanupWrapper(GLFWwindow* window);
-    static void keyboardWrapper(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void cursorWrapper(GLFWwindow* window, double xpos, double ypos);
-    static void mouseWrapper(GLFWwindow* window, int button, int action, int mods);
-    static void mousewheelWrapper(GLFWwindow* window, double xoffset, double yoffset);
-    static void reshapeWrapper(GLFWwindow* window, int width, int height);
+
+    void reshape(GLFWwindow* window, int width, int height) const
+    {
+        std::ignore = window;
+        MainCamera->updateWindowSize( width, height );
+        glViewport( 0, 0, width, height );
+    }
+
+    static void keyboardWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        Renderer->keyboard( window, key, scancode, action, mods );
+    }
+
+    static void cursorWrapper(GLFWwindow* window, double xpos, double ypos) { Renderer->cursor( window, xpos, ypos ); }
+
+    static void mouseWrapper(GLFWwindow* window, int button, int action, int mods)
+    {
+        Renderer->mouse( window, button, action, mods );
+    }
+
+    static void mousewheelWrapper(GLFWwindow* window, double xoffset, double yoffset)
+    {
+        Renderer->mousewheel( window, xoffset, yoffset );
+    }
+
+    static void reshapeWrapper(GLFWwindow* window, int width, int height)
+    {
+        Renderer->reshape( window, width, height );
+    }
 
     void prepareSlide();
-    void setNextSlide();
-
     void setLights() const;
     void setWallObject() const;
-    void setScreenObject();
     void setProjectorPyramidObject() const;
-
     void drawWallObject() const;
     void drawScreenObject() const;
     void drawProjectorObject() const;

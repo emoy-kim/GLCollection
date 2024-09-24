@@ -4,7 +4,9 @@ RendererGL::RendererGL()
     : Window( nullptr ),
       FrameWidth( 1920 ),
       FrameHeight( 1080 ),
-      IsVideo( false ),
+      VideoFrameIndex( 0 ),
+      IsVideo( true ),
+      Pause( false ),
       SlideBuffer( nullptr ),
       ClickedPoint( -1, -1 ),
       MainCamera(
@@ -24,12 +26,11 @@ RendererGL::RendererGL()
       ),
       ObjectShader( std::make_unique<ShaderGL>() ),
       ProjectorPyramidObject( std::make_unique<ObjectGL>() ),
-      ScreenObject( std::make_unique<ObjectGL>() ),
       WallObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() ),
-      Video( std::make_unique<VideoReader>() )
+      Lights( std::make_unique<LightGL>() )
 {
     Renderer = this;
+    av_log_set_level( AV_LOG_ERROR );
 
     initialize();
     printOpenGLInformation();
@@ -83,48 +84,24 @@ void RendererGL::initialize()
     );
 }
 
-void RendererGL::error(int error, const char* description) const
-{
-    puts( description );
-}
-
-void RendererGL::errorWrapper(int error, const char* description)
-{
-    Renderer->error( error, description );
-}
-
-void RendererGL::cleanup(GLFWwindow* window)
-{
-    glfwSetWindowShouldClose( window, GLFW_TRUE );
-}
-
-void RendererGL::cleanupWrapper(GLFWwindow* window)
-{
-    Renderer->cleanup( window );
-}
-
 void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    std::ignore = scancode;
+    std::ignore = mods;
     if (action != GLFW_PRESS) return;
 
     switch (key) {
-        case GLFW_KEY_UP:
-            MainCamera->moveForward();
+        case GLFW_KEY_UP: MainCamera->moveForward();
             break;
-        case GLFW_KEY_DOWN:
-            MainCamera->moveBackward();
+        case GLFW_KEY_DOWN: MainCamera->moveBackward();
             break;
-        case GLFW_KEY_LEFT:
-            MainCamera->moveLeft();
+        case GLFW_KEY_LEFT: MainCamera->moveLeft();
             break;
-        case GLFW_KEY_RIGHT:
-            MainCamera->moveRight();
+        case GLFW_KEY_RIGHT: MainCamera->moveRight();
             break;
-        case GLFW_KEY_W:
-            MainCamera->moveUp();
+        case GLFW_KEY_W: MainCamera->moveUp();
             break;
-        case GLFW_KEY_S:
-            MainCamera->moveDown();
+        case GLFW_KEY_S: MainCamera->moveDown();
             break;
         case GLFW_KEY_I:
             MainCamera->resetCamera();
@@ -144,18 +121,16 @@ void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action,
             IsVideo = !IsVideo;
             prepareSlide();
             break;
+        case GLFW_KEY_SPACE:
+            if (IsVideo) Pause = !Pause;
+            break;
         case GLFW_KEY_Q:
         case GLFW_KEY_ESCAPE:
-            cleanupWrapper( window );
+            cleanup( window );
             break;
         default:
             return;
     }
-}
-
-void RendererGL::keyboardWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    Renderer->keyboard( window, key, scancode, action, mods );
 }
 
 void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
@@ -178,13 +153,9 @@ void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void RendererGL::cursorWrapper(GLFWwindow* window, double xpos, double ypos)
-{
-    Renderer->cursor( window, xpos, ypos );
-}
-
 void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
 {
+    std::ignore = mods;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         const bool moving_state = action == GLFW_PRESS;
         if (moving_state) {
@@ -201,37 +172,18 @@ void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-void RendererGL::mouseWrapper(GLFWwindow* window, int button, int action, int mods)
-{
-    Renderer->mouse( window, button, action, mods );
-}
-
 void RendererGL::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
 {
+    std::ignore = window;
+    std::ignore = xoffset;
     if (yoffset >= 0.0) MainCamera->zoomIn();
     else MainCamera->zoomOut();
 }
 
-void RendererGL::mousewheelWrapper(GLFWwindow* window, double xoffset, double yoffset)
-{
-    Renderer->mousewheel( window, xoffset, yoffset );
-}
-
-void RendererGL::reshape(GLFWwindow* window, int width, int height) const
-{
-    MainCamera->updateWindowSize( width, height );
-    glViewport( 0, 0, width, height );
-}
-
-void RendererGL::reshapeWrapper(GLFWwindow* window, int width, int height)
-{
-    Renderer->reshape( window, width, height );
-}
-
 void RendererGL::registerCallbacks() const
 {
-    glfwSetErrorCallback( errorWrapper );
-    glfwSetWindowCloseCallback( Window, cleanupWrapper );
+    glfwSetErrorCallback( error );
+    glfwSetWindowCloseCallback( Window, cleanup );
     glfwSetKeyCallback( Window, keyboardWrapper );
     glfwSetCursorPosCallback( Window, cursorWrapper );
     glfwSetMouseButtonCallback( Window, mouseWrapper );
@@ -311,54 +263,26 @@ void RendererGL::prepareSlide()
     static const std::string image_path = sample_directory_path + "/image.jpg";
     static const std::string video_path = sample_directory_path + "/video.mp4";
 
+    ScreenObject = std::make_unique<ObjectGL>();
     if (!IsVideo) {
         ScreenObject->setSquareObject( GL_TRIANGLES, image_path );
         const glm::ivec2 screen_size = ScreenObject->getTextureSize( ScreenObject->getTextureID( 0 ) );
         Projector->updateWindowSize( screen_size.x / 100, screen_size.y / 100 );
     }
     else {
-        Video.reset();
+        Pause = false;
+        VideoFrameIndex = 0;
         delete [] SlideBuffer;
-
+        Video = std::make_unique<VideoReader>();
         Video->open( video_path );
         const int w = Video->getFrameWidth();
         const int h = Video->getFrameHeight();
         SlideBuffer = new uint8_t[w * h * 4];
-        if (!Video->read( SlideBuffer, 0 ))
+        if (!Video->read( SlideBuffer, VideoFrameIndex++ ))
             throw std::runtime_error( "Could not read a video frame!" );
         Projector->updateWindowSize( w / 100, h / 100 );
         ScreenObject->setSquareObject( GL_TRIANGLES, SlideBuffer, w, h );
     }
-}
-
-void RendererGL::setScreenObject()
-{
-    const float near_plane = Projector->getNearPlane();
-    const float half_width = static_cast<float>(Projector->getWidth()) * 0.5f;
-    const float half_height = static_cast<float>(Projector->getHeight()) * 0.5f;
-
-    std::vector<glm::vec3> screen_vertices;
-    screen_vertices.emplace_back( half_width, -half_height, -near_plane );
-    screen_vertices.emplace_back( half_width, half_height, -near_plane );
-    screen_vertices.emplace_back( -half_width, half_height, -near_plane );
-
-    screen_vertices.emplace_back( half_width, -half_height, -near_plane );
-    screen_vertices.emplace_back( -half_width, half_height, -near_plane );
-    screen_vertices.emplace_back( -half_width, -half_height, -near_plane );
-
-    const std::vector<glm::vec3> screen_normals( 6, { 0.0f, 0.0f, 1.0f } );
-
-    std::vector<glm::vec2> screen_textures;
-    screen_textures.emplace_back( 1.0f, 0.0f );
-    screen_textures.emplace_back( 1.0f, 1.0f );
-    screen_textures.emplace_back( 0.0f, 1.0f );
-
-    screen_textures.emplace_back( 1.0f, 0.0f );
-    screen_textures.emplace_back( 0.0f, 1.0f );
-    screen_textures.emplace_back( 0.0f, 0.0f );
-
-    ScreenObject->setObject( GL_TRIANGLES, screen_vertices, screen_normals, screen_textures );
-    prepareSlide();
 }
 
 void RendererGL::setProjectorPyramidObject() const
@@ -507,27 +431,20 @@ void RendererGL::render() const
     drawProjectorObject();
 }
 
-void RendererGL::setNextSlide()
-{
-    /*if (IsVideo) {
-        Video >> Slide;
-        if (Slide.empty()) return;
-
-        ScreenObject->updateTexture( Slide, 0 );
-    }*/
-}
-
 void RendererGL::play()
 {
     if (glfwWindowShouldClose( Window )) initialize();
 
     setLights();
     setWallObject();
-    setScreenObject();
+    prepareSlide();
     setProjectorPyramidObject();
     while (!glfwWindowShouldClose( Window )) {
         render();
-        setNextSlide();
+
+        if (IsVideo && !Pause && Video->read( SlideBuffer, VideoFrameIndex++ )) {
+            ScreenObject->updateTexture( SlideBuffer, 0, Video->getFrameWidth(), Video->getFrameHeight() );
+        }
 
         glfwSwapBuffers( Window );
         glfwPollEvents();
