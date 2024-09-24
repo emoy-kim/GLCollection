@@ -10,17 +10,17 @@ message(STATUS ">> ID      : ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS ">> Version : ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS ">> Path    : ${CMAKE_CXX_COMPILER}")
 
-if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
+if (${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
     check_cxx_compiler_flag(-std=c++17 cxx_17)
     check_cxx_compiler_flag(-Wall high_warning_level)
-elseif(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
     check_cxx_compiler_flag(-std=gnu++17 cxx_17)
     check_cxx_compiler_flag(-Wextra high_warning_level)
-endif()
+endif ()
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/common/include/project_constants.h.in
-    ${CMAKE_SOURCE_DIR}/project_constants.h @ONLY
+        ${CMAKE_SOURCE_DIR}/common/include/project_constants.h.in
+        ${CMAKE_SOURCE_DIR}/project_constants.h @ONLY
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/common/include")
@@ -35,7 +35,7 @@ link_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/lib/linux")
 link_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/lib/linux")
 
 set(
-    ALL_LIBS
+        ALL_LIBS
         glad
         glfw3
         pthread
@@ -54,7 +54,7 @@ set(
 )
 
 set(
-    COMMON_FILES
+        COMMON_FILES
         common/source/light.cpp
         common/source/camera.cpp
         common/source/object.cpp
@@ -70,3 +70,7 @@ target_link_libraries(01_lighting ${ALL_LIBS})
 # 02 Projector
 add_executable(02_projector 02_projector/02_projector.cpp ${COMMON_FILES})
 target_link_libraries(02_projector ${ALL_LIBS})
+
+# 03 Gimbal Lock
+add_executable(03_gimbal_lock 03_gimbal_lock/03_gimbal_lock.cpp ${COMMON_FILES})
+target_link_libraries(03_gimbal_lock ${ALL_LIBS})
