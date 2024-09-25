@@ -1,67 +1,21 @@
 #include "01_lighting.h"
 
-RendererGL::RendererGL()
-    : Window( nullptr ),
-      FrameWidth( 1920 ),
-      FrameHeight( 1080 ),
-      ClickedPoint( -1, -1 ),
-      MainCamera( std::make_unique<CameraGL>() ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
+C01Lighting::C01Lighting()
+    : ObjectShader( std::make_unique<ShaderGL>() ),
       Object( std::make_unique<ObjectGL>() ),
       Lights( std::make_unique<LightGL>() ),
       DrawMovingObject( false ),
       ObjectRotationAngle( 0 )
 {
-    Renderer = this;
-
-    initialize();
-    printOpenGLInformation();
-}
-
-void RendererGL::printOpenGLInformation()
-{
-    std::cout << "====================== [ Renderer Information ] ================================================\n";
-    std::cout << " - GLFW version supported: " << glfwGetVersionString() << "\n";
-    std::cout << " - OpenGL renderer: " << glGetString( GL_RENDERER ) << "\n";
-    std::cout << " - OpenGL version supported: " << glGetString( GL_VERSION ) << "\n";
-    std::cout << " - OpenGL shader version supported: " << glGetString( GL_SHADING_LANGUAGE_VERSION ) << "\n";
-    std::cout << "================================================================================================\n";
-}
-
-void RendererGL::initialize()
-{
-    if (!glfwInit()) {
-        std::cout << "Cannot Initialize OpenGL...\n";
-        return;
-    }
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 6 );
-    glfwWindowHint( GLFW_DOUBLEBUFFER, GLFW_TRUE );
-    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-
-    Window = glfwCreateWindow( FrameWidth, FrameHeight, "Main Camera", nullptr, nullptr );
-    glfwMakeContextCurrent( Window );
-
-    if (!gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress )) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return;
-    }
-
-    registerCallbacks();
-
-    glEnable( GL_DEPTH_TEST );
-    glClearColor( 0.35f, 0.0f, 0.53f, 1.0f );
-
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
-
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/01_lighting/shaders";
     ObjectShader->setShader(
         std::string( shader_directory_path + "/scene_shader.vert" ).c_str(),
         std::string( shader_directory_path + "/scene_shader.frag" ).c_str()
     );
+    glClearColor( 0.35f, 0.0f, 0.53f, 1.0f );
 }
 
-void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+void C01Lighting::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     std::ignore = scancode;
     std::ignore = mods;
@@ -110,7 +64,7 @@ void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action,
     }
 }
 
-void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
+void C01Lighting::cursor(GLFWwindow* window, double xpos, double ypos)
 {
     if (MainCamera->getMovingState()) {
         const auto x = static_cast<int>(round( xpos ));
@@ -129,7 +83,7 @@ void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
+void C01Lighting::mouse(GLFWwindow* window, int button, int action, int mods)
 {
     std::ignore = mods;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -144,7 +98,7 @@ void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-void RendererGL::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
+void C01Lighting::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
 {
     std::ignore = window;
     std::ignore = xoffset;
@@ -152,25 +106,7 @@ void RendererGL::mousewheel(GLFWwindow* window, double xoffset, double yoffset) 
     else MainCamera->zoomOut();
 }
 
-void RendererGL::reshape(GLFWwindow* window, int width, int height) const
-{
-    std::ignore = window;
-    MainCamera->updateWindowSize( width, height );
-    glViewport( 0, 0, width, height );
-}
-
-void RendererGL::registerCallbacks() const
-{
-    glfwSetErrorCallback( error );
-    glfwSetWindowCloseCallback( Window, cleanup );
-    glfwSetKeyCallback( Window, keyboardWrapper );
-    glfwSetCursorPosCallback( Window, cursorWrapper );
-    glfwSetMouseButtonCallback( Window, mouseWrapper );
-    glfwSetScrollCallback( Window, mousewheelWrapper );
-    glfwSetFramebufferSizeCallback( Window, reshapeWrapper );
-}
-
-void RendererGL::setLights() const
+void C01Lighting::setLights() const
 {
     glm::vec4 light_position( -10.0f, 10.0f, 10.0f, 1.0f );
     glm::vec4 ambient_color( 0.3f, 0.3f, 0.3f, 1.0f );
@@ -195,7 +131,7 @@ void RendererGL::setLights() const
     );
 }
 
-void RendererGL::setObject() const
+void C01Lighting::setObject() const
 {
     if (Object->getVAO() != 0) return;
 
@@ -209,7 +145,7 @@ void RendererGL::setObject() const
     Object->setDiffuseReflectionColor( diffuse_color );
 }
 
-void RendererGL::drawObject(const float& scale_factor) const
+void C01Lighting::drawObject(const float& scale_factor) const
 {
     using u = LightingShader::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
@@ -267,7 +203,7 @@ void RendererGL::drawObject(const float& scale_factor) const
     glDrawArrays( Object->getDrawMode(), 0, Object->getVertexNum() );
 }
 
-void RendererGL::render() const
+void C01Lighting::render() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -277,7 +213,7 @@ void RendererGL::render() const
     glUseProgram( 0 );
 }
 
-void RendererGL::update()
+void C01Lighting::update()
 {
     if (DrawMovingObject) {
         ObjectRotationAngle += 3;
@@ -285,7 +221,7 @@ void RendererGL::update()
     }
 }
 
-void RendererGL::play()
+void C01Lighting::play()
 {
     if (glfwWindowShouldClose( Window )) initialize();
 
@@ -313,7 +249,7 @@ void RendererGL::play()
 
 int main()
 {
-    RendererGL renderer{};
+    C01Lighting renderer{};
     renderer.play();
     return 0;
 }

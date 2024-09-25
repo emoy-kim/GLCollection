@@ -1,21 +1,10 @@
 #include "02_projector.h"
 
-RendererGL::RendererGL()
-    : Window( nullptr ),
-      FrameWidth( 1920 ),
-      FrameHeight( 1080 ),
-      VideoFrameIndex( 0 ),
+C02Projector::C02Projector()
+    : VideoFrameIndex( 0 ),
       IsVideo( true ),
       Pause( false ),
       SlideBuffer( nullptr ),
-      ClickedPoint( -1, -1 ),
-      MainCamera(
-          std::make_unique<CameraGL>(
-              glm::vec3( 90.0f, 50.0f, 90.0f ),
-              glm::vec3( 0.0f, 0.0f, 0.0f ),
-              glm::vec3( 0.0f, 1.0f, 0.0f )
-          )
-      ),
       Projector(
           std::make_unique<CameraGL>(
               glm::vec3{ 40.0f, 30.0f, 20.0f },
@@ -29,62 +18,23 @@ RendererGL::RendererGL()
       WallObject( std::make_unique<ObjectGL>() ),
       Lights( std::make_unique<LightGL>() )
 {
-    Renderer = this;
     av_log_set_level( AV_LOG_ERROR );
-
-    initialize();
-    printOpenGLInformation();
-}
-
-RendererGL::~RendererGL()
-{
-    delete [] SlideBuffer;
-}
-
-void RendererGL::printOpenGLInformation()
-{
-    std::cout << "****************************************************************\n";
-    std::cout << " - GLFW version supported: " << glfwGetVersionString() << "\n";
-    std::cout << " - OpenGL renderer: " << glGetString( GL_RENDERER ) << "\n";
-    std::cout << " - OpenGL version supported: " << glGetString( GL_VERSION ) << "\n";
-    std::cout << " - OpenGL shader version supported: " << glGetString( GL_SHADING_LANGUAGE_VERSION ) << "\n";
-    std::cout << "****************************************************************\n\n";
-}
-
-void RendererGL::initialize()
-{
-    if (!glfwInit()) {
-        std::cout << "Cannot Initialize OpenGL...\n";
-        return;
-    }
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 6 );
-    glfwWindowHint( GLFW_DOUBLEBUFFER, GLFW_TRUE );
-    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-
-    Window = glfwCreateWindow( FrameWidth, FrameHeight, "Main Camera", nullptr, nullptr );
-    glfwMakeContextCurrent( Window );
-
-    if (!gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress )) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return;
-    }
-
-    registerCallbacks();
-
-    glEnable( GL_DEPTH_TEST );
-    glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
 
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/02_projector/shaders";
     ObjectShader->setShader(
         std::string( shader_directory_path + "/projector.vert" ).c_str(),
         std::string( shader_directory_path + "/projector.frag" ).c_str()
     );
+    MainCamera->updateCameraPosition( glm::vec3( 90.0f, 50.0f, 90.0f ) );
+    glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 }
 
-void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+C02Projector::~C02Projector()
+{
+    delete [] SlideBuffer;
+}
+
+void C02Projector::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     std::ignore = scancode;
     std::ignore = mods;
@@ -133,7 +83,7 @@ void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action,
     }
 }
 
-void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
+void C02Projector::cursor(GLFWwindow* window, double xpos, double ypos)
 {
     CameraGL* camera = glfwGetKey( window, GLFW_KEY_LEFT_CONTROL ) == GLFW_PRESS ? MainCamera.get() : Projector.get();
     if (camera->getMovingState()) {
@@ -153,7 +103,7 @@ void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
+void C02Projector::mouse(GLFWwindow* window, int button, int action, int mods)
 {
     std::ignore = mods;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -172,7 +122,7 @@ void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-void RendererGL::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
+void C02Projector::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
 {
     std::ignore = window;
     std::ignore = xoffset;
@@ -180,18 +130,7 @@ void RendererGL::mousewheel(GLFWwindow* window, double xoffset, double yoffset) 
     else MainCamera->zoomOut();
 }
 
-void RendererGL::registerCallbacks() const
-{
-    glfwSetErrorCallback( error );
-    glfwSetWindowCloseCallback( Window, cleanup );
-    glfwSetKeyCallback( Window, keyboardWrapper );
-    glfwSetCursorPosCallback( Window, cursorWrapper );
-    glfwSetMouseButtonCallback( Window, mouseWrapper );
-    glfwSetScrollCallback( Window, mousewheelWrapper );
-    glfwSetFramebufferSizeCallback( Window, reshapeWrapper );
-}
-
-void RendererGL::setLights() const
+void C02Projector::setLights() const
 {
     const glm::vec4 light_position( Projector->getCameraPosition(), 1.0f );
     constexpr glm::vec4 ambient_color( 0.3f, 0.3f, 0.3f, 1.0f );
@@ -200,7 +139,7 @@ void RendererGL::setLights() const
     Lights->addLight( light_position, ambient_color, diffuse_color, specular_color );
 }
 
-void RendererGL::setWallObject() const
+void C02Projector::setWallObject() const
 {
     constexpr float size = 30.0f;
     std::vector<glm::vec3> wall_vertices;
@@ -257,7 +196,7 @@ void RendererGL::setWallObject() const
     WallObject->setDiffuseReflectionColor( { 0.52f, 0.12f, 0.15f, 1.0f } );
 }
 
-void RendererGL::prepareSlide()
+void C02Projector::prepareSlide()
 {
     static const std::string sample_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/02_projector/samples";
     static const std::string image_path = sample_directory_path + "/image.jpg";
@@ -285,7 +224,7 @@ void RendererGL::prepareSlide()
     }
 }
 
-void RendererGL::setProjectorPyramidObject() const
+void C02Projector::setProjectorPyramidObject() const
 {
     const float near_plane = Projector->getNearPlane();
     const float far_plane = Projector->getFarPlane();
@@ -321,7 +260,7 @@ void RendererGL::setProjectorPyramidObject() const
     ProjectorPyramidObject->setDiffuseReflectionColor( { 1.0f, 1.0f, 0.0f, 1.0f } );
 }
 
-void RendererGL::drawWallObject() const
+void C02Projector::drawWallObject() const
 {
     using u = ProjectorShader::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
@@ -366,7 +305,7 @@ void RendererGL::drawWallObject() const
     glDrawArrays( WallObject->getDrawMode(), 0, WallObject->getVertexNum() );
 }
 
-void RendererGL::drawScreenObject() const
+void C02Projector::drawScreenObject() const
 {
     using u = ProjectorShader::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
@@ -391,7 +330,7 @@ void RendererGL::drawScreenObject() const
     glDrawArrays( ScreenObject->getDrawMode(), 0, ScreenObject->getVertexNum() );
 }
 
-void RendererGL::drawProjectorObject() const
+void C02Projector::drawProjectorObject() const
 {
     using u = ProjectorShader::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
@@ -420,7 +359,7 @@ void RendererGL::drawProjectorObject() const
     glLineWidth( 1.0f );
 }
 
-void RendererGL::render() const
+void C02Projector::render() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -434,7 +373,7 @@ void RendererGL::render() const
     drawProjectorObject();
 }
 
-void RendererGL::play()
+void C02Projector::play()
 {
     if (glfwWindowShouldClose( Window )) initialize();
 
@@ -457,7 +396,7 @@ void RendererGL::play()
 
 int main()
 {
-    RendererGL renderer{};
+    C02Projector renderer{};
     renderer.play();
     return 0;
 }

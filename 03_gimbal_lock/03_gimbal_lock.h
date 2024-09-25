@@ -1,20 +1,18 @@
 #pragma once
 
-#include "../common/include/light.h"
-#include "../common/include/camera.h"
-#include "../common/include/object.h"
+#include "../common/include/renderer.h"
 #include "../01_lighting/lighting_shader.h"
 
-class RendererGL final
+class C03GimbalLock : public RendererGL
 {
 public:
-    RendererGL();
-    ~RendererGL() = default;
+    C03GimbalLock();
+    ~C03GimbalLock() override = default;
 
-    RendererGL(const RendererGL&) = delete;
-    RendererGL(const RendererGL&&) = delete;
-    RendererGL& operator=(const RendererGL&) = delete;
-    RendererGL& operator=(const RendererGL&&) = delete;
+    C03GimbalLock(const C03GimbalLock&) = delete;
+    C03GimbalLock(const C03GimbalLock&&) = delete;
+    C03GimbalLock& operator=(const C03GimbalLock&) = delete;
+    C03GimbalLock& operator=(const C03GimbalLock&&) = delete;
 
     void play();
 
@@ -37,61 +35,19 @@ private:
               CurrentFrameIndex( 0 ) {}
     };
 
-    inline static RendererGL* Renderer = nullptr;
-    GLFWwindow* Window;
-    int FrameWidth;
-    int FrameHeight;
     int CapturedFrameIndex;
-    glm::ivec2 ClickedPoint;
     glm::vec3 EulerAngle;
     std::vector<glm::vec3> CapturedEulerAngles;
     std::vector<glm::quat> CapturedQuaternions;
     std::unique_ptr<Animation> Animator;
-    std::unique_ptr<CameraGL> MainCamera;
     std::unique_ptr<ShaderGL> ObjectShader;
     std::unique_ptr<ObjectGL> AxisObject;
     std::unique_ptr<ObjectGL> TeapotObject;
     std::unique_ptr<LightGL> Lights;
 
-    void registerCallbacks() const;
-    void initialize();
-
-    static void printOpenGLInformation();
-
-    static void error(int e, const char* description)
-    {
-        std::ignore = e;
-        puts( description );
-    }
-
-    static void cleanup(GLFWwindow* window) { glfwSetWindowShouldClose( window, GLFW_TRUE ); }
-    void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
-    void cursor(GLFWwindow* window, double xpos, double ypos);
-    void mouse(GLFWwindow* window, int button, int action, int mods);
-
-    void reshape(GLFWwindow* window, int width, int height) const
-    {
-        std::ignore = window;
-        MainCamera->updateWindowSize( width, height );
-        glViewport( 0, 0, width, height );
-    }
-
-    static void keyboardWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
-    {
-        Renderer->keyboard( window, key, scancode, action, mods );
-    }
-
-    static void cursorWrapper(GLFWwindow* window, double xpos, double ypos) { Renderer->cursor( window, xpos, ypos ); }
-
-    static void mouseWrapper(GLFWwindow* window, int button, int action, int mods)
-    {
-        Renderer->mouse( window, button, action, mods );
-    }
-
-    static void reshapeWrapper(GLFWwindow* window, int width, int height)
-    {
-        Renderer->reshape( window, width, height );
-    }
+    void cursor(GLFWwindow* window, double xpos, double ypos) override;
+    void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+    void mouse(GLFWwindow* window, int button, int action, int mods) override;
 
     void captureFrame();
     void setLights() const;

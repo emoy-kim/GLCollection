@@ -1,79 +1,26 @@
 #include "03_gimbal_lock.h"
 
-RendererGL::RendererGL()
-    : Window( nullptr ),
-      FrameWidth( 1920 ),
-      FrameHeight( 1080 ),
-      CapturedFrameIndex( 0 ),
-      ClickedPoint( -1, -1 ),
+C03GimbalLock::C03GimbalLock()
+    : CapturedFrameIndex( 0 ),
       EulerAngle(),
       CapturedEulerAngles{ 5 },
       CapturedQuaternions{ 5 },
       Animator( std::make_unique<Animation>() ),
-      MainCamera(
-          std::make_unique<CameraGL>(
-              glm::vec3( 0.0f, 30.0f, 50.0f ),
-              glm::vec3( 0.0f, 0.0f, 0.0f ),
-              glm::vec3( 0.0f, 1.0f, 0.0f )
-          )
-      ),
       ObjectShader( std::make_unique<ShaderGL>() ),
       AxisObject( std::make_unique<ObjectGL>() ),
       TeapotObject( std::make_unique<ObjectGL>() ),
       Lights( std::make_unique<LightGL>() )
-
 {
-    Renderer = this;
-
-    initialize();
-    printOpenGLInformation();
-}
-
-void RendererGL::printOpenGLInformation()
-{
-    std::cout << "****************************************************************\n";
-    std::cout << " - GLFW version supported: " << glfwGetVersionString() << "\n";
-    std::cout << " - OpenGL renderer: " << glGetString( GL_RENDERER ) << "\n";
-    std::cout << " - OpenGL version supported: " << glGetString( GL_VERSION ) << "\n";
-    std::cout << " - OpenGL shader version supported: " << glGetString( GL_SHADING_LANGUAGE_VERSION ) << "\n";
-    std::cout << "****************************************************************\n\n";
-}
-
-void RendererGL::initialize()
-{
-    if (!glfwInit()) {
-        std::cout << "Cannot Initialize OpenGL...\n";
-        return;
-    }
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
-    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 6 );
-    glfwWindowHint( GLFW_DOUBLEBUFFER, GLFW_TRUE );
-    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-
-    Window = glfwCreateWindow( FrameWidth, FrameHeight, "Main Camera", nullptr, nullptr );
-    glfwSetWindowUserPointer( Window, this );
-    glfwMakeContextCurrent( Window );
-
-    if (!gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress )) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return;
-    }
-
-    registerCallbacks();
-
-    glEnable( GL_DEPTH_TEST );
-    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
-
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
-
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/01_lighting/shaders";
     ObjectShader->setShader(
         std::string( shader_directory_path + "/scene_shader.vert" ).c_str(),
         std::string( shader_directory_path + "/scene_shader.frag" ).c_str()
     );
+    MainCamera->updateCameraPosition( glm::vec3( 0.0f, 30.0f, 50.0f ) );
+    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 
-void RendererGL::captureFrame()
+void C03GimbalLock::captureFrame()
 {
     if (CapturedFrameIndex < 5) {
         CapturedEulerAngles[CapturedFrameIndex] = EulerAngle;
@@ -82,7 +29,7 @@ void RendererGL::captureFrame()
     }
 }
 
-void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+void C03GimbalLock::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     std::ignore = scancode;
     std::ignore = mods;
@@ -119,7 +66,7 @@ void RendererGL::keyboard(GLFWwindow* window, int key, int scancode, int action,
     }
 }
 
-void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
+void C03GimbalLock::cursor(GLFWwindow* window, double xpos, double ypos)
 {
     if (MainCamera->getMovingState()) {
         const auto x = static_cast<int>(round( xpos ));
@@ -142,7 +89,7 @@ void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
+void C03GimbalLock::mouse(GLFWwindow* window, int button, int action, int mods)
 {
     std::ignore = mods;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -157,16 +104,7 @@ void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-void RendererGL::registerCallbacks() const
-{
-    glfwSetWindowCloseCallback( Window, cleanup );
-    glfwSetKeyCallback( Window, keyboardWrapper );
-    glfwSetCursorPosCallback( Window, cursorWrapper );
-    glfwSetMouseButtonCallback( Window, mouseWrapper );
-    glfwSetFramebufferSizeCallback( Window, reshapeWrapper );
-}
-
-void RendererGL::setLights() const
+void C03GimbalLock::setLights() const
 {
     constexpr glm::vec4 light_position( 10.0f, 15.0f, 15.0f, 1.0f );
     constexpr glm::vec4 ambient_color( 0.5f, 0.5f, 0.5f, 1.0f );
@@ -175,7 +113,7 @@ void RendererGL::setLights() const
     Lights->addLight( light_position, ambient_color, diffuse_color, specular_color );
 }
 
-void RendererGL::setAxisObject() const
+void C03GimbalLock::setAxisObject() const
 {
     const std::vector<glm::vec3> axis_vertices = {
         { 0.0f, 0.0f, 0.0f },
@@ -184,7 +122,7 @@ void RendererGL::setAxisObject() const
     AxisObject->setObject( GL_LINES, axis_vertices );
 }
 
-void RendererGL::setTeapotObject() const
+void C03GimbalLock::setTeapotObject() const
 {
     std::vector<glm::vec3> teapot_vertices, teapot_normals;
     std::vector<glm::vec2> teapot_textures;
@@ -200,7 +138,7 @@ void RendererGL::setTeapotObject() const
     else throw std::runtime_error( "Could not read object file!" );
 }
 
-void RendererGL::drawAxisObject(float scale_factor) const
+void C03GimbalLock::drawAxisObject(float scale_factor) const
 {
     using u = LightingShader::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
@@ -244,7 +182,7 @@ void RendererGL::drawAxisObject(float scale_factor) const
     glLineWidth( 1.0f );
 }
 
-void RendererGL::drawTeapotObject(const glm::mat4& to_world) const
+void C03GimbalLock::drawTeapotObject(const glm::mat4& to_world) const
 {
     using u = LightingShader::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
@@ -284,7 +222,7 @@ void RendererGL::drawTeapotObject(const glm::mat4& to_world) const
     glDrawArrays( TeapotObject->getDrawMode(), 0, TeapotObject->getVertexNum() );
 }
 
-void RendererGL::displayEulerAngleMode()
+void C03GimbalLock::displayEulerAngleMode()
 {
     glViewport( 0, 216, 980, 864 );
     drawAxisObject( 15.0f );
@@ -301,7 +239,7 @@ void RendererGL::displayEulerAngleMode()
     drawTeapotObject( to_world );
 }
 
-void RendererGL::displayQuaternionMode() const
+void C03GimbalLock::displayQuaternionMode() const
 {
     glViewport( 980, 216, 980, 864 );
     drawAxisObject( 15.0f );
@@ -319,7 +257,7 @@ void RendererGL::displayQuaternionMode() const
     drawTeapotObject( to_world );
 }
 
-void RendererGL::displayCapturedFrames() const
+void C03GimbalLock::displayCapturedFrames() const
 {
     for (int i = 0; i < 5; ++i) {
         glViewport( 384 * i, 0, 384, 216 );
@@ -337,7 +275,7 @@ void RendererGL::displayCapturedFrames() const
     }
 }
 
-void RendererGL::render()
+void C03GimbalLock::render()
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -356,7 +294,7 @@ void RendererGL::render()
     displayCapturedFrames();
 }
 
-void RendererGL::play()
+void C03GimbalLock::play()
 {
     if (glfwWindowShouldClose( Window )) initialize();
 
@@ -375,7 +313,7 @@ void RendererGL::play()
 
 int main()
 {
-    RendererGL renderer{};
+    C03GimbalLock renderer{};
     renderer.play();
     return 0;
 }
