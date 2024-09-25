@@ -59,6 +59,7 @@ set(
         common/source/camera.cpp
         common/source/object.cpp
         common/source/shader.cpp
+        common/source/renderer.cpp
         common/source/file_decoder.cpp
         common/source/video_reader.cpp
 )
