@@ -96,8 +96,7 @@ int ObjectGL::addTexture(const std::string& texture_file_path, bool is_grayscale
     if (!prepareTexture2DUsingFreeImage( texture_file_path, is_grayscale )) {
         glDeleteTextures( 1, &texture_id );
         TextureID.erase( TextureID.end() - 1 );
-        std::cerr << "Could not read image file " << texture_file_path.c_str() << "\n";
-        return -1;
+        throw std::runtime_error( "Could not read image file " + texture_file_path );
     }
 
     glTextureParameteri( texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
@@ -143,6 +142,68 @@ int ObjectGL::addTexture(const uint8_t* image_buffer, int width, int height, boo
         image_buffer
     );
     return static_cast<int>(TextureID.size() - 1);
+}
+
+void ObjectGL::addCubeTextures(const std::array<uint8_t*, 6>& textures, int width, int height)
+{
+    GLuint texture_id = 0;
+    glCreateTextures( GL_TEXTURE_CUBE_MAP, 1, &texture_id );
+    glBindTexture( GL_TEXTURE_CUBE_MAP, texture_id );
+    TextureID.emplace_back( texture_id );
+
+    glTextureParameteri( texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTextureParameteri( texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTextureParameteri( texture_id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE );
+    glTextureParameteri( texture_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTextureParameteri( texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTextureParameteri( texture_id, GL_TEXTURE_BASE_LEVEL, 0 );
+    glTextureParameteri( texture_id, GL_TEXTURE_MAX_LEVEL, 0 );
+    glGenerateTextureMipmap( texture_id );
+
+    for (int i = 0; i < 6; ++i) {
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            0, GL_RGB,
+            width, height, 0,
+            GL_BGRA, GL_UNSIGNED_BYTE,
+            textures[i]
+        );
+    }
+}
+
+void ObjectGL::addCubeTextures(const std::array<std::string, 6>& texture_paths)
+{
+    GLuint texture_id = 0;
+    glCreateTextures( GL_TEXTURE_CUBE_MAP, 1, &texture_id );
+    glBindTexture( GL_TEXTURE_CUBE_MAP, texture_id );
+    TextureID.emplace_back( texture_id );
+
+    glTextureParameteri( texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTextureParameteri( texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTextureParameteri( texture_id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE );
+    glTextureParameteri( texture_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTextureParameteri( texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTextureParameteri( texture_id, GL_TEXTURE_BASE_LEVEL, 0 );
+    glTextureParameteri( texture_id, GL_TEXTURE_MAX_LEVEL, 0 );
+    glGenerateTextureMipmap( texture_id );
+
+    for (int i = 0; i < 6; ++i) {
+        const FREE_IMAGE_FORMAT format = FreeImage_GetFileType( texture_paths[i].c_str(), 0 );
+        FIBITMAP* texture = FreeImage_Load( format, texture_paths[i].c_str() );
+        const uint n_bits_per_pixel = FreeImage_GetBPP( texture );
+        FIBITMAP* texture_converted = n_bits_per_pixel == 32 ? texture : FreeImage_ConvertTo32Bits( texture );
+        const auto width = static_cast<GLsizei>(FreeImage_GetWidth( texture_converted ));
+        const auto height = static_cast<GLsizei>(FreeImage_GetHeight( texture_converted ));
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            0, GL_RGB,
+            width, height, 0,
+            GL_BGRA, GL_UNSIGNED_BYTE,
+            FreeImage_GetBits( texture_converted )
+        );
+        FreeImage_Unload( texture_converted );
+        if (n_bits_per_pixel != 32) FreeImage_Unload( texture );
+    }
 }
 
 void ObjectGL::prepareTexture(bool normals_exist) const
@@ -405,6 +466,20 @@ void ObjectGL::updateTexture(const uint8_t* image_buffer, int index, int width, 
         GL_UNSIGNED_BYTE,
         image_buffer
     );
+}
+
+void ObjectGL::updateCubeTextures(const std::array<uint8_t*, 6>& textures, int index, int width, int height) const
+{
+    for (int i = 0; i < 6; ++i) {
+        glTexSubImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            0, 0, 0,
+            width, height,
+            GL_BGRA,
+            GL_UNSIGNED_BYTE,
+            textures[i]
+        );
+    }
 }
 
 void ObjectGL::replaceVertices(

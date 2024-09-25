@@ -68,6 +68,8 @@ public:
     int addTexture(const std::string& texture_file_path, bool is_grayscale = false);
     void addTexture(int width, int height, bool is_grayscale = false);
     int addTexture(const uint8_t* image_buffer, int width, int height, bool is_grayscale = false);
+    void addCubeTextures(const std::array<uint8_t*, 6>& textures, int width, int height);
+    void addCubeTextures(const std::array<std::string, 6>& texture_paths);
     void updateDataBuffer(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals);
     void updateDataBuffer(
         const std::vector<glm::vec3>& vertices,
@@ -75,6 +77,7 @@ public:
         const std::vector<glm::vec2>& textures
     );
     void updateTexture(const uint8_t* image_buffer, int index, int width, int height) const;
+    void updateCubeTextures(const std::array<uint8_t*, 6>& textures, int index, int width, int height) const;
     void replaceVertices(const std::vector<glm::vec3>& vertices, bool normals_exist, bool textures_exist);
     void replaceVertices(const std::vector<float>& vertices, bool normals_exist, bool textures_exist);
     [[nodiscard]] static bool readObjectFile(
