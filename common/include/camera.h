@@ -24,6 +24,9 @@ public:
     [[nodiscard]] const glm::mat4& getViewMatrix() const { return ViewMatrix; }
     [[nodiscard]] const glm::mat4& getProjectionMatrix() const { return ProjectionMatrix; }
     void setMovingState(bool is_moving) { IsMoving = is_moving; }
+    void setZoomSensitivity(float zoom) { ZoomSensitivity = zoom; }
+    void setMoveSensitivity(float move) { MoveSensitivity = move; }
+    void setRotationSensitivity(float rotation) { RotationSensitivity = rotation; }
     void updateCameraPosition(const glm::vec3& cam_position);
     void updateCamera();
     void pitch(int angle);
@@ -49,9 +52,9 @@ private:
     float NearPlane;
     float FarPlane;
     float AspectRatio;
-    const float ZoomSensitivity;
-    const float MoveSensitivity;
-    const float RotationSensitivity;
+    float ZoomSensitivity;
+    float MoveSensitivity;
+    float RotationSensitivity;
     glm::vec3 InitCamPos;
     glm::vec3 InitRefPos;
     glm::vec3 InitUpVec;
