@@ -24,6 +24,7 @@ public:
     [[nodiscard]] const glm::mat4& getViewMatrix() const { return ViewMatrix; }
     [[nodiscard]] const glm::mat4& getProjectionMatrix() const { return ProjectionMatrix; }
     void setMovingState(bool is_moving) { IsMoving = is_moving; }
+    void updateCameraPosition(const glm::vec3& cam_position);
     void updateCamera();
     void pitch(int angle);
     void yaw(int angle);

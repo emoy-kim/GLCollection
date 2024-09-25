@@ -33,6 +33,12 @@ CameraGL::CameraGL(
       ViewMatrix( lookAt( InitCamPos, InitRefPos, InitUpVec ) ),
       ProjectionMatrix( glm::mat4( 1.0f ) ) {}
 
+void CameraGL::updateCameraPosition(const glm::vec3& cam_position)
+{
+    InitCamPos = CamPos = cam_position;
+    ViewMatrix = lookAt( InitCamPos, InitRefPos, InitUpVec );
+}
+
 void CameraGL::updateCamera()
 {
     const glm::mat4 inverse_view = inverse( ViewMatrix );
@@ -44,21 +50,21 @@ void CameraGL::updateCamera()
 void CameraGL::pitch(int angle)
 {
     const glm::vec3 u_axis( ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0] );
-    ViewMatrix = glm::rotate( ViewMatrix, static_cast<float>(-angle) * RotationSensitivity, u_axis );
+    ViewMatrix = rotate( ViewMatrix, static_cast<float>(-angle) * RotationSensitivity, u_axis );
     updateCamera();
 }
 
 void CameraGL::yaw(int angle)
 {
     const glm::vec3 v_axis( ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1] );
-    ViewMatrix = glm::rotate( ViewMatrix, static_cast<float>(-angle) * RotationSensitivity, v_axis );
+    ViewMatrix = rotate( ViewMatrix, static_cast<float>(-angle) * RotationSensitivity, v_axis );
     updateCamera();
 }
 
 void CameraGL::rotateAroundWorldY(int angle)
 {
-    const glm::vec3 world_y( 0.0f, 1.0f, 0.0f );
-    ViewMatrix = glm::rotate(
+    constexpr glm::vec3 world_y( 0.0f, 1.0f, 0.0f );
+    ViewMatrix = rotate(
         glm::mat4( 1.0f ), static_cast<float>(-angle) * RotationSensitivity, world_y
     ) * ViewMatrix;
     updateCamera();
