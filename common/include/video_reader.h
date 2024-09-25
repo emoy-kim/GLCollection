@@ -15,7 +15,7 @@ public:
 
     void close();
     bool open(const std::string& video_file_path);
-    [[nodiscard]] bool read(uint8_t* image_buffer, int frame_index_to_decode);
+    bool read(uint8_t* image_buffer, int frame_index_to_decode);
     [[nodiscard]] int getFrameWidth() const { return FrameWidth; }
     [[nodiscard]] int getFrameHeight() const { return FrameHeight; }
     [[nodiscard]] double getFramerate() const { return Framerate; }
