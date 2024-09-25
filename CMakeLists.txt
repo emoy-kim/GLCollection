@@ -75,3 +75,7 @@ target_link_libraries(02_projector ${ALL_LIBS})
 # 03 Gimbal Lock
 add_executable(03_gimbal_lock 03_gimbal_lock/03_gimbal_lock.cpp ${COMMON_FILES})
 target_link_libraries(03_gimbal_lock ${ALL_LIBS})
+
+# 04 Cube Mapping
+add_executable(04_cube_mapping 04_cube_mapping/04_cube_mapping.cpp ${COMMON_FILES})
+target_link_libraries(04_cube_mapping ${ALL_LIBS})
