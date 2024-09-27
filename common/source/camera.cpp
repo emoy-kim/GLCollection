@@ -15,7 +15,8 @@ CameraGL::CameraGL(
     float near_plane,
     float far_plane
 )
-    : IsMoving( false ),
+    : IsPerspective( true ),
+      IsMoving( false ),
       Width( 0 ),
       Height( 0 ),
       FOV( fov ),
@@ -32,6 +33,32 @@ CameraGL::CameraGL(
       CamPos( cam_position ),
       ViewMatrix( lookAt( InitCamPos, InitRefPos, InitUpVec ) ),
       ProjectionMatrix( glm::mat4( 1.0f ) ) {}
+
+CameraGL::CameraGL(int width, int height, float near_plane, float far_plane)
+    : IsPerspective( false ),
+      IsMoving( false ),
+      Width( width ),
+      Height( height ),
+      FOV( 0.0f ),
+      InitFOV( 0.0f ),
+      NearPlane( near_plane ),
+      FarPlane( far_plane ),
+      AspectRatio( 0.0f ),
+      ZoomSensitivity( 1.0f ),
+      MoveSensitivity( 0.05f ),
+      RotationSensitivity( 0.005f ),
+      InitCamPos(),
+      InitRefPos(),
+      InitUpVec(),
+      CamPos(),
+      ViewMatrix( glm::mat4( 1.0f ) ),
+      ProjectionMatrix(
+          glm::ortho(
+              0.0f, static_cast<float>(width),
+              0.0f, static_cast<float>(height),
+              near_plane, far_plane
+          )
+      ) {}
 
 void CameraGL::updateCameraPosition(const glm::vec3& cam_position)
 {
@@ -132,13 +159,32 @@ void CameraGL::resetCamera()
 {
     CamPos = InitCamPos;
     ViewMatrix = lookAt( InitCamPos, InitRefPos, InitUpVec );
-    ProjectionMatrix = glm::perspective( glm::radians( InitFOV ), AspectRatio, NearPlane, FarPlane );
+    ProjectionMatrix = IsPerspective ?
+                           glm::perspective( glm::radians( InitFOV ), AspectRatio, NearPlane, FarPlane ) :
+                           glm::ortho(
+                               0.0f, static_cast<float>(Width),
+                               0.0f, static_cast<float>(Height),
+                               NearPlane, FarPlane
+                           );
 }
 
-void CameraGL::updateWindowSize(int width, int height)
+void CameraGL::update2DCamera(int width, int height)
 {
     Width = width;
     Height = height;
+    IsPerspective = false;
+    glm::ortho(
+        0.0f, static_cast<float>(Width),
+        0.0f, static_cast<float>(Height),
+        NearPlane, FarPlane
+    );
+}
+
+void CameraGL::update3DCamera(int width, int height)
+{
+    Width = width;
+    Height = height;
+    IsPerspective = true;
     AspectRatio = static_cast<float>(width) / static_cast<float>(height);
     ProjectionMatrix = glm::perspective( glm::radians( FOV ), AspectRatio, NearPlane, FarPlane );
 }
