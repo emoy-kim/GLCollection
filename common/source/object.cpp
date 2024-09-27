@@ -268,6 +268,15 @@ void ObjectGL::getSquareObject(
     };
 }
 
+void ObjectGL::setObject(GLenum draw_mode, int vertex_num)
+{
+    DrawMode = draw_mode;
+    VerticesCount = vertex_num;
+    DataBuffer.resize( vertex_num * 3 );
+    prepareVertexBuffer( 3 * sizeof( GLfloat ) );
+    DataBuffer.clear();
+}
+
 void ObjectGL::setObject(GLenum draw_mode, const std::vector<glm::vec3>& vertices)
 {
     DrawMode = draw_mode;
@@ -415,12 +424,26 @@ void ObjectGL::setSquareObject(GLenum draw_mode, const uint8_t* image_buffer, in
     setObject( draw_mode, square_vertices, square_normals, square_textures, image_buffer, width, height, is_grayscale );
 }
 
+void ObjectGL::updateDataBuffer(const std::vector<glm::vec3>& vertices)
+{
+    assert( VBO != 0 );
+
+    VerticesCount = 0;
+    for (const auto& vertex : vertices) {
+        DataBuffer.push_back( vertex.x );
+        DataBuffer.push_back( vertex.y );
+        DataBuffer.push_back( vertex.z );
+        VerticesCount++;
+    }
+    glNamedBufferSubData( VBO, 0, static_cast<GLsizeiptr>(sizeof( GLfloat ) * DataBuffer.size()), DataBuffer.data() );
+    DataBuffer.clear();
+}
+
 void ObjectGL::updateDataBuffer(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals)
 {
     assert( VBO != 0 );
 
     VerticesCount = 0;
-    DataBuffer.clear();
     for (size_t i = 0; i < vertices.size(); ++i) {
         DataBuffer.push_back( vertices[i].x );
         DataBuffer.push_back( vertices[i].y );
@@ -431,6 +454,7 @@ void ObjectGL::updateDataBuffer(const std::vector<glm::vec3>& vertices, const st
         VerticesCount++;
     }
     glNamedBufferSubData( VBO, 0, static_cast<GLsizeiptr>(sizeof( GLfloat ) * DataBuffer.size()), DataBuffer.data() );
+    DataBuffer.clear();
 }
 
 void ObjectGL::updateDataBuffer(
@@ -442,7 +466,6 @@ void ObjectGL::updateDataBuffer(
     assert( VBO != 0 );
 
     VerticesCount = 0;
-    DataBuffer.clear();
     for (size_t i = 0; i < vertices.size(); ++i) {
         DataBuffer.push_back( vertices[i].x );
         DataBuffer.push_back( vertices[i].y );
@@ -455,6 +478,7 @@ void ObjectGL::updateDataBuffer(
         VerticesCount++;
     }
     glNamedBufferSubData( VBO, 0, static_cast<GLsizeiptr>(sizeof( GLfloat ) * DataBuffer.size()), DataBuffer.data() );
+    DataBuffer.clear();
 }
 
 void ObjectGL::updateTexture(const uint8_t* image_buffer, int index, int width, int height) const
@@ -468,7 +492,7 @@ void ObjectGL::updateTexture(const uint8_t* image_buffer, int index, int width, 
     );
 }
 
-void ObjectGL::updateCubeTextures(const std::array<uint8_t*, 6>& textures, int index, int width, int height) const
+void ObjectGL::updateCubeTextures(const std::array<uint8_t*, 6>& textures, int width, int height)
 {
     for (int i = 0; i < 6; ++i) {
         glTexSubImage2D(
