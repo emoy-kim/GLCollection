@@ -4,8 +4,7 @@ RendererGL::RendererGL()
     : Window( nullptr ),
       FrameWidth( 1920 ),
       FrameHeight( 1080 ),
-      ClickedPoint( -1, -1 ),
-      MainCamera( std::make_unique<CameraGL>() )
+      ClickedPoint( -1, -1 )
 {
     Renderer = this;
 
@@ -45,8 +44,6 @@ void RendererGL::initialize()
     registerCallbacks();
 
     glEnable( GL_DEPTH_TEST );
-
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
 }
 
 void RendererGL::registerCallbacks() const
