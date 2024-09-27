@@ -20,12 +20,18 @@ C02Projector::C02Projector()
 {
     av_log_set_level( AV_LOG_ERROR );
 
+    MainCamera = std::make_unique<CameraGL>(
+        glm::vec3{ 90.0f, 50.0f, 90.0f },
+        glm::vec3{ 0.0f, 0.0f, 0.0f },
+        glm::vec3{ 0.0f, 1.0f, 0.0f }
+    );
+    MainCamera->update3DCamera( FrameWidth, FrameHeight );
+
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/02_projector/shaders";
     ObjectShader->setShader(
         std::string( shader_directory_path + "/projector.vert" ).c_str(),
         std::string( shader_directory_path + "/projector.frag" ).c_str()
     );
-    MainCamera->updateCameraPosition( glm::vec3( 90.0f, 50.0f, 90.0f ) );
     glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 }
 
@@ -206,7 +212,7 @@ void C02Projector::prepareSlide()
     if (!IsVideo) {
         ScreenObject->setSquareObject( GL_TRIANGLES, image_path );
         const glm::ivec2 screen_size = ScreenObject->getTextureSize( ScreenObject->getTextureID( 0 ) );
-        Projector->updateWindowSize( screen_size.x / 100, screen_size.y / 100 );
+        Projector->update3DCamera( screen_size.x / 100, screen_size.y / 100 );
     }
     else {
         Pause = false;
@@ -219,7 +225,7 @@ void C02Projector::prepareSlide()
         SlideBuffer = new uint8_t[w * h * 4];
         if (!Video->read( SlideBuffer, VideoFrameIndex++ ))
             throw std::runtime_error( "Could not read a video frame!" );
-        Projector->updateWindowSize( w / 100, h / 100 );
+        Projector->update3DCamera( w / 100, h / 100 );
         ScreenObject->setSquareObject( GL_TRIANGLES, SlideBuffer, w, h );
     }
 }
@@ -363,7 +369,7 @@ void C02Projector::render() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
+    MainCamera->update3DCamera( FrameWidth, FrameHeight );
     glViewport( 0, 0, FrameWidth, FrameHeight );
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );

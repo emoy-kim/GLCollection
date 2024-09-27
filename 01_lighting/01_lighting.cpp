@@ -7,6 +7,9 @@ C01Lighting::C01Lighting()
       DrawMovingObject( false ),
       ObjectRotationAngle( 0 )
 {
+    MainCamera = std::make_unique<CameraGL>();
+    MainCamera->update3DCamera( FrameWidth, FrameHeight );
+
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/01_lighting/shaders";
     ObjectShader->setShader(
         std::string( shader_directory_path + "/scene_shader.vert" ).c_str(),
@@ -151,7 +154,7 @@ void C01Lighting::drawObject(const float& scale_factor) const
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
+    MainCamera->update3DCamera( FrameWidth, FrameHeight );
     glViewport( 0, 0, FrameWidth, FrameHeight );
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );

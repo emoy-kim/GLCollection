@@ -6,11 +6,6 @@ C04CubeMapping::C04CubeMapping()
       FrameBuffers{},
       ObjectShader( std::make_unique<ShaderGL>() )
 {
-    const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/04_cube_mapping/shaders";
-    ObjectShader->setShader(
-        std::string( shader_directory_path + "/shader.vert" ).c_str(),
-        std::string( shader_directory_path + "/shader.frag" ).c_str()
-    );
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 0.0f, 0.0f, 0.0f ),
         glm::vec3( 0.0f, 0.0f, 1.0f ),
@@ -18,6 +13,12 @@ C04CubeMapping::C04CubeMapping()
         70.0f
     );
     MainCamera->setMoveSensitivity( 0.005f );
+
+    const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/04_cube_mapping/shaders";
+    ObjectShader->setShader(
+        std::string( shader_directory_path + "/shader.vert" ).c_str(),
+        std::string( shader_directory_path + "/shader.frag" ).c_str()
+    );
     glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 
@@ -200,7 +201,7 @@ void C04CubeMapping::setCubeObject(float length)
 void C04CubeMapping::render() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    MainCamera->updateWindowSize( FrameWidth, FrameHeight );
+    MainCamera->update3DCamera( FrameWidth, FrameHeight );
     glViewport( 0, 0, FrameWidth, FrameHeight );
 
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -231,9 +232,7 @@ void C04CubeMapping::play()
             for (int i = 0; i < 6; ++i) {
                 Videos[i]->read( FrameBuffers[i], VideoFrameIndex );
             }
-            CubeObject->updateCubeTextures(
-                FrameBuffers, 0, Videos[0]->getFrameWidth(), Videos[0]->getFrameHeight()
-            );
+            ObjectGL::updateCubeTextures( FrameBuffers, Videos[0]->getFrameWidth(), Videos[0]->getFrameHeight() );
             VideoFrameIndex++;
         }
 

@@ -11,12 +11,18 @@ C03GimbalLock::C03GimbalLock()
       TeapotObject( std::make_unique<ObjectGL>() ),
       Lights( std::make_unique<LightGL>() )
 {
+    MainCamera = std::make_unique<CameraGL>(
+        glm::vec3{ 0.0f, 30.0f, 50.0f },
+        glm::vec3{ 0.0f, 0.0f, 0.0f },
+        glm::vec3{ 0.0f, 1.0f, 0.0f }
+    );
+    MainCamera->update3DCamera( FrameWidth, FrameHeight );
+
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/01_lighting/shaders";
     ObjectShader->setShader(
         std::string( shader_directory_path + "/scene_shader.vert" ).c_str(),
         std::string( shader_directory_path + "/scene_shader.frag" ).c_str()
     );
-    MainCamera->updateCameraPosition( glm::vec3( 0.0f, 30.0f, 50.0f ) );
     glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 
