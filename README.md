@@ -14,3 +14,6 @@
 
 ## 05 Moving Point on Bezier Curve
 ![movingpoint](https://user-images.githubusercontent.com/17864157/62411453-d97ad480-b62d-11e9-9271-1e67bcec5697.gif)
+
+## 06 Bump Mapping
+![bumpmapping](https://user-images.githubusercontent.com/17864157/64487175-fc725700-d271-11e9-8753-e04786247208.png)
