@@ -624,3 +624,23 @@ bool ObjectGL::readObjectFile(
     }
     return true;
 }
+
+void ObjectGL::calculateTangents(
+    std::vector<glm::vec3>& tangents,
+    const std::vector<glm::vec3>& vertices,
+    const std::vector<glm::vec2>& textures
+)
+{
+    for (size_t i = 0; i < vertices.size(); i += 3) {
+        const glm::vec3 edge1 = vertices[i + 1] - vertices[i];
+        const glm::vec3 edge2 = vertices[i + 2] - vertices[i];
+        const glm::vec2 delta_uv1 = textures[i + 1] - textures[i];
+        const glm::vec2 delta_uv2 = textures[i + 2] - textures[i];
+        const glm::vec3 tangent = normalize(
+            (delta_uv2.y * edge1 - delta_uv1.y * edge2) / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x)
+        );
+        tangents.emplace_back( tangent );
+        tangents.emplace_back( tangent );
+        tangents.emplace_back( tangent );
+    }
+}

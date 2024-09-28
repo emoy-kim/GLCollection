@@ -2,7 +2,7 @@
 
 #include "base.h"
 
-class ObjectGL
+class ObjectGL final
 {
 public:
     enum LayoutLocation { VertexLocation = 0, NormalLocation, TextureLocation };
@@ -138,5 +138,10 @@ private:
         std::vector<glm::vec3>& vertices,
         std::vector<glm::vec3>& normals,
         std::vector<glm::vec2>& textures
+    );
+    static void calculateTangents(
+        std::vector<glm::vec3>& tangents,
+        const std::vector<glm::vec3>& vertices,
+        const std::vector<glm::vec2>& textures
     );
 };
