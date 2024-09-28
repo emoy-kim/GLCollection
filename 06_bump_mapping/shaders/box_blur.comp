@@ -1,0 +1,214 @@
+#version 460
+
+layout (local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+
+layout (rgba8, binding = 0) readonly uniform image2D InTexture;
+layout (rgba8, binding = 1) writeonly uniform image2D OutTexture;
+
+layout (location = 0) uniform int IsHorizontal;
+layout (location = 1) uniform float BlurRadius;
+
+const float zero = 0.0f;
+const float one = 1.0f;
+const float epsilon = 1e-3f;
+
+// references
+//   - https://fgiesen.wordpress.com/2012/07/30/fast-blurs-1/ (moving-average method)
+//   - https://fgiesen.wordpress.com/2012/08/01/fast-blurs-2/ (fraction handling)
+void blurHorizontally()
+{
+    int id = int(gl_GlobalInvocationID.x);
+    int y = id;
+    ivec2 size = imageSize( InTexture );
+    if (id >= size.y || y < 0 || y >= size.y || 0 >= size.x) return;
+
+    int x = 0;
+    float normalizer = one / (2.0f * BlurRadius + one);
+    int m = int(floor( BlurRadius ));
+    float a = fract( BlurRadius );
+    if (a < epsilon) a = zero;
+
+    vec4 color_sum = vec4(zero);
+    for (int i = 0; i <= m; ++i) {
+        if (0 <= x && x < size.x) {
+            color_sum += imageLoad( InTexture, ivec2(x, y) );
+        }
+        x++;
+    }
+
+    if (a == zero) {
+        x = 0;
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = 0; i < m; ++i) {
+            x++;
+            if (x + m < size.x) color_sum += imageLoad( InTexture, ivec2(x + m, y) );
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        for (int i = m + 1; i < size.x - m; ++i) {
+            x++;
+            if (x + m < size.x) color_sum += imageLoad( InTexture, ivec2(x + m, y) );
+            if (0 <= x - m - 1) color_sum -= imageLoad( InTexture, ivec2(x - m - 1, y) );
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        for (int i = 0; i < m; ++i) {
+            x++;
+            color_sum -= imageLoad( InTexture, ivec2(x - m - 1, y) );
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+    }
+    else {
+        if (0 <= x && x < size.x) color_sum += imageLoad( InTexture, ivec2(x, y) ) * a;
+        x = 0;
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = 0; i < m; ++i) {
+            x++;
+            if (x + m + 1 < size.x) {
+                color_sum +=
+                    mix( imageLoad( InTexture, ivec2(x + m, y) ), imageLoad( InTexture, ivec2(x + m + 1, y) ), a );
+            }
+            else if (x + m < size.x) color_sum += imageLoad( InTexture, ivec2(x + m, y) ) * (one - a);
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        x++;
+        if (x + m + 1 < size.x) {
+            color_sum +=
+                mix( imageLoad( InTexture, ivec2(x + m, y) ), imageLoad( InTexture, ivec2(x + m + 1, y) ), a );
+        }
+        else if (x + m < size.x) color_sum += imageLoad( InTexture, ivec2(x + m, y) ) * (one - a);
+        if (0 <= x - m - 1) color_sum -= imageLoad( InTexture, ivec2(x - m - 1, y) ) * (one - a);
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = m + 2; i < size.x - m - 1; ++i) {
+            x++;
+            if (x + m + 1 < size.x) {
+                color_sum +=
+                    mix( imageLoad( InTexture, ivec2(x + m, y) ), imageLoad( InTexture, ivec2(x + m + 1, y) ), a );
+            }
+            else if (x + m < size.x) color_sum += imageLoad( InTexture, ivec2(x + m, y) ) * (one - a);
+            if (0 <= x - m - 2) {
+                color_sum -=
+                    mix( imageLoad( InTexture, ivec2(x - m - 1, y) ), imageLoad( InTexture, ivec2(x - m - 2, y) ), a );
+            }
+            else if (0 <= x - m - 1) color_sum -= imageLoad( InTexture, ivec2(x - m - 1, y) ) * (one - a);
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        x++;
+        if (x + m < size.x) color_sum += imageLoad( InTexture, ivec2(x + m, y) ) * (one - a);
+        if (0 <= x - m - 2) {
+            color_sum -=
+                mix( imageLoad( InTexture, ivec2(x - m - 1, y) ), imageLoad( InTexture, ivec2(x - m - 2, y) ), a );
+        }
+        else if (0 <= x - m - 1) color_sum -= imageLoad( InTexture, ivec2(x - m - 1, y) ) * (one - a);
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = 0; i < m; ++i) {
+            x++;
+            if (0 <= x - m - 2) {
+                color_sum -=
+                    mix( imageLoad( InTexture, ivec2(x - m - 1, y) ), imageLoad( InTexture, ivec2(x - m - 2, y) ), a );
+            }
+            else if (0 <= x - m - 1) color_sum -= imageLoad( InTexture, ivec2(x - m - 1, y) ) * (one - a);
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+    }
+}
+
+void blurVertically()
+{
+    int id = int(gl_GlobalInvocationID.x);
+    int x = id;
+    ivec2 size = imageSize( InTexture );
+    if (id >= size.x || x < 0 || x >= size.x || 0 >= size.y) return;
+
+    int y = 0;
+    float normalizer = one / (2.0f * BlurRadius + one);
+    int m = int(floor( BlurRadius ));
+    float a = fract( BlurRadius );
+    if (a < epsilon) a = zero;
+
+    vec4 color_sum = vec4(zero);
+    for (int i = 0; i <= m; ++i) {
+        if (0 <= y && y < size.y) {
+            color_sum += imageLoad( InTexture, ivec2(x, y) );
+        }
+        y++;
+    }
+
+    if (a == zero) {
+        y = 0;
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = 0; i < m; ++i) {
+            y++;
+            if (y + m < size.y) color_sum += imageLoad( InTexture, ivec2(x, y + m) );
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        for (int i = m + 1; i < size.y - m; ++i) {
+            y++;
+            if (0 <= y - m - 1) color_sum -= imageLoad( InTexture, ivec2(x, y - m - 1) );
+            if (y + m < size.y) color_sum += imageLoad( InTexture, ivec2(x, y + m) );
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        for (int i = 0; i < m; ++i) {
+            y++;
+            color_sum -= imageLoad( InTexture, ivec2(x, y - m - 1) );
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+    }
+    else {
+        if (0 <= y && y < size.y) color_sum += imageLoad( InTexture, ivec2(x, y) ) * a;
+        y = 0;
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = 0; i < m; ++i) {
+            y++;
+            if (y + m + 1 < size.y) {
+                color_sum +=
+                mix( imageLoad( InTexture, ivec2(x, y + m) ), imageLoad( InTexture, ivec2(x, y + m + 1) ), a );
+            }
+            else if (y + m < size.y) color_sum += imageLoad( InTexture, ivec2(x, y + m) ) * (one - a);
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        y++;
+        if (y + m + 1 < size.y) {
+            color_sum +=
+                mix( imageLoad( InTexture, ivec2(x, y + m) ), imageLoad( InTexture, ivec2(x, y + m + 1) ), a );
+        }
+        else if (y + m < size.y) color_sum += imageLoad( InTexture, ivec2(x, y + m) ) * (one - a);
+        if (0 <= y - m - 1) color_sum -= imageLoad( InTexture, ivec2(x, y - m - 1) ) * (one - a);
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = m + 2; i < size.y - m - 1; ++i) {
+            y++;
+            if (y + m + 1 < size.y) {
+                color_sum +=
+                    mix( imageLoad( InTexture, ivec2(x, y + m) ), imageLoad( InTexture, ivec2(x, y + m + 1) ), a );
+            }
+            else if (y + m < size.y) color_sum += imageLoad( InTexture, ivec2(x, y + m) ) * (one - a);
+            if (0 <= y - m - 2) {
+                color_sum -=
+                    mix( imageLoad( InTexture, ivec2(x, y - m - 1) ), imageLoad( InTexture, ivec2(x, y - m - 2) ), a );
+            }
+            else if (0 <= y - m - 1) color_sum -= imageLoad( InTexture, ivec2(x, y - m - 1) ) * (one - a);
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+        y++;
+        if (y + m < size.y) color_sum += imageLoad( InTexture, ivec2(x, y + m) ) * (one - a);
+        if (0 <= y - m - 2) {
+            color_sum -=
+                mix( imageLoad( InTexture, ivec2(x, y - m - 1) ), imageLoad( InTexture, ivec2(x, y - m - 2) ), a );
+        }
+        else if (0 <= y - m - 1) color_sum -= imageLoad( InTexture, ivec2(x, y - m - 1) ) * (one - a);
+        imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        for (int i = 0; i < m; ++i) {
+            y++;
+            if (0 <= y - m - 2) {
+                color_sum -=
+                    mix( imageLoad( InTexture, ivec2(x, y - m - 1) ), imageLoad( InTexture, ivec2(x, y - m - 2) ), a );
+            }
+            else if (0 <= y - m - 1) color_sum -= imageLoad( InTexture, ivec2(x, y - m - 1) ) * (one - a);
+            imageStore( OutTexture, ivec2(x, y), color_sum * normalizer );
+        }
+    }
+}
+
+void main()
+{
+    if (bool(IsHorizontal)) blurHorizontally();
+    else blurVertically();
+}

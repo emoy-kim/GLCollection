@@ -83,3 +83,7 @@ target_link_libraries(04_cube_mapping ${ALL_LIBS})
 # 05 Moving Point on Bezier Curve
 add_executable(05_moving_point_on_bezier_curve 05_moving_point_on_bezier_curve/05_moving_point_on_bezier_curve.cpp ${COMMON_FILES})
 target_link_libraries(05_moving_point_on_bezier_curve ${ALL_LIBS})
+
+# 06 Bump Mapping
+add_executable(06_bump_mapping 06_bump_mapping/06_bump_mapping.cpp ${COMMON_FILES})
+target_link_libraries(06_bump_mapping ${ALL_LIBS})

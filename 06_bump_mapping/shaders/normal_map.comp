@@ -1,0 +1,37 @@
+#version 460
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+layout (rgba8, binding = 0) readonly uniform image2D InTexture;
+layout (rgba8, binding = 1) writeonly uniform image2D OutTexture;
+
+const float zero = 0.0f;
+const float one = 1.0f;
+
+float getLuminosity(in vec3 rgb)
+{
+    const vec3 factor = vec3(0.298f, 0.588f, 0.113f);
+    return dot( factor, rgb );
+}
+
+void main()
+{
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    ivec2 size = imageSize( InTexture );
+    if (x >= size.x || y >= size.y) return;
+
+    vec4 center = imageLoad( InTexture, ivec2(x, y) );
+    vec4 left = x > 0 ? imageLoad( InTexture, ivec2(x - 1, y) ) : center;
+    vec4 right = x < size.x - 1 ? imageLoad( InTexture, ivec2(x + 1, y) ) : center;
+    vec4 down = y > 0 ? imageLoad( InTexture, ivec2(x, y - 1) ) : center;
+    vec4 up = y < size.y - 1 ? imageLoad( InTexture, ivec2(x, y + 1) ) : center;
+    float l = getLuminosity( left.rgb );
+    float r = getLuminosity( right.rgb );
+    float d = getLuminosity( down.rgb );
+    float u = getLuminosity( up.rgb );
+    vec3 dx = vec3(one, zero, r - l);
+    vec3 dy = vec3(zero, one, u - d);
+    vec3 n = normalize( cross( dx, dy ) ) * 0.5f + 0.5f;
+    imageStore( OutTexture, ivec2(x, y), vec4(n, center) );
+}
