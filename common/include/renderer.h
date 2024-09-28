@@ -16,6 +16,7 @@ public:
     RendererGL& operator=(const RendererGL&&) = delete;
 
 protected:
+    static constexpr int ThreadGroupSize = 32;
     inline static RendererGL* Renderer = nullptr;
     GLFWwindow* Window;
     int FrameWidth;
@@ -67,4 +68,11 @@ protected:
     {
         Renderer->reshape( window, width, height );
     }
+
+    [[nodiscard]] static constexpr int getGroupSize(int size)
+    {
+        return (size + ThreadGroupSize - 1) / ThreadGroupSize;
+    }
+
+    static void writeTexture(GLuint texture_id, int width, int height);
 };
