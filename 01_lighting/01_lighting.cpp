@@ -175,7 +175,8 @@ void C01Lighting::drawObject(const float& scale_factor) const
     ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix, MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
+        u::ModelViewProjectionMatrix,
+        MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
     ObjectShader->uniform1i( u::UseTexture, 1 );
     ObjectShader->uniform4fv( u::Material + m::EmissionColor, Object->getEmissionColor() );

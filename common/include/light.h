@@ -8,8 +8,8 @@ public:
     LightGL();
     ~LightGL() = default;
 
-    [[nodiscard]] bool isLightOn() const;
-    void toggleLightSwitch();
+    [[nodiscard]] bool isLightOn() const { return TurnLightOn; }
+    void toggleLightSwitch() { TurnLightOn = !TurnLightOn; }
     void addLight(
         const glm::vec4& light_position,
         const glm::vec4& ambient_color = glm::vec4( 0.0f, 0.0f, 0.0f, 1.0f ),
@@ -22,17 +22,18 @@ public:
     );
     void activateLight(const int& light_index);
     void deactivateLight(const int& light_index);
+    void setLightPosition(const glm::vec4& light_position, int light_index) { Positions[light_index] = light_position; }
     [[nodiscard]] int getTotalLightNum() const { return TotalLightNum; }
-    [[nodiscard]] glm::vec4 getGlobalAmbientColor() { return GlobalAmbientColor; }
+    [[nodiscard]] glm::vec4 getGlobalAmbientColor() const { return GlobalAmbientColor; }
     [[nodiscard]] bool isActivated(int light_index) { return IsActivated[light_index]; }
-    [[nodiscard]] glm::vec4 getPosition(int light_index) { return Positions[light_index]; }
-    [[nodiscard]] glm::vec4 getAmbientColors(int light_index) { return AmbientColors[light_index]; }
-    [[nodiscard]] glm::vec4 getDiffuseColors(int light_index) { return DiffuseColors[light_index]; }
-    [[nodiscard]] glm::vec4 getSpecularColors(int light_index) { return SpecularColors[light_index]; }
-    [[nodiscard]] glm::vec3 getSpotlightDirections(int light_index) { return SpotlightDirections[light_index]; }
-    [[nodiscard]] float getSpotlightCutoffAngles(int light_index) { return SpotlightCutoffAngles[light_index]; }
-    [[nodiscard]] float getSpotlightFeathers(int light_index) { return SpotlightFeathers[light_index]; }
-    [[nodiscard]] float getFallOffRadii(int light_index) { return FallOffRadii[light_index]; }
+    [[nodiscard]] glm::vec4 getPosition(int light_index) const { return Positions[light_index]; }
+    [[nodiscard]] glm::vec4 getAmbientColors(int light_index) const { return AmbientColors[light_index]; }
+    [[nodiscard]] glm::vec4 getDiffuseColors(int light_index) const { return DiffuseColors[light_index]; }
+    [[nodiscard]] glm::vec4 getSpecularColors(int light_index) const { return SpecularColors[light_index]; }
+    [[nodiscard]] glm::vec3 getSpotlightDirections(int light_index) const { return SpotlightDirections[light_index]; }
+    [[nodiscard]] float getSpotlightCutoffAngles(int light_index) const { return SpotlightCutoffAngles[light_index]; }
+    [[nodiscard]] float getSpotlightFeathers(int light_index) const { return SpotlightFeathers[light_index]; }
+    [[nodiscard]] float getFallOffRadii(int light_index) const { return FallOffRadii[light_index]; }
 
 private:
     bool TurnLightOn;

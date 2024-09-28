@@ -3,7 +3,7 @@
 #include "../common/include/renderer.h"
 #include "../01_lighting/lighting_shader.h"
 
-class C03GimbalLock : public RendererGL
+class C03GimbalLock final : public RendererGL
 {
 public:
     C03GimbalLock();

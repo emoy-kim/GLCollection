@@ -4,7 +4,7 @@
 #include "../common/include/shader.h"
 #include "../common/include/video_reader.h"
 
-class C04CubeMapping : public RendererGL
+class C04CubeMapping final : public RendererGL
 {
 public:
     C04CubeMapping();
