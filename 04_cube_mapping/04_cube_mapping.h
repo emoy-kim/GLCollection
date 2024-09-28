@@ -27,11 +27,7 @@ private:
     std::unique_ptr<ObjectGL> CubeObject;
     std::array<std::unique_ptr<VideoReader>, 6> Videos;
 
-    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-    void mouse(GLFWwindow* window, int button, int action, int mods) override;
-    void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const override;
-
     void setCubeObject(float length);
     void render() const;
 };

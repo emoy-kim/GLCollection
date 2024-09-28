@@ -95,21 +95,6 @@ void C03GimbalLock::cursor(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void C03GimbalLock::mouse(GLFWwindow* window, int button, int action, int mods)
-{
-    std::ignore = mods;
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        const bool moving_state = action == GLFW_PRESS;
-        if (moving_state) {
-            double x, y;
-            glfwGetCursorPos( window, &x, &y );
-            ClickedPoint.x = static_cast<int>(round( x ));
-            ClickedPoint.y = static_cast<int>(round( y ));
-        }
-        MainCamera->setMovingState( moving_state );
-    }
-}
-
 void C03GimbalLock::setLights() const
 {
     constexpr glm::vec4 light_position( 10.0f, 15.0f, 15.0f, 1.0f );

@@ -26,10 +26,7 @@ private:
     std::unique_ptr<ShaderGL> NormalMapShader;
     std::array<std::unique_ptr<ObjectGL>, 9> WallObjects;
 
-    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-    void mouse(GLFWwindow* window, int button, int action, int mods) override;
-
     void setLights() const;
     void createNormalMap(ObjectGL* object);
     void setWallObjects();

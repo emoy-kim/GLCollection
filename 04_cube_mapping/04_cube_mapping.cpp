@@ -68,48 +68,6 @@ void C04CubeMapping::keyboard(GLFWwindow* window, int key, int scancode, int act
     }
 }
 
-void C04CubeMapping::cursor(GLFWwindow* window, double xpos, double ypos)
-{
-    if (MainCamera->getMovingState()) {
-        const auto x = static_cast<int>(round( xpos ));
-        const auto y = static_cast<int>(round( ypos ));
-        const int dx = x - ClickedPoint.x;
-        const int dy = y - ClickedPoint.y;
-        MainCamera->moveForward( -dy );
-        MainCamera->rotateAroundWorldY( -dx );
-
-        if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_RIGHT ) == GLFW_PRESS) {
-            MainCamera->pitch( -dy );
-        }
-
-        ClickedPoint.x = x;
-        ClickedPoint.y = y;
-    }
-}
-
-void C04CubeMapping::mouse(GLFWwindow* window, int button, int action, int mods)
-{
-    std::ignore = mods;
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        const bool moving_state = action == GLFW_PRESS;
-        if (moving_state) {
-            double x, y;
-            glfwGetCursorPos( window, &x, &y );
-            ClickedPoint.x = static_cast<int>(round( x ));
-            ClickedPoint.y = static_cast<int>(round( y ));
-        }
-        MainCamera->setMovingState( moving_state );
-    }
-}
-
-void C04CubeMapping::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
-{
-    std::ignore = window;
-    std::ignore = xoffset;
-    if (yoffset >= 0.0) MainCamera->zoomIn();
-    else MainCamera->zoomOut();
-}
-
 void C04CubeMapping::setCubeObject(float length)
 {
     const std::vector<glm::vec3> cube_vertices{

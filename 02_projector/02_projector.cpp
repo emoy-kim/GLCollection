@@ -91,8 +91,10 @@ void C02Projector::keyboard(GLFWwindow* window, int key, int scancode, int actio
 
 void C02Projector::cursor(GLFWwindow* window, double xpos, double ypos)
 {
-    CameraGL* camera = glfwGetKey( window, GLFW_KEY_LEFT_CONTROL ) == GLFW_PRESS ? MainCamera.get() : Projector.get();
-    if (camera->getMovingState()) {
+    if (CameraGL* camera = glfwGetKey( window, GLFW_KEY_LEFT_CONTROL ) == GLFW_PRESS ?
+                               MainCamera.get() :
+                               Projector.get();
+        camera->getMovingState()) {
         const auto x = static_cast<int>(round( xpos ));
         const auto y = static_cast<int>(round( ypos ));
         const int dx = x - ClickedPoint.x;
@@ -126,14 +128,6 @@ void C02Projector::mouse(GLFWwindow* window, int button, int action, int mods)
         }
         else Projector->setMovingState( moving_state );
     }
-}
-
-void C02Projector::mousewheel(GLFWwindow* window, double xoffset, double yoffset) const
-{
-    std::ignore = window;
-    std::ignore = xoffset;
-    if (yoffset >= 0.0) MainCamera->zoomIn();
-    else MainCamera->zoomOut();
 }
 
 void C02Projector::setLights() const

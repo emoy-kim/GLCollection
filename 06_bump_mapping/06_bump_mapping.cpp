@@ -72,39 +72,6 @@ void C06BumpMapping::keyboard(GLFWwindow* window, int key, int scancode, int act
     }
 }
 
-void C06BumpMapping::cursor(GLFWwindow* window, double xpos, double ypos)
-{
-    if (MainCamera->getMovingState()) {
-        const auto x = static_cast<int>(round( xpos ));
-        const auto y = static_cast<int>(round( ypos ));
-        const int dx = x - ClickedPoint.x;
-        const int dy = y - ClickedPoint.y;
-        MainCamera->moveForward( -dy );
-        MainCamera->rotateAroundWorldY( -dx );
-
-        if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_RIGHT ) == GLFW_PRESS) {
-            MainCamera->pitch( -dy );
-        }
-
-        ClickedPoint.x = x;
-        ClickedPoint.y = y;
-    }
-}
-
-void C06BumpMapping::mouse(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        const bool moving_state = action == GLFW_PRESS;
-        if (moving_state) {
-            double x, y;
-            glfwGetCursorPos( window, &x, &y );
-            ClickedPoint.x = static_cast<int>(round( x ));
-            ClickedPoint.y = static_cast<int>(round( y ));
-        }
-        MainCamera->setMovingState( moving_state );
-    }
-}
-
 void C06BumpMapping::setLights() const
 {
     glm::vec4 light_position( 0.5f, 0.5f, 0.2f, 1.0f );

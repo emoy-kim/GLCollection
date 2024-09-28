@@ -35,8 +35,6 @@ private:
     void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
     void mouse(GLFWwindow* window, int button, int action, int mods) override;
-    void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const override;
-
     void prepareSlide();
     void setLights() const;
     void setWallObject() const;

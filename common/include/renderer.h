@@ -35,10 +35,10 @@ protected:
     }
 
     static void cleanup(GLFWwindow* window) { glfwSetWindowShouldClose( window, GLFW_TRUE ); }
-    virtual void cursor(GLFWwindow* window, double xpos, double ypos) {}
+    virtual void cursor(GLFWwindow* window, double xpos, double ypos);
+    virtual void mouse(GLFWwindow* window, int button, int action, int mods);
+    virtual void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const;
     virtual void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {}
-    virtual void mouse(GLFWwindow* window, int button, int action, int mods) {}
-    virtual void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const {}
 
     virtual void reshape(GLFWwindow* window, int width, int height) const
     {
@@ -69,6 +69,9 @@ protected:
         Renderer->reshape( window, width, height );
     }
 
+    // 16 and 32 do well, anything in between or below is bad.
+    // 32 seems to do well on laptop/desktop Windows Intel and on NVidia/AMD as well.
+    // further hardware-specific tuning might be needed for optimal performance.
     [[nodiscard]] static constexpr int getGroupSize(int size)
     {
         return (size + ThreadGroupSize - 1) / ThreadGroupSize;

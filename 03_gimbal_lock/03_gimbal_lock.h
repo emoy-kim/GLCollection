@@ -47,8 +47,6 @@ private:
 
     void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-    void mouse(GLFWwindow* window, int button, int action, int mods) override;
-
     void captureFrame();
     void setLights() const;
     void setAxisObject() const;

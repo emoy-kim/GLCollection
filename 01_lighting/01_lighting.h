@@ -23,11 +23,7 @@ private:
     std::unique_ptr<ObjectGL> Object;
     std::unique_ptr<LightGL> Lights;
 
-    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
-    void mouse(GLFWwindow* window, int button, int action, int mods) override;
-    void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const override;
-
     void setLights() const;
     void setObject() const;
     void drawObject(const float& scale_factor = 1.0f) const;
