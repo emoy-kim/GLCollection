@@ -131,7 +131,7 @@ void main()
     if (WhichObject == 0) {
         vec4 projector_color = getProjectorColor();
         if (bool(UseLight)) final_color = mix( projector_color, calculateLightingEquation(), 0.5f );
-        else final_color = Material.DiffuseColor;
+        else final_color = projector_color;
     }
     else if (WhichObject == 1) final_color = texture( BaseTexture, tex_coord );
     else final_color = Material.DiffuseColor;
