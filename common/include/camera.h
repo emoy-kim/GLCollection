@@ -29,6 +29,7 @@ public:
     [[nodiscard]] glm::vec3 getCameraPosition() const { return CamPos; }
     [[nodiscard]] const glm::mat4& getViewMatrix() const { return ViewMatrix; }
     [[nodiscard]] const glm::mat4& getProjectionMatrix() const { return ProjectionMatrix; }
+    void setInitFOV(float fov) { InitFOV = FOV = fov; }
     void setMovingState(bool is_moving) { IsMoving = is_moving; }
     void setZoomSensitivity(float zoom) { ZoomSensitivity = zoom; }
     void setMoveSensitivity(float move) { MoveSensitivity = move; }
