@@ -21,3 +21,6 @@
   </p>
 
   ![bumpmapping](https://user-images.githubusercontent.com/17864157/64487175-fc725700-d271-11e9-8753-e04786247208.png)
+
+## 07 Wave Simulation
+![watersimulation](https://user-images.githubusercontent.com/17864157/62009307-cfbe2080-b198-11e9-8432-5c816884edf6.gif)
