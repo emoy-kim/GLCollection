@@ -10,11 +10,28 @@ public:
     ObjectGL();
     ~ObjectGL();
 
-    void setEmissionColor(const glm::vec4& emission_color);
-    void setAmbientReflectionColor(const glm::vec4& ambient_reflection_color);
-    void setDiffuseReflectionColor(const glm::vec4& diffuse_reflection_color);
-    void setSpecularReflectionColor(const glm::vec4& specular_reflection_color);
-    void setSpecularReflectionExponent(const float& specular_reflection_exponent);
+    void setEmissionColor(const glm::vec4& emission_color) { EmissionColor = emission_color; }
+
+    void setAmbientReflectionColor(const glm::vec4& ambient_reflection_color)
+    {
+        AmbientReflectionColor = ambient_reflection_color;
+    }
+
+    void setDiffuseReflectionColor(const glm::vec4& diffuse_reflection_color)
+    {
+        DiffuseReflectionColor = diffuse_reflection_color;
+    }
+
+    void setSpecularReflectionColor(const glm::vec4& specular_reflection_color)
+    {
+        SpecularReflectionColor = specular_reflection_color;
+    }
+
+    void setSpecularReflectionExponent(const float& specular_reflection_exponent)
+    {
+        SpecularReflectionExponent = specular_reflection_exponent;
+    }
+
     void setObject(GLenum draw_mode, int vertex_num);
     void setObject(GLenum draw_mode, const std::vector<glm::vec3>& vertices);
     void setObject(
@@ -40,6 +57,13 @@ public:
         const std::vector<glm::vec3>& vertices,
         const std::vector<glm::vec3>& normals,
         const std::vector<glm::vec2>& textures,
+        const std::vector<GLuint>& indices
+    );
+    void setObject(
+        GLenum draw_mode,
+        const std::vector<glm::vec3>& vertices,
+        const std::vector<glm::vec3>& normals,
+        const std::vector<glm::vec2>& textures,
         const std::string& texture_file_path,
         bool is_grayscale = false
     );
@@ -51,6 +75,15 @@ public:
         const uint8_t* image_buffer,
         int width,
         int height,
+        bool is_grayscale = false
+    );
+    void setObject(
+        GLenum draw_mode,
+        const std::vector<glm::vec3>& vertices,
+        const std::vector<glm::vec3>& normals,
+        const std::vector<glm::vec2>& textures,
+        const std::vector<GLuint>& indices,
+        const std::string& texture_file_path,
         bool is_grayscale = false
     );
     void setSquareObject(GLenum draw_mode, bool use_texture = true);
@@ -89,6 +122,8 @@ public:
         const std::string& file_path
     );
     [[nodiscard]] GLuint getVAO() const { return VAO; }
+    [[nodiscard]] GLuint getVBO() const { return VBO; }
+    [[nodiscard]] GLuint getIBO() const { return IBO; }
     [[nodiscard]] GLenum getDrawMode() const { return DrawMode; }
     [[nodiscard]] GLsizei getVertexNum() const { return VerticesCount; }
     [[nodiscard]] GLuint getTextureID(int index) const { return TextureID[index]; }
@@ -110,10 +145,27 @@ public:
         return buffer;
     }
 
+    template<typename T>
+    static void upload(GLuint buffer, int offset, int data_size, const void* ptr)
+    {
+        glNamedBufferSubData( buffer, offset, sizeof( T ) * data_size, ptr );
+    }
+
+    template<typename T>
+    static void copy(GLuint source, GLuint target, int source_offset, int target_offset, int data_size)
+    {
+        glCopyNamedBufferSubData(
+            source, target,
+            source_offset, target_offset,
+            sizeof( T ) * data_size
+        );
+    }
+
 private:
     uint8_t* ImageBuffer;
     GLuint VAO;
     GLuint VBO;
+    GLuint IBO;
     GLenum DrawMode;
     std::vector<GLfloat> DataBuffer;
     std::vector<GLuint> TextureID;
@@ -132,8 +184,9 @@ private:
 
     [[nodiscard]] bool prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale);
     void prepareTexture(bool normals_exist) const;
-    void prepareVertexBuffer(int n_bytes_per_vertex);
     void prepareNormal() const;
+    void prepareVertexBuffer(int n_bytes_per_vertex);
+    void prepareIndexBuffer(const std::vector<GLuint>& indices);
     static void getSquareObject(
         std::vector<glm::vec3>& vertices,
         std::vector<glm::vec3>& normals,

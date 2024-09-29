@@ -4,6 +4,7 @@ ObjectGL::ObjectGL()
     : ImageBuffer( nullptr ),
       VAO( 0 ),
       VBO( 0 ),
+      IBO( 0 ),
       DrawMode( 0 ),
       VerticesCount( 0 ),
       EmissionColor( 0.0f, 0.0f, 0.0f, 1.0f ),
@@ -14,10 +15,12 @@ ObjectGL::ObjectGL()
 
 ObjectGL::~ObjectGL()
 {
-    if (VAO != 0) {
-        glDeleteVertexArrays( 1, &VAO );
+    if (IBO != 0)
+        glDeleteBuffers( 1, &IBO );
+    if (VBO != 0)
         glDeleteBuffers( 1, &VBO );
-    }
+    if (VAO != 0)
+        glDeleteVertexArrays( 1, &VAO );
     for (const auto& texture_id : TextureID) {
         if (texture_id != 0)
             glDeleteTextures( 1, &texture_id );
@@ -27,31 +30,6 @@ ObjectGL::~ObjectGL()
             glDeleteBuffers( 1, &buffer );
     }
     delete [] ImageBuffer;
-}
-
-void ObjectGL::setEmissionColor(const glm::vec4& emission_color)
-{
-    EmissionColor = emission_color;
-}
-
-void ObjectGL::setAmbientReflectionColor(const glm::vec4& ambient_reflection_color)
-{
-    AmbientReflectionColor = ambient_reflection_color;
-}
-
-void ObjectGL::setDiffuseReflectionColor(const glm::vec4& diffuse_reflection_color)
-{
-    DiffuseReflectionColor = diffuse_reflection_color;
-}
-
-void ObjectGL::setSpecularReflectionColor(const glm::vec4& specular_reflection_color)
-{
-    SpecularReflectionColor = specular_reflection_color;
-}
-
-void ObjectGL::setSpecularReflectionExponent(const float& specular_reflection_exponent)
-{
-    SpecularReflectionExponent = specular_reflection_exponent;
 }
 
 bool ObjectGL::prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale)
@@ -233,6 +211,18 @@ void ObjectGL::prepareVertexBuffer(int n_bytes_per_vertex)
     glVertexArrayAttribBinding( VAO, VertexLocation, 0 );
 }
 
+void ObjectGL::prepareIndexBuffer(const std::vector<GLuint>& indices)
+{
+    assert( VAO != 0 );
+
+    if (IBO != 0)
+        glDeleteBuffers( 1, &IBO );
+
+    glCreateBuffers( 1, &IBO );
+    glNamedBufferStorage( IBO, sizeof( GLuint ) * indices.size(), indices.data(), GL_DYNAMIC_STORAGE_BIT );
+    glVertexArrayElementBuffer( VAO, IBO );
+}
+
 void ObjectGL::getSquareObject(
     std::vector<glm::vec3>& vertices,
     std::vector<glm::vec3>& normals,
@@ -372,6 +362,35 @@ void ObjectGL::setObject(
     const std::vector<glm::vec3>& vertices,
     const std::vector<glm::vec3>& normals,
     const std::vector<glm::vec2>& textures,
+    const std::vector<GLuint>& indices
+)
+{
+    DrawMode = draw_mode;
+    VerticesCount = 0;
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        DataBuffer.emplace_back( vertices[i].x );
+        DataBuffer.emplace_back( vertices[i].y );
+        DataBuffer.emplace_back( vertices[i].z );
+        DataBuffer.emplace_back( normals[i].x );
+        DataBuffer.emplace_back( normals[i].y );
+        DataBuffer.emplace_back( normals[i].z );
+        DataBuffer.emplace_back( textures[i].x );
+        DataBuffer.emplace_back( textures[i].y );
+        VerticesCount++;
+    }
+    constexpr int n_bytes_per_vertex = 8 * sizeof( GLfloat );
+    prepareVertexBuffer( n_bytes_per_vertex );
+    prepareNormal();
+    prepareTexture( true );
+    prepareIndexBuffer( indices );
+    DataBuffer.clear();
+}
+
+void ObjectGL::setObject(
+    GLenum draw_mode,
+    const std::vector<glm::vec3>& vertices,
+    const std::vector<glm::vec3>& normals,
+    const std::vector<glm::vec2>& textures,
     const std::string& texture_file_path,
     bool is_grayscale
 )
@@ -393,6 +412,20 @@ void ObjectGL::setObject(
 {
     setObject( draw_mode, vertices, normals, textures );
     addTexture( image_buffer, width, height, is_grayscale );
+}
+
+void ObjectGL::setObject(
+    GLenum draw_mode,
+    const std::vector<glm::vec3>& vertices,
+    const std::vector<glm::vec3>& normals,
+    const std::vector<glm::vec2>& textures,
+    const std::vector<GLuint>& indices,
+    const std::string& texture_file_path,
+    bool is_grayscale
+)
+{
+    setObject( draw_mode, vertices, normals, textures, indices );
+    addTexture( texture_file_path, is_grayscale );
 }
 
 void ObjectGL::setSquareObject(GLenum draw_mode, bool use_texture)
