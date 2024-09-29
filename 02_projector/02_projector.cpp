@@ -10,11 +10,10 @@ C02Projector::C02Projector()
               glm::vec3{ 40.0f, 30.0f, 20.0f },
               glm::vec3{ 0.0f, 0.0f, 0.0f },
               glm::vec3{ 0.0f, 1.0f, 0.0f },
-              30.0f, 10.0f, 60.0f
+              0.0f, 10.0f, 60.0f
           )
       ),
       ObjectShader( std::make_unique<ShaderGL>() ),
-      ProjectorPyramidObject( std::make_unique<ObjectGL>() ),
       WallObject( std::make_unique<ObjectGL>() ),
       Lights( std::make_unique<LightGL>() )
 {
@@ -196,35 +195,7 @@ void C02Projector::setWallObject() const
     WallObject->setDiffuseReflectionColor( { 0.52f, 0.12f, 0.15f, 1.0f } );
 }
 
-void C02Projector::prepareSlide()
-{
-    static const std::string sample_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/02_projector/samples";
-    static const std::string image_path = sample_directory_path + "/image.jpg";
-    static const std::string video_path = sample_directory_path + "/video.mp4";
-
-    ScreenObject = std::make_unique<ObjectGL>();
-    if (!IsVideo) {
-        ScreenObject->setSquareObject( GL_TRIANGLES, image_path );
-        const glm::ivec2 screen_size = ScreenObject->getTextureSize( ScreenObject->getTextureID( 0 ) );
-        Projector->update3DCamera( screen_size.x / 100, screen_size.y / 100 );
-    }
-    else {
-        Pause = false;
-        VideoFrameIndex = 0;
-        delete [] SlideBuffer;
-        Video = std::make_unique<VideoReader>();
-        Video->open( video_path );
-        const int w = Video->getFrameWidth();
-        const int h = Video->getFrameHeight();
-        SlideBuffer = new uint8_t[w * h * 4];
-        if (!Video->read( SlideBuffer, VideoFrameIndex++ ))
-            throw std::runtime_error( "Could not read a video frame!" );
-        Projector->update3DCamera( w / 100, h / 100 );
-        ScreenObject->setSquareObject( GL_TRIANGLES, SlideBuffer, w, h );
-    }
-}
-
-void C02Projector::setProjectorPyramidObject() const
+void C02Projector::setProjectorPyramidObject()
 {
     const float near_plane = Projector->getNearPlane();
     const float far_plane = Projector->getFarPlane();
@@ -256,8 +227,44 @@ void C02Projector::setProjectorPyramidObject() const
     pyramid_vertices.emplace_back( -half_width, -half_height, -far_plane );
     pyramid_vertices.emplace_back( -half_width, half_height, -far_plane );
 
+    ProjectorPyramidObject = std::make_unique<ObjectGL>();
     ProjectorPyramidObject->setObject( GL_LINES, pyramid_vertices );
     ProjectorPyramidObject->setDiffuseReflectionColor( { 1.0f, 1.0f, 0.0f, 1.0f } );
+}
+
+void C02Projector::prepareSlide()
+{
+    static const std::string sample_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/02_projector/samples";
+    static const std::string image_path = sample_directory_path + "/image.jpg";
+    static const std::string video_path = sample_directory_path + "/video.mp4";
+
+    glm::ivec2 screen_size;
+    ScreenObject = std::make_unique<ObjectGL>();
+    if (!IsVideo) {
+        ScreenObject->setSquareObject( GL_TRIANGLES, image_path );
+        const glm::ivec2 texture_size = ScreenObject->getTextureSize( ScreenObject->getTextureID( 0 ) );
+        screen_size = texture_size / 100;
+    }
+    else {
+        Pause = false;
+        VideoFrameIndex = 0;
+        delete [] SlideBuffer;
+        Video = std::make_unique<VideoReader>();
+        Video->open( video_path );
+        screen_size.x = Video->getFrameWidth();
+        screen_size.y = Video->getFrameHeight();
+        SlideBuffer = new uint8_t[screen_size.x * screen_size.y * 4];
+        if (!Video->read( SlideBuffer, VideoFrameIndex++ ))
+            throw std::runtime_error( "Could not read a video frame!" );
+        ScreenObject->setSquareObject( GL_TRIANGLES, SlideBuffer, screen_size.x, screen_size.y );
+        screen_size /= 100;
+    }
+    const float projector_depth = Projector->getNearPlane();
+    const float fov = 2.0f * glm::degrees( glm::atan( static_cast<float>(screen_size.y) * 0.5f / projector_depth ) );
+    Projector->setInitFOV( fov );
+    Projector->update3DCamera( screen_size.x, screen_size.y );
+
+    setProjectorPyramidObject();
 }
 
 void C02Projector::drawWallObject() const
@@ -266,12 +273,11 @@ void C02Projector::drawWallObject() const
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
-    constexpr glm::mat4 to_world( 1.0f );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( u::WorldMatrix, glm::mat4( 1.0f ) );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
         u::ModelViewProjectionMatrix,
-        MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
+        MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix()
     );
     ObjectShader->uniformMat4fv( u::ProjectorViewMatrix, Projector->getViewMatrix() );
     ObjectShader->uniformMat4fv( u::ProjectorProjectionMatrix, Projector->getProjectionMatrix() );
@@ -310,7 +316,9 @@ void C02Projector::drawScreenObject() const
     using u = ProjectorShader::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
-    const glm::mat4 to_world = inverse( Projector->getViewMatrix() );
+    const glm::mat4 to_world = inverse( Projector->getViewMatrix() ) *
+        scale( glm::mat4( 1.0f ), glm::vec3( Projector->getWidth(), Projector->getHeight(), 1.0f ) ) *
+        translate( glm::mat4( 1.0f ), glm::vec3( -0.5f, -0.5f, -Projector->getNearPlane() ) );
     ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
@@ -380,7 +388,6 @@ void C02Projector::play()
     setLights();
     setWallObject();
     prepareSlide();
-    setProjectorPyramidObject();
     while (!glfwWindowShouldClose( Window )) {
         render();
 

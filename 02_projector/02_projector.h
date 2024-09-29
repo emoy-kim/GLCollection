@@ -35,10 +35,10 @@ private:
     void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
     void mouse(GLFWwindow* window, int button, int action, int mods) override;
+    void setProjectorPyramidObject();
     void prepareSlide();
     void setLights() const;
     void setWallObject() const;
-    void setProjectorPyramidObject() const;
     void drawWallObject() const;
     void drawScreenObject() const;
     void drawProjectorObject() const;
