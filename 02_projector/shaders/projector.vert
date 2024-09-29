@@ -26,8 +26,8 @@ void main()
     tex_coord = v_tex_coord;
 
     vec4 projector_point_in_cc = ProjectorProjectionMatrix * ProjectorViewMatrix * WorldMatrix * vec4(v_position, 1.0f);
-    projector_tex_coord.x = 0.5f * projector_point_in_cc.x + 0.5f * projector_point_in_cc.w;
-    projector_tex_coord.y = 0.5f * projector_point_in_cc.y + 0.5f * projector_point_in_cc.w;
+    projector_tex_coord.x = 0.5f * (projector_point_in_cc.x + projector_point_in_cc.w);
+    projector_tex_coord.y = 0.5f * (projector_point_in_cc.y + projector_point_in_cc.w);
     projector_tex_coord.z = projector_point_in_cc.w;
 
     gl_Position = ModelViewProjectionMatrix * vec4(v_position, 1.0f);
