@@ -1,0 +1,62 @@
+#version 430
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+struct Attributes
+{
+    float x, y, z, nx, ny, nz, s, t;
+};
+
+layout(binding = 0, std430) buffer InOutPoints { Attributes p[]; };
+
+layout (location = 0) uniform ivec2 PointNum;
+
+void main() 
+{
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    if (x >= PointNum.x || y >= PointNum.y) return;
+
+    int index = y * PointNum.x + x;
+    vec3 estimated_normal = vec3(0.0f);
+    vec3 point_vec = vec3(p[index].x, p[index].y, p[index].z);
+
+    if (y > 0) {
+        int top_index = index - PointNum.x;
+        vec3 top_vec = vec3(p[top_index].x, p[top_index].y, p[top_index].z) - point_vec;
+        if (x > 0) {
+           vec3 left_vec = vec3(p[index - 1].x, p[index - 1].y, p[index - 1].z) - point_vec;
+           vec3 top_left_vec = vec3(p[top_index - 1].x, p[top_index - 1].y, p[top_index - 1].z) - point_vec;
+           estimated_normal += cross( top_vec, top_left_vec );
+           estimated_normal += cross( top_left_vec, left_vec );
+        }
+        if (x < PointNum.x - 1) {
+           vec3 right_vec = vec3(p[index + 1].x, p[index + 1].y, p[index + 1].z) - point_vec;
+           vec3 top_right_vec = vec3(p[top_index + 1].x, p[top_index + 1].y, p[top_index + 1].z) - point_vec;
+           estimated_normal += cross( right_vec, top_right_vec );
+           estimated_normal += cross( top_right_vec, top_vec );
+        }
+    }
+
+    if (y < PointNum.y - 1) {
+       int bottom_index = index + PointNum.x;
+       vec3 bottom_vec = vec3(p[bottom_index].x, p[bottom_index].y, p[bottom_index].z) - point_vec;
+       if (x > 0) {
+          vec3 left_vec = vec3(p[index - 1].x, p[index - 1].y, p[index - 1].z) - point_vec;
+          vec3 bottom_left_vec = vec3(p[bottom_index - 1].x, p[bottom_index - 1].y, p[bottom_index - 1].z) - point_vec;
+          estimated_normal += cross( left_vec, bottom_left_vec );
+          estimated_normal += cross( bottom_left_vec, bottom_vec );
+       }
+       if (x < PointNum.x - 1) {
+          vec3 right_vec = vec3(p[index + 1].x, p[index + 1].y, p[index + 1].z) - point_vec;
+          vec3 bottom_right_vec = vec3(p[bottom_index + 1].x, p[bottom_index + 1].y, p[bottom_index + 1].z) - point_vec;
+          estimated_normal += cross( bottom_vec, bottom_right_vec );
+          estimated_normal += cross( bottom_right_vec, right_vec );
+       }
+    }
+
+    estimated_normal = normalize( estimated_normal );
+    p[index].nx = estimated_normal.x;
+    p[index].ny = estimated_normal.y;
+    p[index].nz = estimated_normal.z;
+}

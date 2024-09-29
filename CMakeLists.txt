@@ -64,26 +64,23 @@ set(
         common/source/video_reader.cpp
 )
 
-# 01 Lighting
 add_executable(01_lighting 01_lighting/01_lighting.cpp ${COMMON_FILES})
 target_link_libraries(01_lighting ${ALL_LIBS})
 
-# 02 Projector
 add_executable(02_projector 02_projector/02_projector.cpp ${COMMON_FILES})
 target_link_libraries(02_projector ${ALL_LIBS})
 
-# 03 Gimbal Lock
 add_executable(03_gimbal_lock 03_gimbal_lock/03_gimbal_lock.cpp ${COMMON_FILES})
 target_link_libraries(03_gimbal_lock ${ALL_LIBS})
 
-# 04 Cube Mapping
 add_executable(04_cube_mapping 04_cube_mapping/04_cube_mapping.cpp ${COMMON_FILES})
 target_link_libraries(04_cube_mapping ${ALL_LIBS})
 
-# 05 Moving Point on Bezier Curve
 add_executable(05_moving_point_on_bezier_curve 05_moving_point_on_bezier_curve/05_moving_point_on_bezier_curve.cpp ${COMMON_FILES})
 target_link_libraries(05_moving_point_on_bezier_curve ${ALL_LIBS})
 
-# 06 Bump Mapping
 add_executable(06_bump_mapping 06_bump_mapping/06_bump_mapping.cpp ${COMMON_FILES})
 target_link_libraries(06_bump_mapping ${ALL_LIBS})
+
+add_executable(07_wave_simulation 07_wave_simulation/07_wave_simulation.cpp ${COMMON_FILES})
+target_link_libraries(07_wave_simulation ${ALL_LIBS})

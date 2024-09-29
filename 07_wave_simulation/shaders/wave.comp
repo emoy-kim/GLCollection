@@ -1,0 +1,36 @@
+#version 430
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+struct Attributes
+{
+    float x, y, z, nx, ny, nz, s, t;
+};
+
+layout(binding = 0, std430) buffer PrevPoints { Attributes prev[]; };
+layout(binding = 1, std430) buffer CurrPoints { Attributes curr[]; };
+layout(binding = 2, std430) buffer NextPoints { Attributes next[]; };
+
+layout (location = 0) uniform ivec2 PointNum;
+layout (location = 1) uniform float Factor;
+
+void main() 
+{
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    if (x >= PointNum.x || y >= PointNum.y) return;
+
+    int index = y * PointNum.x + x;
+    float updated_height = 2.0f * curr[index].y - prev[index].y;
+    if (x > 0) updated_height += Factor * curr[index - 1].y;
+    if (x < PointNum.x - 1) updated_height += Factor * curr[index + 1].y;
+    if (y > 0) updated_height += Factor * curr[index - PointNum.x].y;
+    if (y < PointNum.y - 1) updated_height += Factor * curr[index + PointNum.x].y;
+
+    updated_height /= (1.0f + 4.0f * Factor);
+    next[index].x = curr[index].x;
+    next[index].y = updated_height;
+    next[index].z = curr[index].z;
+    next[index].s = curr[index].s;
+    next[index].t = curr[index].t;
+}
