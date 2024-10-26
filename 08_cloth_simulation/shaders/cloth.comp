@@ -28,21 +28,15 @@ struct Attributes
     float x, y, z, nx, ny, nz, s, t;
 };
 
-layout (binding = 0, std430) buffer PrevPoints {
-    Attributes Pn_prev[];
-};
+layout (binding = 0, std430) buffer PrevPoints { Attributes Pn_prev[]; };
 
-layout (binding = 1, std430) buffer CurrPoints {
-    Attributes Pn[];
-};
+layout (binding = 1, std430) buffer CurrPoints { Attributes Pn[]; };
 
-layout (binding = 2, std430) buffer NextPoints {
-    Attributes Pn_next[];
-};
+layout (binding = 2, std430) buffer NextPoints { Attributes Pn_next[]; };
 
 struct Spring
 {
-    uint index; // 0xFFFFFFFF means that it is not the neighbor of the current vertex.
+    uint index;
     float k;
     float rest_length;
     float damping;
@@ -51,27 +45,44 @@ Spring neighbors[12];
 
 const float zero = 0.0f;
 const float one = 1.0f;
+const int top = 0;
+const int bottom = 1;
+const int left = 2;
+const int right = 3;
+const int top_left = 4;
+const int top_right = 5;
+const int bottom_left = 6;
+const int bottom_right = 7;
+const int top_top = 8;
+const int bottom_bottom = 9;
+const int left_left = 10;
+const int right_right = 11;
+const uint no_neighbor = 0xFFFFFFFF;
 
 vec4 Gravity = vec4(zero, GravityConstant, zero, zero);
 
 void setNeighborSprings(uint index, uint cols, uint rows)
 {
-    neighbors[0].index = 0 < gl_GlobalInvocationID.y ? index - cols : 0xFFFFFFFF;                     // top
-    neighbors[1].index = gl_GlobalInvocationID.y < rows - 1 ? index + cols : 0xFFFFFFFF;              // bottom
-    neighbors[2].index = 0 < gl_GlobalInvocationID.x ? index - 1 : 0xFFFFFFFF;                        // left
-    neighbors[3].index = gl_GlobalInvocationID.x < cols - 1 ? index + 1 : 0xFFFFFFFF;                 // right
-    neighbors[4].index = neighbors[0].index != 0xFFFFFFFF && neighbors[2].index != 0xFFFFFFFF ?
-    neighbors[0].index - 1 : 0xFFFFFFFF;                                                              // top-left
-    neighbors[5].index = neighbors[0].index != 0xFFFFFFFF && neighbors[3].index != 0xFFFFFFFF ?
-    neighbors[0].index + 1 : 0xFFFFFFFF;                                                              // top-right
-    neighbors[6].index = neighbors[1].index != 0xFFFFFFFF && neighbors[2].index != 0xFFFFFFFF ?
-    neighbors[1].index - 1 : 0xFFFFFFFF;                                                              // bottom-left
-    neighbors[7].index = neighbors[1].index != 0xFFFFFFFF && neighbors[3].index != 0xFFFFFFFF ?
-    neighbors[1].index + 1 : 0xFFFFFFFF;                                                              // bottom-right
-    neighbors[8].index = 1 < gl_GlobalInvocationID.y ? neighbors[0].index - cols : 0xFFFFFFFF;        // top-top
-    neighbors[9].index = gl_GlobalInvocationID.y < rows - 2 ? neighbors[1].index + cols : 0xFFFFFFFF; // bottom-bottom
-    neighbors[10].index = 1 < gl_GlobalInvocationID.x ? neighbors[2].index - 1 : 0xFFFFFFFF;          // left-left
-    neighbors[11].index = gl_GlobalInvocationID.x < cols - 2 ? neighbors[3].index + 1 : 0xFFFFFFFF;   // right-right
+    neighbors[top].index = 0 < gl_GlobalInvocationID.y ? index - cols : no_neighbor;
+    neighbors[bottom].index = gl_GlobalInvocationID.y < rows - 1 ? index + cols : no_neighbor;
+    neighbors[left].index = 0 < gl_GlobalInvocationID.x ? index - 1 : no_neighbor;
+    neighbors[right].index = gl_GlobalInvocationID.x < cols - 1 ? index + 1 : no_neighbor;
+    neighbors[top_left].index = neighbors[top].index != no_neighbor && neighbors[left].index != no_neighbor ?
+        neighbors[top].index - 1 :
+        0xFFFFFFFF;
+    neighbors[top_right].index = neighbors[top].index != no_neighbor && neighbors[right].index != no_neighbor ?
+        neighbors[top].index + 1 :
+        0xFFFFFFFF;
+    neighbors[bottom_left].index = neighbors[bottom].index != no_neighbor && neighbors[left].index != no_neighbor ?
+        neighbors[bottom].index - 1 :
+        0xFFFFFFFF;
+    neighbors[bottom_right].index = neighbors[bottom].index != no_neighbor && neighbors[right].index != no_neighbor ?
+        neighbors[bottom].index + 1 :
+        0xFFFFFFFF;
+    neighbors[top_top].index = 1 < gl_GlobalInvocationID.y ? neighbors[top].index - cols : no_neighbor;
+    neighbors[bottom_bottom].index = gl_GlobalInvocationID.y < rows - 2 ? neighbors[bottom].index + cols : no_neighbor;
+    neighbors[left_left].index = 1 < gl_GlobalInvocationID.x ? neighbors[left].index - 1 : no_neighbor;
+    neighbors[right_right].index = gl_GlobalInvocationID.x < cols - 2 ? neighbors[right].index + 1 : no_neighbor;
 
     for (int i = 0; i < 4; ++i) {
         neighbors[i].k = SpringStiffness;
