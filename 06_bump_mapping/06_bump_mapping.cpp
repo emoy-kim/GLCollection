@@ -189,6 +189,7 @@ void C06BumpMapping::drawWallObject(const ObjectGL* object, const glm::mat4& to_
 void C06BumpMapping::render() const
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glViewport( 0, 0, FrameWidth, FrameHeight );
 
     const float light_x = 1.25f * std::cos( LightTheta ) + 1.5f;
     const float light_y = 1.25f * std::sin( LightTheta ) + 1.5f;

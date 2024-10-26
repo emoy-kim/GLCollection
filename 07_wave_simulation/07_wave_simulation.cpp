@@ -141,6 +141,7 @@ void C07WaveSimulation::render()
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
+    glViewport( 0, 0, FrameWidth, FrameHeight );
     glUseProgram( ObjectShader->getShaderProgram() );
     ObjectShader->uniformMat4fv( u::WorldMatrix, glm::mat4( 1.0f ) );
     ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
