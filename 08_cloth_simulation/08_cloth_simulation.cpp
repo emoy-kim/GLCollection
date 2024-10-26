@@ -146,7 +146,7 @@ void C08ClothSimulation::applyForces()
     ClothShader->uniform1f( u::FlexionRestLength, 2.0f * rest_length );
     ClothShader->uniform1f( u::FlexionStiffness, 5.0f );
     ClothShader->uniform1f( u::FlexionDamping, -0.5f );
-    ClothShader->uniform1f( u::GravityConstant, -5.0f );
+    ClothShader->uniform1f( u::GravityConstant, -9.8f );
     ClothShader->uniform1f( u::GravityDamping, -0.3f );
     ClothShader->uniform1f( u::DeltaTime, 0.1f );
     ClothShader->uniform1f( u::Mass, 1.0f );
