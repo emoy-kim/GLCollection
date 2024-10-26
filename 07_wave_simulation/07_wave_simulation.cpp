@@ -25,8 +25,8 @@ C07WaveSimulation::C07WaveSimulation()
         std::string( shader_directory_path + "/scene_shader.frag" ).c_str()
     );
     shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/07_wave_simulation/shaders";
-    WaveShader->setComputeShaders( std::string( shader_directory_path + "/wave.comp" ).c_str() );
-    WaveNormalShader->setComputeShaders( std::string( shader_directory_path + "/wave_normal.comp" ).c_str() );
+    WaveShader->setComputeShader( std::string( shader_directory_path + "/wave.comp" ).c_str() );
+    WaveNormalShader->setComputeShader( std::string( shader_directory_path + "/wave_normal.comp" ).c_str() );
     glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 

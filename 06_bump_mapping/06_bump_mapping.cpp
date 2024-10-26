@@ -23,8 +23,8 @@ C06BumpMapping::C06BumpMapping()
         std::string( shader_directory_path + "/bump_mapping.vert" ).c_str(),
         std::string( shader_directory_path + "/bump_mapping.frag" ).c_str()
     );
-    BoxBlurShader->setComputeShaders( std::string( shader_directory_path + "/box_blur.comp" ).c_str() );
-    NormalMapShader->setComputeShaders( std::string( shader_directory_path + "/normal_map.comp" ).c_str() );
+    BoxBlurShader->setComputeShader( std::string( shader_directory_path + "/box_blur.comp" ).c_str() );
+    NormalMapShader->setComputeShader( std::string( shader_directory_path + "/normal_map.comp" ).c_str() );
     glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
 }
 

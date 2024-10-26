@@ -38,7 +38,7 @@ public:
         const char* tessellation_control_shader_path = nullptr,
         const char* tessellation_evaluation_shader_path = nullptr
     );
-    void setComputeShaders(const char* compute_shader_path);
+    void setComputeShader(const char* compute_shader_path);
 
     void uniform1i(int location, int value) const
     {

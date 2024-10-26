@@ -111,7 +111,7 @@ void ShaderGL::setShader(
         glDeleteShader( tessellation_evaluation_shader );
 }
 
-void ShaderGL::setComputeShaders(const char* compute_shader_path)
+void ShaderGL::setComputeShader(const char* compute_shader_path)
 {
     const GLuint compute_shader = getCompiledShader( GL_COMPUTE_SHADER, compute_shader_path );
     ShaderProgram = glCreateProgram();
