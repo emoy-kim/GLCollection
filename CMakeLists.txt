@@ -84,3 +84,6 @@ target_link_libraries(06_bump_mapping ${ALL_LIBS})
 
 add_executable(07_wave_simulation 07_wave_simulation/07_wave_simulation.cpp ${COMMON_FILES})
 target_link_libraries(07_wave_simulation ${ALL_LIBS})
+
+add_executable(08_cloth_simulation 08_cloth_simulation/08_cloth_simulation.cpp ${COMMON_FILES})
+target_link_libraries(08_cloth_simulation ${ALL_LIBS})
