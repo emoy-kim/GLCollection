@@ -20,6 +20,7 @@ public:
         GravityDamping,
         DeltaTime,
         Mass,
+        ClothPointNumSize,
         ClothWorldMatrix,
         SphereRadius,
         SpherePosition,
