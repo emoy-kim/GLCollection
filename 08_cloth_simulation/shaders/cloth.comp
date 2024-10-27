@@ -1,6 +1,6 @@
 #version 460
 
-layout (local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout (location = 0) uniform float SpringRestLength;
 layout (location = 1) uniform float SpringStiffness;
@@ -17,11 +17,12 @@ layout (location = 10) uniform float GravityDamping;
 
 layout (location = 11) uniform float DeltaTime;
 layout (location = 12) uniform float Mass;
-layout (location = 13) uniform mat4 ClothWorldMatrix;
+layout (location = 13) uniform ivec2 ClothPointNumSize;
+layout (location = 14) uniform mat4 ClothWorldMatrix;
 
-layout (location = 14) uniform float SphereRadius;
-layout (location = 15) uniform vec3 SpherePosition;
-layout (location = 16) uniform mat4 SphereWorldMatrix;
+layout (location = 15) uniform float SphereRadius;
+layout (location = 16) uniform vec3 SpherePosition;
+layout (location = 17) uniform mat4 SphereWorldMatrix;
 
 struct Attributes
 {
@@ -36,7 +37,7 @@ layout (binding = 2, std430) buffer NextPoints { Attributes Pn_next[]; };
 
 struct Spring
 {
-    uint index;
+    int index;
     float k;
     float rest_length;
     float damping;
@@ -57,32 +58,34 @@ const int top_top = 8;
 const int bottom_bottom = 9;
 const int left_left = 10;
 const int right_right = 11;
-const uint no_neighbor = 0xFFFFFFFF;
+const int no_neighbor = -1;
 
 vec4 Gravity = vec4(zero, GravityConstant, zero, zero);
 
-void setNeighborSprings(uint index, uint cols, uint rows)
+void setNeighborSprings(in int index, in int x, in int y)
 {
-    neighbors[top].index = 0 < gl_GlobalInvocationID.y ? index - cols : no_neighbor;
-    neighbors[bottom].index = gl_GlobalInvocationID.y < rows - 1 ? index + cols : no_neighbor;
-    neighbors[left].index = 0 < gl_GlobalInvocationID.x ? index - 1 : no_neighbor;
-    neighbors[right].index = gl_GlobalInvocationID.x < cols - 1 ? index + 1 : no_neighbor;
+    neighbors[top].index = 0 < y ? index - ClothPointNumSize.x : no_neighbor;
+    neighbors[bottom].index = y < ClothPointNumSize.y - 1 ? index + ClothPointNumSize.x : no_neighbor;
+    neighbors[left].index = 0 < x ? index - 1 : no_neighbor;
+    neighbors[right].index = x < ClothPointNumSize.x - 1 ? index + 1 : no_neighbor;
     neighbors[top_left].index = neighbors[top].index != no_neighbor && neighbors[left].index != no_neighbor ?
         neighbors[top].index - 1 :
-        0xFFFFFFFF;
+        no_neighbor;
     neighbors[top_right].index = neighbors[top].index != no_neighbor && neighbors[right].index != no_neighbor ?
         neighbors[top].index + 1 :
-        0xFFFFFFFF;
+        no_neighbor;
     neighbors[bottom_left].index = neighbors[bottom].index != no_neighbor && neighbors[left].index != no_neighbor ?
         neighbors[bottom].index - 1 :
-        0xFFFFFFFF;
+        no_neighbor;
     neighbors[bottom_right].index = neighbors[bottom].index != no_neighbor && neighbors[right].index != no_neighbor ?
         neighbors[bottom].index + 1 :
-        0xFFFFFFFF;
-    neighbors[top_top].index = 1 < gl_GlobalInvocationID.y ? neighbors[top].index - cols : no_neighbor;
-    neighbors[bottom_bottom].index = gl_GlobalInvocationID.y < rows - 2 ? neighbors[bottom].index + cols : no_neighbor;
-    neighbors[left_left].index = 1 < gl_GlobalInvocationID.x ? neighbors[left].index - 1 : no_neighbor;
-    neighbors[right_right].index = gl_GlobalInvocationID.x < cols - 2 ? neighbors[right].index + 1 : no_neighbor;
+        no_neighbor;
+    neighbors[top_top].index = 1 < y ? neighbors[top].index - ClothPointNumSize.x : no_neighbor;
+    neighbors[bottom_bottom].index = y < ClothPointNumSize.y - 2 ?
+        neighbors[bottom].index + ClothPointNumSize.x :
+        no_neighbor;
+    neighbors[left_left].index = 1 < x ? neighbors[left].index - 1 : no_neighbor;
+    neighbors[right_right].index = x < ClothPointNumSize.x - 2 ? neighbors[right].index + 1 : no_neighbor;
 
     for (int i = 0; i < 4; ++i) {
         neighbors[i].k = SpringStiffness;
@@ -103,10 +106,10 @@ void setNeighborSprings(uint index, uint cols, uint rows)
 
 vec4 calculateMassSpringForce(vec4 p_curr, vec4 velocity)
 {
-    vec4 force = vec4(zero, zero, zero, zero);
+    vec4 force = vec4(zero);
     for (int i = 0; i < 12; ++i) {
         uint n = neighbors[i].index;
-        if (n == 0xFFFFFFFF) continue;
+        if (n == no_neighbor) continue;
 
         vec4 neighbor = vec4(Pn[n].x, Pn[n].y, Pn[n].z, one);
         vec4 neighbor_prev = vec4(Pn_prev[n].x, Pn_prev[n].y, Pn_prev[n].z, one);
@@ -132,45 +135,45 @@ bool calculateFrictionOnSphereIfCollided(inout vec4 force, vec4 p_curr, vec4 vel
     vec4 position_in_wc = ClothWorldMatrix * p_curr;
     vec4 sphere_in_wc = SphereWorldMatrix * vec4(SpherePosition, one);
     vec3 d = (position_in_wc - sphere_in_wc).xyz;
-    float distance = length(d);
+    float distance = length( d );
     if (distance < SphereRadius + epsilon) {
-        vec3 normal = normalize(d);
-        vec3 tangent = normalize(cross(cross(normal, force.xyz), normal));
-        float normal_force = max(dot(force.xyz, -normal), zero);
-        float horizontal_force = max(dot(force.xyz, tangent), zero);
+        vec3 normal = normalize( d );
+        vec3 tangent = normalize( cross( cross( normal, force.xyz ), normal ) );
+        float normal_force = max( dot( force.xyz, -normal ), zero );
+        float horizontal_force = max( dot( force.xyz, tangent ), zero );
         if (normal_force > zero) {
             float friction = 0.5f * normal_force;
-            force = max(horizontal_force - friction, zero) * vec4(tangent, zero);
-            return length(force) > zero;
+            force = max( horizontal_force - friction, zero ) * vec4(tangent, zero);
+            return length( force ) > zero;
         }
         else return true;
     }
     return true;
 }
 
-vec3 update(vec4 force, vec4 p_curr, vec4 velocity, uint index)
+vec3 update(vec4 force, vec4 p_curr, vec4 velocity)
 {
     vec4 acceleration = force / Mass;
     vec4 updated = p_curr + velocity * DeltaTime + acceleration * DeltaTime * DeltaTime;
     return updated.xyz;
 }
 
-bool detectCollisionWithSphere(inout vec3 updated, uint index)
+bool detectCollisionWithSphere(inout vec3 updated)
 {
     const float epsilon = 0.05f;
     vec4 updated_in_wc = ClothWorldMatrix * vec4(updated, one);
     vec4 sphere_in_wc = SphereWorldMatrix * vec4(SpherePosition, one);
     vec3 d = (updated_in_wc - sphere_in_wc).xyz;
-    float distance = length(d);
+    float distance = length( d );
     if (distance < SphereRadius + epsilon) {
-        updated_in_wc.xyz += (SphereRadius - distance) * normalize(d);
-        updated = vec3(inverse(ClothWorldMatrix) * updated_in_wc);
+        updated_in_wc.xyz += (SphereRadius - distance) * normalize( d );
+        updated = vec3(inverse( ClothWorldMatrix ) * updated_in_wc);
         return true;
     }
     return false;
 }
 
-void detectCollisionWithFloor(inout vec3 updated, uint index)
+void detectCollisionWithFloor(inout vec3 updated, int index)
 {
     vec4 updated_in_wc = ClothWorldMatrix * vec4(updated, one);
     if (updated_in_wc.y < 0.0f) updated.y = Pn[index].y;
@@ -178,21 +181,23 @@ void detectCollisionWithFloor(inout vec3 updated, uint index)
 
 void main()
 {
-    uvec3 points = gl_NumWorkGroups * gl_WorkGroupSize;
-    uint index = gl_GlobalInvocationID.y * points.x + gl_GlobalInvocationID.x;
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    if (x >= ClothPointNumSize.x || y >= ClothPointNumSize.y) return;
 
+    int index = y * ClothPointNumSize.x + x;
     vec4 p_curr = vec4(Pn[index].x, Pn[index].y, Pn[index].z, one);
     vec4 p_prev = vec4(Pn_prev[index].x, Pn_prev[index].y, Pn_prev[index].z, one);
     vec4 velocity = (p_curr - p_prev) / DeltaTime;
 
-    setNeighborSprings(index, points.x, points.y);
+    setNeighborSprings( index, x, y );
 
     vec4 force = calculateMassSpringForce( p_curr, velocity ) + calculateGravityForce( velocity );
     bool to_be_moved = calculateFrictionOnSphereIfCollided( force, p_curr, velocity );
 
-    vec3 updated = update( force, p_curr, velocity, index );
+    vec3 updated = update( force, p_curr, velocity );
 
-    bool collided = detectCollisionWithSphere( updated, index );
+    bool collided = detectCollisionWithSphere( updated );
     if (!collided && !to_be_moved) {
         updated.x = Pn[index].x;
         updated.y = Pn[index].y;

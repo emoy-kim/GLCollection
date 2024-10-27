@@ -150,6 +150,7 @@ void C08ClothSimulation::applyForces()
     ClothShader->uniform1f( u::GravityDamping, -0.3f );
     ClothShader->uniform1f( u::DeltaTime, 0.1f );
     ClothShader->uniform1f( u::Mass, 1.0f );
+    ClothShader->uniform2iv( u::ClothPointNumSize, ClothPointNumSize );
     ClothShader->uniformMat4fv( u::ClothWorldMatrix, ClothWorldMatrix );
     ClothShader->uniform1f( u::SphereRadius, SphereRadius );
     ClothShader->uniform3fv( u::SpherePosition, SpherePosition );
@@ -157,7 +158,7 @@ void C08ClothSimulation::applyForces()
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, ClothBuffers[ClothTargetIndex] );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 1, ClothBuffers[(ClothTargetIndex + 1) % 3] );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 2, ClothBuffers[(ClothTargetIndex + 2) % 3] );
-    glDispatchCompute( ClothPointNumSize.x / 10, ClothPointNumSize.y / 10, 1 );
+    glDispatchCompute( getGroupSize( ClothPointNumSize.x ), getGroupSize( ClothPointNumSize.y ), 1 );
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT );
 
     ClothTargetIndex = (ClothTargetIndex + 1) % 3;
