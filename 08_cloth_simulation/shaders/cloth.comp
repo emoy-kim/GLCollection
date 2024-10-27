@@ -55,8 +55,7 @@ const int bottom_bottom = 9;
 const int left_left = 10;
 const int right_right = 11;
 const int no_neighbor = -1;
-
-vec4 Gravity = vec4(zero, -9.8f, zero, zero);
+const vec4 gravity = vec4(zero, -9.8f, zero, zero);
 
 void setNeighborSprings(in int index, in int x, in int y)
 {
@@ -122,7 +121,7 @@ vec4 calculateMassSpringForce(vec4 p_curr, vec4 velocity)
 
 vec4 calculateGravityForce(vec4 velocity)
 {
-    return Mass * Gravity + velocity * GravityDamping;
+    return Mass * gravity + velocity * GravityDamping;
 }
 
 bool calculateFrictionOnSphereIfCollided(inout vec4 force, vec4 p_curr, vec4 velocity)
