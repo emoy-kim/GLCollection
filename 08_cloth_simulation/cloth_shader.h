@@ -16,7 +16,6 @@ public:
         FlexionRestLength,
         FlexionStiffness,
         FlexionDamping,
-        GravityConstant,
         GravityDamping,
         DeltaTime,
         Mass,
