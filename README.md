@@ -24,3 +24,6 @@
 
 ## 07 Wave Simulation
 ![watersimulation](https://user-images.githubusercontent.com/17864157/62009307-cfbe2080-b198-11e9-8432-5c816884edf6.gif)
+
+## 08 Cloth Simulation
+![cloth_simulation](https://github.com/user-attachments/assets/0cf27d9d-1012-4ec3-b4f2-2f222abae15a)
