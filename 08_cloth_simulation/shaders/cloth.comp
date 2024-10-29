@@ -5,20 +5,17 @@ layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 layout (location = 0) uniform float SpringRestLength;
 layout (location = 1) uniform float SpringStiffness;
 layout (location = 2) uniform float SpringDamping;
-layout (location = 3) uniform float ShearRestLength;
-layout (location = 4) uniform float ShearStiffness;
-layout (location = 5) uniform float ShearDamping;
-layout (location = 6) uniform float FlexionRestLength;
-layout (location = 7) uniform float FlexionStiffness;
-layout (location = 8) uniform float FlexionDamping;
-layout (location = 9) uniform float GravityDamping;
-layout (location = 10) uniform float DeltaTime;
-layout (location = 11) uniform float Mass;
-layout (location = 12) uniform ivec2 ClothPointNumSize;
-layout (location = 13) uniform mat4 ClothWorldMatrix;
-layout (location = 14) uniform float SphereRadius;
-layout (location = 15) uniform vec3 SpherePosition;
-layout (location = 16) uniform mat4 SphereWorldMatrix;
+layout (location = 3) uniform float ShearStiffness;
+layout (location = 4) uniform float ShearDamping;
+layout (location = 5) uniform float FlexionStiffness;
+layout (location = 6) uniform float FlexionDamping;
+layout (location = 7) uniform float DeltaTime;
+layout (location = 8) uniform float Mass;
+layout (location = 9) uniform ivec2 ClothPointNumSize;
+layout (location = 10) uniform mat4 ClothWorldMatrix;
+layout (location = 11) uniform float SphereRadius;
+layout (location = 12) uniform vec3 SpherePosition;
+layout (location = 13) uniform mat4 SphereWorldMatrix;
 
 struct Attributes
 {
@@ -55,7 +52,6 @@ const int bottom_bottom = 9;
 const int left_left = 10;
 const int right_right = 11;
 const int no_neighbor = -1;
-const vec4 gravity = vec4(zero, -9.8f, zero, zero);
 
 void setNeighborSprings(in int index, in int x, in int y)
 {
@@ -121,7 +117,9 @@ vec4 calculateMassSpringForce(vec4 p_curr, vec4 velocity)
 
 vec4 calculateGravityForce(vec4 velocity)
 {
-    return Mass * gravity + velocity * GravityDamping;
+    const float gravity_damping = -0.3f;
+    const vec4 gravity = vec4(zero, -9.8f, zero, zero);
+    return Mass * gravity + velocity * gravity_damping;
 }
 
 bool calculateFrictionOnSphereIfCollided(inout vec4 force, vec4 p_curr, vec4 velocity)
@@ -187,7 +185,8 @@ void main()
 
     setNeighborSprings( index, x, y );
 
-    vec4 force = calculateMassSpringForce( p_curr, velocity ) + calculateGravityForce( velocity );
+    vec4 force = calculateMassSpringForce( p_curr, velocity );
+    //force += calculateGravityForce( velocity ); // ignore falling
     bool to_be_moved = calculateFrictionOnSphereIfCollided( force, p_curr, velocity );
 
     vec3 updated = update( force, p_curr, velocity );
