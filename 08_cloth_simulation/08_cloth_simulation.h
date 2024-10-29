@@ -18,6 +18,7 @@ public:
     void play();
 
 private:
+    bool Moving;
     float SphereRadius;
     uint ClothTargetIndex;
     glm::ivec2 ClothPointNumSize;
@@ -33,6 +34,8 @@ private:
     std::unique_ptr<LightGL> Lights;
 
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+    void cursor(GLFWwindow* window, double xpos, double ypos) override;
+    void mouse(GLFWwindow* window, int button, int action, int mods) override;
     void setLights() const;
     void setClothObject();
     void setSphereObject() const;

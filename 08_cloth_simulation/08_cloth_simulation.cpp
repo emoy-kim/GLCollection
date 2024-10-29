@@ -1,13 +1,18 @@
 #include "08_cloth_simulation.h"
 
 C08ClothSimulation::C08ClothSimulation()
-    : SphereRadius( 20.0f ),
+    : Moving( false ),
+      SphereRadius( 20.0f ),
       ClothTargetIndex( 0 ),
       ClothPointNumSize( 100, 100 ),
       ClothGridSize( 50, 50 ),
       SpherePosition( 0.0f, 0.0f, 0.0f ),
-      ClothWorldMatrix( translate( glm::mat4( 1.0f ), glm::vec3( 50.0f, 100.0f, 0.0f ) ) ),
-      SphereWorldMatrix( translate( glm::mat4( 1.0f ), glm::vec3( 100.0f, 30.0f, 20.0f ) ) ),
+      ClothWorldMatrix(
+          translate( glm::mat4( 1.0f ), glm::vec3( 150.0f, 50.0f, 0.0f ) ) *
+          rotate( glm::mat4( 1.0f ), glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) ) *
+          scale( glm::mat4( 1.0f ), glm::vec3( 3.0f ) )
+      ),
+      SphereWorldMatrix( translate( glm::mat4( 1.0f ), glm::vec3( 100.0f, 120.0f, 30.0f ) ) ),
       ClothBuffers{},
       ObjectShader( std::make_unique<ShaderGL>() ),
       ClothShader( std::make_unique<ShaderGL>() ),
@@ -16,8 +21,8 @@ C08ClothSimulation::C08ClothSimulation()
       Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
-        glm::vec3( 80.0f, 50.0f, 300.0f ),
-        glm::vec3( 80.0f, 50.0f, 0.0f ),
+        glm::vec3( 0.0f, 150.0f, 350.0f ),
+        glm::vec3( 150.0f, 120.0f, 0.0f ),
         glm::vec3( 0.0f, 1.0f, 0.0f )
     );
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
@@ -53,9 +58,36 @@ void C08ClothSimulation::keyboard(GLFWwindow* window, int key, int scancode, int
     }
 }
 
+void C08ClothSimulation::cursor(GLFWwindow* window, double xpos, double ypos)
+{
+    if (Moving) {
+        const auto x = static_cast<int>(std::round( xpos ));
+        const auto y = static_cast<int>(std::round( ypos ));
+        SpherePosition.x += static_cast<float>(xpos) - static_cast<float>(ClickedPoint.x);
+        SpherePosition.y -= static_cast<float>(ypos) - static_cast<float>(ClickedPoint.y);
+
+        ClickedPoint.x = x;
+        ClickedPoint.y = y;
+    }
+}
+
+void C08ClothSimulation::mouse(GLFWwindow* window, int button, int action, int mods)
+{
+    std::ignore = mods;
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        Moving = true;
+
+        double x, y;
+        glfwGetCursorPos( window, &x, &y );
+        ClickedPoint.x = static_cast<int>(std::round( x ));
+        ClickedPoint.y = static_cast<int>(std::round( y ));
+    }
+    else Moving = false;
+}
+
 void C08ClothSimulation::setLights() const
 {
-    constexpr glm::vec4 light_position( 30.0f, 500.0f, 30.0f, 1.0f );
+    constexpr glm::vec4 light_position( 30.0f, 300.0f, 30.0f, 1.0f );
     constexpr glm::vec4 ambient_color( 1.0f, 1.0f, 1.0f, 1.0f );
     constexpr glm::vec4 diffuse_color( 0.7f, 0.7f, 0.7f, 1.0f );
     constexpr glm::vec4 specular_color( 0.9f, 0.9f, 0.9f, 1.0f );
@@ -138,15 +170,12 @@ void C08ClothSimulation::applyForces()
     glUseProgram( ClothShader->getShaderProgram() );
     const float rest_length = static_cast<float>(ClothGridSize.x) / static_cast<float>(ClothPointNumSize.x);
     ClothShader->uniform1f( u::SpringRestLength, rest_length );
-    ClothShader->uniform1f( u::SpringStiffness, 10.0f );
+    ClothShader->uniform1f( u::SpringStiffness, 0.5f );
     ClothShader->uniform1f( u::SpringDamping, -0.5f );
-    ClothShader->uniform1f( u::ShearRestLength, 1.5f * rest_length );
-    ClothShader->uniform1f( u::ShearStiffness, 10.0f );
+    ClothShader->uniform1f( u::ShearStiffness, 0.05f );
     ClothShader->uniform1f( u::ShearDamping, -0.5f );
-    ClothShader->uniform1f( u::FlexionRestLength, 2.0f * rest_length );
     ClothShader->uniform1f( u::FlexionStiffness, 5.0f );
     ClothShader->uniform1f( u::FlexionDamping, -0.5f );
-    ClothShader->uniform1f( u::GravityDamping, -0.3f );
     ClothShader->uniform1f( u::DeltaTime, 0.1f );
     ClothShader->uniform1f( u::Mass, 1.0f );
     ClothShader->uniform2iv( u::ClothPointNumSize, ClothPointNumSize );
