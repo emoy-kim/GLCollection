@@ -99,6 +99,21 @@ void RendererGL::registerCallbacks() const
     glfwSetFramebufferSizeCallback( Window, reshapeWrapper );
 }
 
+void RendererGL::captureTexture() const
+{
+    const int size = FrameWidth * FrameHeight * 3;
+    auto* buffer = new uint8_t[size];
+    glReadPixels( 0, 0, FrameWidth, FrameHeight, GL_BGR, GL_UNSIGNED_BYTE, buffer );
+    const std::string file_name = std::string( CMAKE_SOURCE_DIR ) + "/frame.png";
+    FIBITMAP* image = FreeImage_ConvertFromRawBits(
+        buffer, FrameWidth, FrameHeight, FrameWidth * 3, 24,
+        FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, false
+    );
+    FreeImage_Save( FIF_PNG, image, file_name.c_str() );
+    FreeImage_Unload( image );
+    delete [] buffer;
+}
+
 void RendererGL::writeTexture(GLuint texture_id, int width, int height)
 {
     const int size = width * height * 4;

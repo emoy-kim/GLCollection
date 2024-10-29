@@ -77,5 +77,6 @@ protected:
         return (size + ThreadGroupSize - 1) / ThreadGroupSize;
     }
 
+    void captureTexture() const;
     static void writeTexture(GLuint texture_id, int width, int height);
 };
