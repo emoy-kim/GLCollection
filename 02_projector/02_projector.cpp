@@ -94,8 +94,8 @@ void C02Projector::cursor(GLFWwindow* window, double xpos, double ypos)
                                MainCamera.get() :
                                Projector.get();
         camera->getMovingState()) {
-        const auto x = static_cast<int>(round( xpos ));
-        const auto y = static_cast<int>(round( ypos ));
+        const auto x = static_cast<int>(std::round( xpos ));
+        const auto y = static_cast<int>(std::round( ypos ));
         const int dx = x - ClickedPoint.x;
         const int dy = y - ClickedPoint.y;
         camera->moveForward( -dy );
@@ -118,8 +118,8 @@ void C02Projector::mouse(GLFWwindow* window, int button, int action, int mods)
         if (moving_state) {
             double x, y;
             glfwGetCursorPos( window, &x, &y );
-            ClickedPoint.x = static_cast<int>(round( x ));
-            ClickedPoint.y = static_cast<int>(round( y ));
+            ClickedPoint.x = static_cast<int>(std::round( x ));
+            ClickedPoint.y = static_cast<int>(std::round( y ));
         }
 
         if (glfwGetKey( window, GLFW_KEY_LEFT_CONTROL ) == GLFW_PRESS) {

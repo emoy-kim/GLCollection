@@ -73,8 +73,8 @@ void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
         if (moving_state) {
             double x, y;
             glfwGetCursorPos( window, &x, &y );
-            ClickedPoint.x = static_cast<int>(round( x ));
-            ClickedPoint.y = static_cast<int>(round( y ));
+            ClickedPoint.x = static_cast<int>(std::round( x ));
+            ClickedPoint.y = static_cast<int>(std::round( y ));
         }
         MainCamera->setMovingState( moving_state );
     }

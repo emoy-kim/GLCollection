@@ -42,10 +42,9 @@ private:
     std::unique_ptr<ObjectGL> VelocityCurveObject;
     std::unique_ptr<ObjectGL> MovingObject;
 
-    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void mouse(GLFWwindow* window, int button, int action, int mods) override;
-
     [[nodiscard]] glm::vec3 getPointOnPositionBezierCurve(float t) const;
     [[nodiscard]] glm::vec3 getPointOnVelocityBezierCurve(float t) const;
     [[nodiscard]] float getDeltaLength(float t) const;

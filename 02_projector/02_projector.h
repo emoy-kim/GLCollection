@@ -32,8 +32,8 @@ private:
     std::unique_ptr<LightGL> Lights;
     std::unique_ptr<VideoReader> Video;
 
-    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+    void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void mouse(GLFWwindow* window, int button, int action, int mods) override;
     void setProjectorPyramidObject();
     void prepareSlide();
