@@ -1,0 +1,188 @@
+#version 460
+
+layout (local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+
+layout (rgba8, binding = 0) uniform image2D Image;
+
+layout (binding = 0, std430) buffer InsideColumnScanner { int inside_column_scanner[]; };
+layout (binding = 1, std430) buffer OutsideColumnScanner { int outside_column_scanner[]; };
+layout (binding = 2, std430) buffer InsideDistanceField { int inside_distance_field[]; };
+layout (binding = 3, std430) buffer OutsideDistanceField { int outside_distance_field[]; };
+
+layout (location = 0) uniform int Phase;
+layout (location = 1) uniform int DistanceType;
+
+const float zero = 0.0f;
+const float one = 1.0f;
+const int limit = 1000;
+
+int max_distance = 0;
+
+/*
+ *  This is the implementation of Distance Transform from [1].
+ *
+ *  [1] : A General Algorithm for Computing Distance Transforms in Linear Time (2002)
+ */
+
+int dt(in int x, in int i, in int g)
+{
+    if (DistanceType == 1) return (x - i) * (x - i) + g * g;
+    else if (DistanceType == 2) return abs( x - i ) + g;
+    else if (DistanceType == 3) return max( abs( x - i ), g );
+    else return 0;
+}
+
+int sep(in int i, in int u, in int g_i, in int g_u)
+{
+    if (DistanceType == 1) return int(round( ((u + i) * (u - i) + (g_u + g_i) * (g_u - g_i)) / (2.0f * (u - i)) ));
+    else if (DistanceType == 2) {
+        if (g_u >= (g_i + u - i)) return max_distance;
+        if (g_i > (g_u + u - i)) return -max_distance;
+        return int(floor( float(g_u - g_i + u + i) * 0.5f) );
+    }
+    else if (DistanceType == 3) {
+        if (g_i <= g_u) return max( i + g_u, int(floor( (i + u) * 0.5f )) );
+        else return min( u - g_i, int(floor( (i + u) * 0.5f )) );
+    }
+    else return 0;
+}
+
+int getDistance(in int x, in int i, in int g)
+{
+    if (DistanceType == 1) return int(floor( sqrt( float(dt( x, i, g )) ) ));
+    else return dt( x, i, g );
+}
+
+void phaseTwo()
+{
+    int x = int(gl_GlobalInvocationID.x);
+    ivec2 size = imageSize( Image );
+    if (x >= size.x) return;
+
+    const int MAX_SIZE = 1080; // size.y
+    int s[MAX_SIZE], t[MAX_SIZE];
+    max_distance = size.x + size.y;
+
+    // for the outside field
+    {
+        int q = 0;
+        s[0] = t[0] = 0;
+        for (int j = 1; j < size.y; ++j) {
+            while (q >= 0 &&
+                   dt( t[q], s[q], outside_column_scanner[s[q] * size.x + x] ) >
+                        dt( t[q], j, outside_column_scanner[j * size.x + x] )) q--;
+            if (q < 0) {
+                q = 0;
+                s[0] = j;
+            }
+            else {
+                int w = sep(
+                    s[q], j,
+                    outside_column_scanner[s[q] * size.x + x],
+                    outside_column_scanner[j * size.x + x]
+                ) + 1;
+                if (w < size.y) {
+                    q++;
+                    s[q] = j;
+                    t[q] = w;
+                }
+            }
+        }
+
+        int index = (size.y - 1) * size.x + x;
+        for (int j = size.y - 1; j >= 0; --j) {
+            outside_distance_field[index] = getDistance( j, s[q], outside_column_scanner[s[q] * size.x + x] );
+            if (j == t[q]) q--;
+            index -= size.x;
+        }
+    }
+
+    // for the inside field
+    {
+        int q = 0;
+        s[0] = t[0] = 0;
+        for (int j = 1; j < size.y; ++j) {
+            while (q >= 0 &&
+                   dt( t[q], s[q], inside_column_scanner[s[q] * size.x + x] ) >
+                        dt( t[q], j, inside_column_scanner[j * size.x + x] )) q--;
+            if (q < 0) {
+                q = 0;
+                s[0] = j;
+            }
+            else {
+                int w = sep(
+                    s[q], j,
+                    inside_column_scanner[s[q] * size.x + x],
+                    inside_column_scanner[j * size.x + x]
+                ) + 1;
+                if (w < size.y) {
+                    q++;
+                    s[q] = j;
+                    t[q] = w;
+                }
+            }
+        }
+
+        int index = (size.y - 1) * size.x + x;
+        for (int j = size.y - 1; j >= 0; --j) {
+            inside_distance_field[index] = getDistance( j, s[q], inside_column_scanner[s[q] * size.x + x] );
+            if (j == t[q]) q--;
+            index -= size.x;
+        }
+    }
+}
+
+void phaseOne()
+{
+    int y = int(gl_GlobalInvocationID.x);
+    ivec2 size = imageSize( Image );
+    if (y >= size.y) return;
+
+    // for the outside field
+    {
+        int index = y * size.x;
+        outside_column_scanner[index] = imageLoad( Image, ivec2(0, y) ).a > zero ? 0 : limit;
+        index++;
+
+        for (int i = 1; i < size.x; ++i) {
+            if (imageLoad( Image, ivec2(i, y) ).a > zero) outside_column_scanner[index] = 0;
+            else outside_column_scanner[index] = min( outside_column_scanner[index - 1] + 1, limit );
+            index++;
+        }
+
+        index -= 2;
+        for (int i = size.x - 2; i >= 0; --i) {
+            if (outside_column_scanner[index + 1] < outside_column_scanner[index]) {
+                outside_column_scanner[index] = min( outside_column_scanner[index + 1] + 1, limit );
+            }
+            index--;
+        }
+    }
+
+    // for the inside field
+    {
+        int index = y * size.x;
+        inside_column_scanner[index] = imageLoad( Image, ivec2(0, y) ).a == zero ? 0 : limit;
+        index++;
+
+        for (int i = 1; i < size.x; ++i) {
+            if (imageLoad( Image, ivec2(i, y) ).a == zero) inside_column_scanner[index] = 0;
+            else inside_column_scanner[index] = min( inside_column_scanner[index - 1] + 1, limit );
+            index++;
+        }
+
+        index -= 2;
+        for (int i = size.x - 2; i >= 0; --i) {
+            if (inside_column_scanner[index + 1] < inside_column_scanner[index]) {
+                inside_column_scanner[index] = min( inside_column_scanner[index + 1] + 1, limit );
+            }
+            index--;
+        }
+    }
+}
+
+void main()
+{
+    if (Phase == 1) phaseOne();
+    else if (Phase == 2) phaseTwo();
+}

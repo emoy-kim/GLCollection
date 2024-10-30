@@ -57,6 +57,7 @@ set(
         COMMON_FILES
         common/source/light.cpp
         common/source/camera.cpp
+        common/source/canvas.cpp
         common/source/object.cpp
         common/source/shader.cpp
         common/source/renderer.cpp
@@ -87,3 +88,6 @@ target_link_libraries(07_wave_simulation ${ALL_LIBS})
 
 add_executable(08_cloth_simulation 08_cloth_simulation/08_cloth_simulation.cpp ${COMMON_FILES})
 target_link_libraries(08_cloth_simulation ${ALL_LIBS})
+
+add_executable(09_distance_transform 09_distance_transform/09_distance_transform.cpp ${COMMON_FILES})
+target_link_libraries(09_distance_transform ${ALL_LIBS})
