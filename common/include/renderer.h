@@ -2,6 +2,7 @@
 
 #include "light.h"
 #include "camera.h"
+#include "canvas.h"
 #include "object.h"
 
 class RendererGL
