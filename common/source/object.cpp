@@ -437,11 +437,7 @@ void ObjectGL::setSquareObject(GLenum draw_mode, bool use_texture)
     else setObject( draw_mode, square_vertices, square_normals );
 }
 
-void ObjectGL::setSquareObject(
-    GLenum draw_mode,
-    const std::string& texture_file_path,
-    bool is_grayscale
-)
+void ObjectGL::setSquareObject(GLenum draw_mode, const std::string& texture_file_path, bool is_grayscale)
 {
     std::vector<glm::vec3> square_vertices, square_normals;
     std::vector<glm::vec2> square_textures;

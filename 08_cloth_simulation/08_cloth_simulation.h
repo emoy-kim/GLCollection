@@ -2,7 +2,7 @@
 
 #include "../common/include/renderer.h"
 #include "../01_lighting/lighting_shader.h"
-#include "../08_cloth_simulation/cloth_shader.h"
+#include "cloth_shader.h"
 
 class C08ClothSimulation final : public RendererGL
 {
