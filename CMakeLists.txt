@@ -91,3 +91,6 @@ target_link_libraries(08_cloth_simulation ${ALL_LIBS})
 
 add_executable(09_distance_transform 09_distance_transform/09_distance_transform.cpp ${COMMON_FILES})
 target_link_libraries(09_distance_transform ${ALL_LIBS})
+
+add_executable(10_shadow_mapping 10_shadow_mapping/10_shadow_mapping.cpp ${COMMON_FILES})
+target_link_libraries(10_shadow_mapping ${ALL_LIBS})
