@@ -128,3 +128,36 @@ void RendererGL::writeTexture(GLuint texture_id, int width, int height)
     FreeImage_Unload( image );
     delete [] buffer;
 }
+
+float RendererGL::linearizeDepthValue(float depth)
+{
+    // WdC to Eye Coordinates, which requires near/far planes. These are just temporary values for visualization.
+    constexpr float n = 1.0f;
+    constexpr float f = 1000.0f;
+    const float z_ndc = 2.0f * depth - 1.0f;
+    const float z = 2.0f * n * f / (f + n - z_ndc * (f - n));
+    return std::clamp( (z - n) / (f - n), 0.0f, 1.0f );
+}
+
+void RendererGL::writeDepthTexture(GLuint texture_id, int width, int height)
+{
+    const int size = width * height;
+    auto* depth = new GLfloat[size];
+    auto* buffer = new uint8_t[size];
+    glGetTextureImage(
+        texture_id, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+        static_cast<int>(size * sizeof( GLfloat )), depth
+    );
+    for (int i = 0; i < size; ++i) {
+        buffer[i] = static_cast<uint8_t>(linearizeDepthValue( depth[i] ) * 255.0f);
+    }
+    const std::string file_name = std::string( CMAKE_SOURCE_DIR ) + "/depth.png";
+    FIBITMAP* image = FreeImage_ConvertFromRawBits(
+        buffer, width, height, width, 8,
+        FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, false
+    );
+    FreeImage_Save( FIF_PNG, image, file_name.c_str() );
+    FreeImage_Unload( image );
+    delete [] depth;
+    delete [] buffer;
+}

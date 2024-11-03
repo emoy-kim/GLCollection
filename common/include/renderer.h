@@ -80,4 +80,6 @@ protected:
 
     void captureTexture() const;
     static void writeTexture(GLuint texture_id, int width, int height);
+    static float linearizeDepthValue(float depth);
+    static void writeDepthTexture(GLuint texture_id, int width, int height);
 };
