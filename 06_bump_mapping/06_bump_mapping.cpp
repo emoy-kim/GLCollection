@@ -108,9 +108,9 @@ void C06BumpMapping::createNormalMap(ObjectGL* object)
     int t = 0;
     const std::array<GLuint, 2> textures{ object->getTextureID( 1 ), object->getTextureID( 2 ) };
     glUseProgram( BoxBlurShader->getShaderProgram() );
-    BoxBlurShader->uniform1f( BoxBlurShader::BlurRadius, 3.0f );
+    BoxBlurShader->uniform1f( BoxBlurShaderGL::BlurRadius, 3.0f );
     for (int i = 0; i < 3; ++i) {
-        BoxBlurShader->uniform1i( BoxBlurShader::IsHorizontal, 1 );
+        BoxBlurShader->uniform1i( BoxBlurShaderGL::IsHorizontal, 1 );
         glBindImageTexture( 0, texture_id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8 );
         glBindImageTexture( 1, textures[t], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8 );
         glDispatchCompute( getGroupSize( size.y ), 1, 1 );
@@ -118,7 +118,7 @@ void C06BumpMapping::createNormalMap(ObjectGL* object)
         texture_id = textures[t];
         t ^= 1;
 
-        BoxBlurShader->uniform1i( BoxBlurShader::IsHorizontal, 0 );
+        BoxBlurShader->uniform1i( BoxBlurShaderGL::IsHorizontal, 0 );
         glBindImageTexture( 0, texture_id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8 );
         glBindImageTexture( 1, textures[t], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8 );
         glDispatchCompute( getGroupSize( size.x ), 1, 1 );
@@ -149,7 +149,7 @@ void C06BumpMapping::setWallObjects()
 
 void C06BumpMapping::drawWallObject(const ObjectGL* object, const glm::mat4& to_world) const
 {
-    using u = BumpMappingShader::UNIFORM;
+    using u = BumpMappingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

@@ -5,8 +5,8 @@ C10ShadowMapping::C10ShadowMapping()
       FBO( 0 ),
       DepthTextureID( 0 ),
       LightCamera( std::make_unique<CameraGL>() ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      ShadowShader( std::make_unique<ShaderGL>() ),
+      ObjectShader( std::make_unique<SimpleShaderGL>() ),
+      ShadowShader( std::make_unique<ShadowShaderGL>() ),
       GroundObject( std::make_unique<ObjectGL>() ),
       TigerObject( std::make_unique<ObjectGL>() ),
       PandaObject( std::make_unique<ObjectGL>() ),
@@ -160,7 +160,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
         rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 0.3f ) );
     ObjectShader->uniformMat4fv(
-        SimpleShader::ModelViewProjectionMatrix,
+        SimpleShaderGL::ModelViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix() * to_world
     );
     glBindVertexArray( TigerObject->getVAO() );
@@ -170,7 +170,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
         translate( glm::mat4( 1.0f ), glm::vec3( 250.0f, -5.0f, 180.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 20.0f ) );
     ObjectShader->uniformMat4fv(
-        SimpleShader::ModelViewProjectionMatrix,
+        SimpleShaderGL::ModelViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix() * to_world
     );
     glBindVertexArray( PandaObject->getVAO() );
@@ -181,7 +181,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
         rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 512.0f ) );
     ObjectShader->uniformMat4fv(
-        SimpleShader::ModelViewProjectionMatrix,
+        SimpleShaderGL::ModelViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix() * to_world
     );
     glBindVertexArray( GroundObject->getVAO() );
@@ -191,7 +191,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
 
 void C10ShadowMapping::drawShadow(int light_index) const
 {
-    using u = ShadowShader::UNIFORM;
+    using u = ShadowShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

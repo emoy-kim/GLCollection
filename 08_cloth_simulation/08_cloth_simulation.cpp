@@ -165,7 +165,7 @@ void C08ClothSimulation::setSphereObject() const
 
 void C08ClothSimulation::applyForces()
 {
-    using u = ClothShader::UNIFORM;
+    using u = ClothShaderGL::UNIFORM;
 
     glUseProgram( ClothShader->getShaderProgram() );
     const float rest_length = static_cast<float>(ClothGridSize.x) / static_cast<float>(ClothPointNumSize.x);
@@ -194,7 +194,7 @@ void C08ClothSimulation::applyForces()
 
 void C08ClothSimulation::drawClothObject() const
 {
-    using u = LightingShader::UNIFORM;
+    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
@@ -241,7 +241,7 @@ void C08ClothSimulation::drawClothObject() const
 
 void C08ClothSimulation::drawSphereObject() const
 {
-    using u = LightingShader::UNIFORM;
+    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

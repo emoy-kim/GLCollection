@@ -108,7 +108,7 @@ void C01Lighting::setObject() const
 
 void C01Lighting::drawObject(const float& scale_factor) const
 {
-    using u = LightingShader::UNIFORM;
+    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

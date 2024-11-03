@@ -2,7 +2,7 @@
 
 #include "../common/include/shader.h"
 
-class ShadowShader final : public ShaderGL
+class ShadowShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM
@@ -19,25 +19,25 @@ public:
         GlobalAmbient
     };
 
-    ShadowShader() = default;
-    ~ShadowShader() override = default;
+    ShadowShaderGL() = default;
+    ~ShadowShaderGL() override = default;
 
-    ShadowShader(const ShadowShader&) = delete;
-    ShadowShader(const ShadowShader&&) = delete;
-    ShadowShader& operator=(const ShadowShader&) = delete;
-    ShadowShader& operator=(const ShadowShader&&) = delete;
+    ShadowShaderGL(const ShadowShaderGL&) = delete;
+    ShadowShaderGL(const ShadowShaderGL&&) = delete;
+    ShadowShaderGL& operator=(const ShadowShaderGL&) = delete;
+    ShadowShaderGL& operator=(const ShadowShaderGL&&) = delete;
 };
 
-class SimpleShader final : public ShaderGL
+class SimpleShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM { ModelViewProjectionMatrix = 0 };
 
-    SimpleShader() = default;
-    ~SimpleShader() override = default;
+    SimpleShaderGL() = default;
+    ~SimpleShaderGL() override = default;
 
-    SimpleShader(const SimpleShader&) = delete;
-    SimpleShader(const SimpleShader&&) = delete;
-    SimpleShader& operator=(const SimpleShader&) = delete;
-    SimpleShader& operator=(const SimpleShader&&) = delete;
+    SimpleShaderGL(const SimpleShaderGL&) = delete;
+    SimpleShaderGL(const SimpleShaderGL&&) = delete;
+    SimpleShaderGL& operator=(const SimpleShaderGL&) = delete;
+    SimpleShaderGL& operator=(const SimpleShaderGL&&) = delete;
 };

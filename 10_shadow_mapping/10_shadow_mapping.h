@@ -21,8 +21,8 @@ private:
     GLuint FBO;
     GLuint DepthTextureID;
     std::unique_ptr<CameraGL> LightCamera;
-    std::unique_ptr<ShaderGL> ObjectShader;
-    std::unique_ptr<ShaderGL> ShadowShader;
+    std::unique_ptr<SimpleShaderGL> ObjectShader;
+    std::unique_ptr<ShadowShaderGL> ShadowShader;
     std::unique_ptr<ObjectGL> GroundObject;
     std::unique_ptr<ObjectGL> TigerObject;
     std::unique_ptr<ObjectGL> PandaObject;

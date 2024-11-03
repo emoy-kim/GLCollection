@@ -2,7 +2,7 @@
 
 #include "../common/include/shader.h"
 
-class BumpMappingShader final : public ShaderGL
+class BumpMappingShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM
@@ -17,25 +17,25 @@ public:
         GlobalAmbient
     };
 
-    BumpMappingShader() = default;
-    ~BumpMappingShader() override = default;
+    BumpMappingShaderGL() = default;
+    ~BumpMappingShaderGL() override = default;
 
-    BumpMappingShader(const BumpMappingShader&) = delete;
-    BumpMappingShader(const BumpMappingShader&&) = delete;
-    BumpMappingShader& operator=(const BumpMappingShader&) = delete;
-    BumpMappingShader& operator=(const BumpMappingShader&&) = delete;
+    BumpMappingShaderGL(const BumpMappingShaderGL&) = delete;
+    BumpMappingShaderGL(const BumpMappingShaderGL&&) = delete;
+    BumpMappingShaderGL& operator=(const BumpMappingShaderGL&) = delete;
+    BumpMappingShaderGL& operator=(const BumpMappingShaderGL&&) = delete;
 };
 
-class BoxBlurShader final : public ShaderGL
+class BoxBlurShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM { IsHorizontal = 0, BlurRadius };
 
-    BoxBlurShader() = default;
-    ~BoxBlurShader() override = default;
+    BoxBlurShaderGL() = default;
+    ~BoxBlurShaderGL() override = default;
 
-    BoxBlurShader(const BoxBlurShader&) = delete;
-    BoxBlurShader(const BoxBlurShader&&) = delete;
-    BoxBlurShader& operator=(const BoxBlurShader&) = delete;
-    BoxBlurShader& operator=(const BoxBlurShader&&) = delete;
+    BoxBlurShaderGL(const BoxBlurShaderGL&) = delete;
+    BoxBlurShaderGL(const BoxBlurShaderGL&&) = delete;
+    BoxBlurShaderGL& operator=(const BoxBlurShaderGL&) = delete;
+    BoxBlurShaderGL& operator=(const BoxBlurShaderGL&&) = delete;
 };

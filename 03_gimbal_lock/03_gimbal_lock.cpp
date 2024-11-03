@@ -131,7 +131,7 @@ void C03GimbalLock::setTeapotObject() const
 
 void C03GimbalLock::drawAxisObject(float scale_factor) const
 {
-    using u = LightingShader::UNIFORM;
+    using u = LightingShaderGL::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glUseProgram( ObjectShader->getShaderProgram() );
@@ -175,7 +175,7 @@ void C03GimbalLock::drawAxisObject(float scale_factor) const
 
 void C03GimbalLock::drawTeapotObject(const glm::mat4& to_world) const
 {
-    using u = LightingShader::UNIFORM;
+    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

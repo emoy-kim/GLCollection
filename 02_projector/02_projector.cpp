@@ -269,7 +269,7 @@ void C02Projector::prepareSlide()
 
 void C02Projector::drawWallObject() const
 {
-    using u = ProjectorShader::UNIFORM;
+    using u = ProjectorShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
@@ -313,7 +313,7 @@ void C02Projector::drawWallObject() const
 
 void C02Projector::drawScreenObject() const
 {
-    using u = ProjectorShader::UNIFORM;
+    using u = ProjectorShaderGL::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     const glm::mat4 to_world = inverse( Projector->getViewMatrix() ) *
@@ -340,7 +340,7 @@ void C02Projector::drawScreenObject() const
 
 void C02Projector::drawProjectorObject() const
 {
-    using u = ProjectorShader::UNIFORM;
+    using u = ProjectorShaderGL::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glLineWidth( 3.0f );

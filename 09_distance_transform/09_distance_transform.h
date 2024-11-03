@@ -24,9 +24,9 @@ protected:
     GLuint OutsideColumnScannerBuffer;
     GLuint InsideDistanceFieldBuffer;
     GLuint OutsideDistanceFieldBuffer;
-    std::unique_ptr<MVPShader> ObjectShader;
-    std::unique_ptr<MVPShader> FieldShader;
-    std::unique_ptr<DistanceTransformShader> TransformShader;
+    std::unique_ptr<MVPShaderGL> ObjectShader;
+    std::unique_ptr<MVPShaderGL> FieldShader;
+    std::unique_ptr<DistanceTransformShaderGL> TransformShader;
     std::unique_ptr<ObjectGL> ImageObject;
     std::unique_ptr<ObjectGL> DistanceObject;
     std::unique_ptr<CanvasGL> Canvas;

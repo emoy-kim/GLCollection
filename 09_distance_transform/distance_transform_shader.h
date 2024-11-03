@@ -2,30 +2,30 @@
 
 #include "../common/include/shader.h"
 
-class MVPShader final : public ShaderGL
+class MVPShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM { ModelViewProjectionMatrix = 0 };
 
-    MVPShader() = default;
-    ~MVPShader() override = default;
+    MVPShaderGL() = default;
+    ~MVPShaderGL() override = default;
 
-    MVPShader(const MVPShader&) = delete;
-    MVPShader(const MVPShader&&) = delete;
-    MVPShader& operator=(const MVPShader&) = delete;
-    MVPShader& operator=(const MVPShader&&) = delete;
+    MVPShaderGL(const MVPShaderGL&) = delete;
+    MVPShaderGL(const MVPShaderGL&&) = delete;
+    MVPShaderGL& operator=(const MVPShaderGL&) = delete;
+    MVPShaderGL& operator=(const MVPShaderGL&&) = delete;
 };
 
-class DistanceTransformShader final : public ShaderGL
+class DistanceTransformShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM { Phase = 0, DistanceType };
 
-    DistanceTransformShader() = default;
-    ~DistanceTransformShader() override = default;
+    DistanceTransformShaderGL() = default;
+    ~DistanceTransformShaderGL() override = default;
 
-    DistanceTransformShader(const DistanceTransformShader&) = delete;
-    DistanceTransformShader(const DistanceTransformShader&&) = delete;
-    DistanceTransformShader& operator=(const DistanceTransformShader&) = delete;
-    DistanceTransformShader& operator=(const DistanceTransformShader&&) = delete;
+    DistanceTransformShaderGL(const DistanceTransformShaderGL&) = delete;
+    DistanceTransformShaderGL(const DistanceTransformShaderGL&&) = delete;
+    DistanceTransformShaderGL& operator=(const DistanceTransformShaderGL&) = delete;
+    DistanceTransformShaderGL& operator=(const DistanceTransformShaderGL&&) = delete;
 };

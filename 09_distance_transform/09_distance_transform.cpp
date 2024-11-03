@@ -6,9 +6,9 @@ C09DistanceTransform::C09DistanceTransform()
       OutsideColumnScannerBuffer( 0 ),
       InsideDistanceFieldBuffer( 0 ),
       OutsideDistanceFieldBuffer( 0 ),
-      ObjectShader( std::make_unique<MVPShader>() ),
-      FieldShader( std::make_unique<MVPShader>() ),
-      TransformShader( std::make_unique<DistanceTransformShader>() ),
+      ObjectShader( std::make_unique<MVPShaderGL>() ),
+      FieldShader( std::make_unique<MVPShaderGL>() ),
+      TransformShader( std::make_unique<DistanceTransformShaderGL>() ),
       ImageObject( std::make_unique<ObjectGL>() ),
       DistanceObject( std::make_unique<ObjectGL>() ),
       Canvas( std::make_unique<CanvasGL>() )
@@ -84,7 +84,7 @@ void C09DistanceTransform::drawImage() const
         ) *
         scale( glm::mat4( 1.0f ), glm::vec3( texture_size, 1.0f ) );
     ObjectShader->uniformMat4fv(
-        MVPShader::ModelViewProjectionMatrix,
+        MVPShaderGL::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
 
@@ -97,7 +97,7 @@ void C09DistanceTransform::drawImage() const
 void C09DistanceTransform::drawDistanceField()
 {
     glUseProgram( TransformShader->getShaderProgram() );
-    TransformShader->uniform1i( DistanceTransformShader::Phase, 1 );
+    TransformShader->uniform1i( DistanceTransformShaderGL::Phase, 1 );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, InsideColumnScannerBuffer );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 1, OutsideColumnScannerBuffer );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 2, InsideDistanceFieldBuffer );
@@ -106,15 +106,15 @@ void C09DistanceTransform::drawDistanceField()
     glDispatchCompute( getGroupSize( FrameHeight ), 1, 1 );
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT );
 
-    TransformShader->uniform1i( DistanceTransformShader::Phase, 2 );
-    TransformShader->uniform1i( DistanceTransformShader::DistanceType, static_cast<int>(DistanceType) );
+    TransformShader->uniform1i( DistanceTransformShaderGL::Phase, 2 );
+    TransformShader->uniform1i( DistanceTransformShaderGL::DistanceType, static_cast<int>(DistanceType) );
     glDispatchCompute( getGroupSize( FrameWidth ), 1, 1 );
     glMemoryBarrier( GL_SHADER_STORAGE_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT );
 
     glUseProgram( FieldShader->getShaderProgram() );
     const glm::mat4 to_world = scale( glm::mat4( 1.0f ), glm::vec3( FrameWidth, FrameHeight, 1.0f ) );
     FieldShader->uniformMat4fv(
-        MVPShader::ModelViewProjectionMatrix,
+        MVPShaderGL::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );

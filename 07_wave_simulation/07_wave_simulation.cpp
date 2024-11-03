@@ -137,7 +137,7 @@ void C07WaveSimulation::render()
 
     WaveTargetIndex = (WaveTargetIndex + 1) % 3;
 
-    using u = LightingShader::UNIFORM;
+    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 

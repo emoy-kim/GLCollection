@@ -2,7 +2,7 @@
 
 #include "../common/include/shader.h"
 
-class ClothShader final : public ShaderGL
+class ClothShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM
@@ -23,11 +23,11 @@ public:
         SphereWorldMatrix
     };
 
-    ClothShader() = default;
-    ~ClothShader() override = default;
+    ClothShaderGL() = default;
+    ~ClothShaderGL() override = default;
 
-    ClothShader(const ClothShader&) = delete;
-    ClothShader(const ClothShader&&) = delete;
-    ClothShader& operator=(const ClothShader&) = delete;
-    ClothShader& operator=(const ClothShader&&) = delete;
+    ClothShaderGL(const ClothShaderGL&) = delete;
+    ClothShaderGL(const ClothShaderGL&&) = delete;
+    ClothShaderGL& operator=(const ClothShaderGL&) = delete;
+    ClothShaderGL& operator=(const ClothShaderGL&&) = delete;
 };

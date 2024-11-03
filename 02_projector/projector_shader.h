@@ -2,7 +2,7 @@
 
 #include "../common/include/shader.h"
 
-class ProjectorShader final : public ShaderGL
+class ProjectorShaderGL final : public ShaderGL
 {
 public:
     enum UNIFORM
@@ -20,11 +20,11 @@ public:
         GlobalAmbient
     };
 
-    ProjectorShader() = default;
-    ~ProjectorShader() override = default;
+    ProjectorShaderGL() = default;
+    ~ProjectorShaderGL() override = default;
 
-    ProjectorShader(const ProjectorShader&) = delete;
-    ProjectorShader(const ProjectorShader&&) = delete;
-    ProjectorShader& operator=(const ProjectorShader&) = delete;
-    ProjectorShader& operator=(const ProjectorShader&&) = delete;
+    ProjectorShaderGL(const ProjectorShaderGL&) = delete;
+    ProjectorShaderGL(const ProjectorShaderGL&&) = delete;
+    ProjectorShaderGL& operator=(const ProjectorShaderGL&) = delete;
+    ProjectorShaderGL& operator=(const ProjectorShaderGL&&) = delete;
 };
