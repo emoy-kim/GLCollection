@@ -60,18 +60,25 @@ CameraGL::CameraGL(int width, int height, float near_plane, float far_plane)
           )
       ) {}
 
-void CameraGL::updateCameraPosition(const glm::vec3& cam_position)
-{
-    InitCamPos = CamPos = cam_position;
-    ViewMatrix = lookAt( InitCamPos, InitRefPos, InitUpVec );
-}
-
 void CameraGL::updateCamera()
 {
     const glm::mat4 inverse_view = inverse( ViewMatrix );
     CamPos.x = inverse_view[3][0];
     CamPos.y = inverse_view[3][1];
     CamPos.z = inverse_view[3][2];
+}
+
+void CameraGL::updateCameraPosition(
+    const glm::vec3& cam_position,
+    const glm::vec3& view_reference_position,
+    const glm::vec3& view_up_vector
+)
+{
+    InitCamPos = cam_position;
+    InitRefPos = view_reference_position;
+    InitUpVec = view_up_vector;
+    ViewMatrix = lookAt( InitCamPos, InitRefPos, InitUpVec );
+    updateCamera();
 }
 
 void CameraGL::pitch(int angle)

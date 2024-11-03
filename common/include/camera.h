@@ -34,8 +34,12 @@ public:
     void setZoomSensitivity(float zoom) { ZoomSensitivity = zoom; }
     void setMoveSensitivity(float move) { MoveSensitivity = move; }
     void setRotationSensitivity(float rotation) { RotationSensitivity = rotation; }
-    void updateCameraPosition(const glm::vec3& cam_position);
     void updateCamera();
+    void updateCameraPosition(
+        const glm::vec3& cam_position,
+        const glm::vec3& view_reference_position,
+        const glm::vec3& view_up_vector
+    );
     void pitch(int angle);
     void yaw(int angle);
     void rotateAroundWorldY(int angle);
