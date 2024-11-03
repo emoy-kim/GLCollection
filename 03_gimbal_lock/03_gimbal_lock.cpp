@@ -12,9 +12,9 @@ C03GimbalLock::C03GimbalLock()
       Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
-        glm::vec3{ 0.0f, 30.0f, 50.0f },
-        glm::vec3{ 0.0f, 0.0f, 0.0f },
-        glm::vec3{ 0.0f, 1.0f, 0.0f }
+        glm::vec3( 0.0f, 30.0f, 50.0f ),
+        glm::vec3( 0.0f, 0.0f, 0.0f ),
+        glm::vec3( 0.0f, 1.0f, 0.0f )
     );
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
 

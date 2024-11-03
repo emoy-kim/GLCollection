@@ -20,9 +20,9 @@ C02Projector::C02Projector()
     av_log_set_level( AV_LOG_ERROR );
 
     MainCamera = std::make_unique<CameraGL>(
-        glm::vec3{ 90.0f, 50.0f, 90.0f },
-        glm::vec3{ 0.0f, 0.0f, 0.0f },
-        glm::vec3{ 0.0f, 1.0f, 0.0f }
+        glm::vec3( 90.0f, 50.0f, 90.0f ),
+        glm::vec3( 0.0f, 0.0f, 0.0f ),
+        glm::vec3( 0.0f, 1.0f, 0.0f )
     );
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
 
