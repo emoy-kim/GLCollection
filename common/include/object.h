@@ -121,6 +121,12 @@ public:
         std::vector<glm::vec2>& textures,
         const std::string& file_path
     );
+    [[nodiscard]] static bool readTextFile(
+        std::vector<glm::vec3>& vertices,
+        std::vector<glm::vec3>& normals,
+        std::vector<glm::vec2>& textures,
+        const std::string& file_path
+    );
     [[nodiscard]] GLuint getVAO() const { return VAO; }
     [[nodiscard]] GLuint getVBO() const { return VBO; }
     [[nodiscard]] GLuint getIBO() const { return IBO; }

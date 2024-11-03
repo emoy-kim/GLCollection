@@ -654,6 +654,40 @@ bool ObjectGL::readObjectFile(
     return true;
 }
 
+bool ObjectGL::readTextFile(
+    std::vector<glm::vec3>& vertices,
+    std::vector<glm::vec3>& normals,
+    std::vector<glm::vec2>& textures,
+    const std::string& file_path
+)
+{
+    std::ifstream file( file_path );
+    if (!file.is_open()) {
+        std::cout << "The object file is not correct.\n";
+        return false;
+    }
+
+    int polygon_num;
+    file >> polygon_num;
+
+    const int vertex_num = polygon_num * 3;
+    vertices.resize( vertex_num );
+    normals.resize( vertex_num );
+    textures.resize( vertex_num );
+    for (int i = 0; i < polygon_num; ++i) {
+        int triangle_vertex_num;
+        file >> triangle_vertex_num;
+        for (int v = 0; v < triangle_vertex_num; ++v) {
+            const int index = i * triangle_vertex_num + v;
+            file >> vertices[index].x >> vertices[index].y >> vertices[index].z;
+            file >> normals[index].x >> normals[index].y >> normals[index].z;
+            file >> textures[index].x >> textures[index].y;
+        }
+    }
+    file.close();
+    return true;
+}
+
 void ObjectGL::calculateTangents(
     std::vector<glm::vec3>& tangents,
     const std::vector<glm::vec3>& vertices,
