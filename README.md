@@ -35,3 +35,6 @@
 
 ## 10 Shadow Mapping
 ![shadowmapping](https://user-images.githubusercontent.com/17864157/64842655-d831c400-d63d-11e9-9886-804347ba0c6f.gif)
+
+## 11 Ray Tracing
+![ray_tracing](https://user-images.githubusercontent.com/17864157/143024853-bfdb0d35-f67e-45dc-97c1-e46b49c579be.png)
