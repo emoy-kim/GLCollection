@@ -1,0 +1,192 @@
+#version 460
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+layout (rgba8, binding = 0) uniform image2D FinalImage;
+
+#define MAX_SPHERES 32
+
+layout (location = 0) uniform int FrameIndex;
+layout (location = 1) uniform int SphereNum;
+
+struct SphereInfo
+{
+    int Type; // 1: Metal, 2: Lambertian
+    float Radius;
+    vec3 Albedo;
+    vec3 Center;
+};
+layout (location = 2) uniform SphereInfo Sphere[MAX_SPHERES];
+
+const float zero = 0.0f;
+const float one = 1.0f;
+
+float getRandomFloat(inout uint seed)
+{
+    seed = (seed ^ 61u) ^ (seed >> 16u);
+    seed *= 9u;
+    seed = seed ^ (seed >> 4u);
+    seed *= 0x27d4eb2du;
+    seed = seed ^ (seed >> 15u);
+    return float(seed) / 4294967296.0f;
+}
+
+vec3 getRandomPointInUnitSphere(inout uint seed)
+{
+    const float two_pi = 6.28318530718f;
+    vec3 point = vec3(getRandomFloat( seed ), getRandomFloat( seed ), getRandomFloat( seed ));
+    point = point * vec3(2.0f, two_pi, one) - vec3(one, zero, zero); // x: [-1, 1], y: [0, 2pi], z: [0, 1]
+    float phi = point.y;
+    float r = pow( point.z, one / 3.0f );
+    return r * vec3(sqrt( one - point.x * point.x ) * vec2(sin( phi ), cos( phi )), point.x);
+}
+
+bool hitSphere(
+    inout float t,
+    inout int type,
+    inout vec3 position,
+    inout vec3 normal,
+    inout vec3 albedo,
+    in vec3 ray_origin,
+    in vec3 ray_direction,
+    in float t_min,
+    in float t_max,
+    in int index
+)
+{
+    const float epsilon = 1e-4f;
+    vec3 oc = ray_origin - Sphere[index].Center;
+    float a = dot( ray_direction, ray_direction );
+    float b = dot( oc, ray_direction );
+    float c = dot( oc, oc ) - Sphere[index].Radius * Sphere[index].Radius;
+    float discriminant = b * b - a * c;
+
+    float t1 = t_max, t2 = t_max;
+    if (abs( a ) < epsilon) {
+        if (abs( b ) >= epsilon) {
+            t1 = -0.5f * c / b;
+        }
+    }
+    else if (abs(discriminant) < epsilon) t1 = -b / a;
+    else if (discriminant > zero) {
+        discriminant = sqrt( discriminant );
+        float n = b >= zero ? -(discriminant + b) : (discriminant - b);
+        t1 = c / n;
+        t2 = n / a;
+    }
+
+    if (t_min < t1 && t1 < t_max) {
+        t = t1;
+        type = Sphere[index].Type;
+        albedo = Sphere[index].Albedo;
+        position = ray_origin + t * ray_direction;
+        normal = (position - Sphere[index].Center) / Sphere[index].Radius;
+        return true;
+    }
+    else if (t_min < t2 && t2 < t_max) {
+        t = t2;
+        type = Sphere[index].Type;
+        albedo = Sphere[index].Albedo;
+        position = ray_origin + t * ray_direction;
+        normal = (position - Sphere[index].Center) / Sphere[index].Radius;
+        return true;
+    }
+    return false;
+}
+
+bool hit(
+    inout int type,
+    inout vec3 position,
+    inout vec3 normal,
+    inout vec3 albedo,
+    in vec3 ray_origin,
+    in vec3 ray_direction,
+    in float t_min,
+    in float t_max
+)
+{
+    float t;
+    bool hit_anything = false;
+    float closest_so_far = t_max;
+    for (int i = 0; i < SphereNum; ++i) {
+        if (hitSphere( t, type, position, normal, albedo, ray_origin, ray_direction, t_min, closest_so_far, i )) {
+            hit_anything = true;
+            closest_so_far = t;
+        }
+    }
+    return hit_anything;
+}
+
+bool scatter(
+    inout vec3 ray_origin,
+    inout vec3 ray_direction,
+    inout uint seed,
+    in int type,
+    in vec3 position,
+    in vec3 normal
+)
+{
+    if (type == 1) {
+        vec3 reflected = reflect( normalize( ray_direction ), normal );
+        ray_origin = position;
+        ray_direction = reflected + 0.02f * getRandomPointInUnitSphere( seed );
+        return dot( ray_direction, normal ) > zero;
+    }
+    else {
+        ray_origin = position;
+        ray_direction = normal + getRandomPointInUnitSphere( seed );
+        return true;
+    }
+}
+
+vec3 getColor(inout bool need_to_repeat, inout vec3 ray_origin, inout vec3 ray_direction, inout uint seed)
+{
+    int type;
+    vec3 position, normal, albedo;
+    if (hit( type, position, normal, albedo, ray_origin, ray_direction, 1e-3f, 1E+7f )) {
+        if (scatter( ray_origin, ray_direction, seed, type, position, normal )) {
+            need_to_repeat = true;
+            return albedo;
+        }
+        else {
+            need_to_repeat = false;
+            return vec3(zero);
+        }
+    }
+    else {
+        need_to_repeat = false;
+        vec3 direction = normalize( ray_direction );
+        float t = 0.5f * direction.y + 0.5f;
+        return mix( vec3(one), vec3(0.5f, 0.7f, one), t );
+    }
+}
+
+void main()
+{
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    ivec2 image_size = imageSize( FinalImage );
+    if (x >= image_size.x || y >= image_size.y) return;
+
+    const int sample_num = 30;
+    vec3 color = vec3(zero);
+    uint seed = (gl_GlobalInvocationID.x * 1973u + gl_GlobalInvocationID.y * 9277u + uint(FrameIndex) * 26699u) | 1u;
+    for (int i = 0; i < sample_num; ++i) {
+        float u = (2.0f * (float(x) + getRandomFloat( seed )) - float(image_size.x)) / float(image_size.y);
+        float v = (2.0f * (float(y) + getRandomFloat( seed )) - float(image_size.y)) / float(image_size.y);
+        vec3 ray_origin = vec3(zero);
+        vec3 ray_direction = vec3(u, v, -one) - ray_origin;
+
+        int depth = 0;
+        bool need_to_repeat = true;
+        vec3 partial_color = vec3(one);
+        while (depth < 50 && need_to_repeat) {
+            partial_color *= getColor( need_to_repeat, ray_origin, ray_direction, seed );
+            depth++;
+        }
+        if (!need_to_repeat) color += partial_color;
+    }
+    color /= float(sample_num);
+    color = sqrt( color );
+    imageStore( FinalImage, ivec2(x, y), vec4(color, one) );
+}
