@@ -97,3 +97,6 @@ target_link_libraries(10_shadow_mapping ${ALL_LIBS})
 
 add_executable(11_ray_tracing 11_ray_tracing/11_ray_tracing.cpp ${COMMON_FILES})
 target_link_libraries(11_ray_tracing ${ALL_LIBS})
+
+add_executable(12_animation 12_animation/12_animation.cpp ${COMMON_FILES})
+target_link_libraries(12_animation ${ALL_LIBS})
