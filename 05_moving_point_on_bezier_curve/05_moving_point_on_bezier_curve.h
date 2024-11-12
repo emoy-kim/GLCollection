@@ -42,6 +42,7 @@ private:
     std::unique_ptr<ObjectGL> VelocityCurveObject;
     std::unique_ptr<ObjectGL> MovingObject;
 
+    void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const override {}
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
     void cursor(GLFWwindow* window, double xpos, double ypos) override;
     void mouse(GLFWwindow* window, int button, int action, int mods) override;
