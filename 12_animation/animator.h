@@ -76,12 +76,10 @@ public:
 
         const Keyframe& keyframe = Keyframes[keyframe_index];
         const float t = std::clamp( current_time / keyframe.Duration, 0.0f, 1.0f );
-        animation.Color = keyframe.Start.Color * (1.0f - t) + keyframe.End.Color * t;
-        animation.Scale.x = keyframe.Start.Scale.x * (1.0f - t) + keyframe.End.Scale.x * t;
-        animation.Scale.y = keyframe.Start.Scale.y * (1.0f - t) + keyframe.End.Scale.y * t;
-        animation.Translation.x = keyframe.Start.Translation.x * (1.0f - t) + keyframe.End.Translation.x * t;
-        animation.Translation.y = keyframe.Start.Translation.y * (1.0f - t) + keyframe.End.Translation.y * t;
-        animation.RotationAngle = keyframe.Start.RotationAngle * (1.0f - t) + keyframe.End.RotationAngle * t;
+        animation.Color = mix( keyframe.Start.Color, keyframe.End.Color, t );
+        animation.Scale = mix( keyframe.Start.Scale, keyframe.End.Scale, t );
+        animation.Translation = mix( keyframe.Start.Translation, keyframe.End.Translation, t );
+        animation.RotationAngle = glm::mix( keyframe.Start.RotationAngle, keyframe.End.RotationAngle, t );
     }
 
     [[nodiscard]] glm::mat4 getWorldMatrix(const Animation& animation, int screen_height, int keyframe_index) const
