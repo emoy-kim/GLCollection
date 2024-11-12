@@ -17,7 +17,7 @@ public:
         Animation() : RotationAngle( 0.0f ) {}
     };
 
-    // The object in a key frame is defined in the coordinates whose origin is at the TOP-LEFT.
+    // The object in a keyframe is defined in the coordinates whose origin is at the TOP-LEFT.
     struct Keyframe
     {
         FILL_TYPE FillType;
