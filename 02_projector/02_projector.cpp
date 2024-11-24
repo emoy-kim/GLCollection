@@ -392,7 +392,7 @@ void C02Projector::play()
         render();
 
         if (IsVideo && !Pause && Video->read( SlideBuffer, VideoFrameIndex++ )) {
-            ScreenObject->updateTexture( SlideBuffer, 0, Video->getFrameWidth(), Video->getFrameHeight() );
+            ScreenObject->updateTexture( SlideBuffer, 0, Video->getFrameWidth(), Video->getFrameHeight(), GL_RGBA );
         }
 
         glfwSwapBuffers( Window );
