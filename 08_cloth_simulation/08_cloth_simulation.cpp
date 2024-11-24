@@ -165,24 +165,22 @@ void C08ClothSimulation::setSphereObject() const
 
 void C08ClothSimulation::applyForces()
 {
-    using u = ClothShaderGL::UNIFORM;
-
     glUseProgram( ClothShader->getShaderProgram() );
     const float rest_length = static_cast<float>(ClothGridSize.x) / static_cast<float>(ClothPointNumSize.x);
-    ClothShader->uniform1f( u::SpringRestLength, rest_length );
-    ClothShader->uniform1f( u::SpringStiffness, 0.5f );
-    ClothShader->uniform1f( u::SpringDamping, -0.5f );
-    ClothShader->uniform1f( u::ShearStiffness, 0.05f );
-    ClothShader->uniform1f( u::ShearDamping, -0.5f );
-    ClothShader->uniform1f( u::FlexionStiffness, 5.0f );
-    ClothShader->uniform1f( u::FlexionDamping, -0.5f );
-    ClothShader->uniform1f( u::DeltaTime, 0.1f );
-    ClothShader->uniform1f( u::Mass, 1.0f );
-    ClothShader->uniform2iv( u::ClothPointNumSize, ClothPointNumSize );
-    ClothShader->uniformMat4fv( u::ClothWorldMatrix, ClothWorldMatrix );
-    ClothShader->uniform1f( u::SphereRadius, SphereRadius );
-    ClothShader->uniform3fv( u::SpherePosition, SpherePosition );
-    ClothShader->uniformMat4fv( u::SphereWorldMatrix, SphereWorldMatrix );
+    ClothShader->uniform1f( cloth::SpringRestLength, rest_length );
+    ClothShader->uniform1f( cloth::SpringStiffness, 0.5f );
+    ClothShader->uniform1f( cloth::SpringDamping, -0.5f );
+    ClothShader->uniform1f( cloth::ShearStiffness, 0.05f );
+    ClothShader->uniform1f( cloth::ShearDamping, -0.5f );
+    ClothShader->uniform1f( cloth::FlexionStiffness, 5.0f );
+    ClothShader->uniform1f( cloth::FlexionDamping, -0.5f );
+    ClothShader->uniform1f( cloth::DeltaTime, 0.1f );
+    ClothShader->uniform1f( cloth::Mass, 1.0f );
+    ClothShader->uniform2iv( cloth::ClothPointNumSize, ClothPointNumSize );
+    ClothShader->uniformMat4fv( cloth::ClothWorldMatrix, ClothWorldMatrix );
+    ClothShader->uniform1f( cloth::SphereRadius, SphereRadius );
+    ClothShader->uniform3fv( cloth::SpherePosition, SpherePosition );
+    ClothShader->uniformMat4fv( cloth::SphereWorldMatrix, SphereWorldMatrix );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 0, ClothBuffers[ClothTargetIndex] );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 1, ClothBuffers[(ClothTargetIndex + 1) % 3] );
     glBindBufferBase( GL_SHADER_STORAGE_BUFFER, 2, ClothBuffers[(ClothTargetIndex + 2) % 3] );
@@ -194,28 +192,27 @@ void C08ClothSimulation::applyForces()
 
 void C08ClothSimulation::drawClothObject() const
 {
-    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
-    ObjectShader->uniformMat4fv( u::WorldMatrix, ClothWorldMatrix );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, ClothWorldMatrix );
+    ObjectShader->uniformMat4fv( lighting::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * ClothWorldMatrix
     );
-    ObjectShader->uniform1i( u::UseTexture, 1 );
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, ClothObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, ClothObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, ClothObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, ClothObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, ClothObject->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ObjectShader->uniform1i( lighting::UseTexture, 1 );
+    ObjectShader->uniform4fv( lighting::Material + m::EmissionColor, ClothObject->getEmissionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::AmbientColor, ClothObject->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, ClothObject->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::SpecularColor, ClothObject->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( lighting::Material + m::SpecularExponent, ClothObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( lighting::UseLight, Lights->isLightOn() ? 1 : 0 );
     if (Lights->isLightOn()) {
-        ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-        ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ObjectShader->uniform1i( lighting::LightNum, Lights->getTotalLightNum() );
+        ObjectShader->uniform4fv( lighting::GlobalAmbient, Lights->getGlobalAmbientColor() );
         for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-            const int offset = u::Lights + l::UniformNum * i;
+            const int offset = lighting::Lights + l::UniformNum * i;
             ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
             ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
             ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );
@@ -241,29 +238,28 @@ void C08ClothSimulation::drawClothObject() const
 
 void C08ClothSimulation::drawSphereObject() const
 {
-    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     const glm::mat4 to_world = SphereWorldMatrix * translate( glm::mat4( 1.0f ), SpherePosition );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( lighting::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform1i( u::UseTexture, 1 );
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, SphereObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, SphereObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, SphereObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, SphereObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, SphereObject->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ObjectShader->uniform1i( lighting::UseTexture, 1 );
+    ObjectShader->uniform4fv( lighting::Material + m::EmissionColor, SphereObject->getEmissionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::AmbientColor, SphereObject->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, SphereObject->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::SpecularColor, SphereObject->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( lighting::Material + m::SpecularExponent, SphereObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( lighting::UseLight, Lights->isLightOn() ? 1 : 0 );
     if (Lights->isLightOn()) {
-        ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-        ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ObjectShader->uniform1i( lighting::LightNum, Lights->getTotalLightNum() );
+        ObjectShader->uniform4fv( lighting::GlobalAmbient, Lights->getGlobalAmbientColor() );
         for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-            const int offset = u::Lights + l::UniformNum * i;
+            const int offset = lighting::Lights + l::UniformNum * i;
             ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
             ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
             ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );

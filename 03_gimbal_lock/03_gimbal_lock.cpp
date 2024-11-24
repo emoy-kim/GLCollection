@@ -131,43 +131,42 @@ void C03GimbalLock::setTeapotObject() const
 
 void C03GimbalLock::drawAxisObject(float scale_factor) const
 {
-    using u = LightingShaderGL::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glUseProgram( ObjectShader->getShaderProgram() );
     glLineWidth( 5.0f );
 
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
-    ObjectShader->uniform1i( u::UseTexture, 0 );
-    ObjectShader->uniform1i( u::UseLight, 0 );
+    ObjectShader->uniformMat4fv( lighting::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniform1i( lighting::UseTexture, 0 );
+    ObjectShader->uniform1i( lighting::UseLight, 0 );
 
     const glm::mat4 scale_matrix = scale( glm::mat4( 1.0f ), glm::vec3( scale_factor ) );
     glm::mat4 to_world = scale_matrix;
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, { 1.0f, 0.0f, 0.0f, 1.0f } );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, { 1.0f, 0.0f, 0.0f, 1.0f } );
     glBindVertexArray( AxisObject->getVAO() );
     glDrawArrays( AxisObject->getDrawMode(), 0, AxisObject->getVertexNum() );
 
     to_world = scale_matrix * rotate( glm::mat4( 1.0f ), glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, { 0.0f, 1.0f, 0.0f, 1.0f } );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, { 0.0f, 1.0f, 0.0f, 1.0f } );
     glDrawArrays( AxisObject->getDrawMode(), 0, AxisObject->getVertexNum() );
 
     to_world = scale_matrix * rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, to_world );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, { 0.0f, 0.0f, 1.0f, 1.0f } );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, { 0.0f, 0.0f, 1.0f, 1.0f } );
     glDrawArrays( AxisObject->getDrawMode(), 0, AxisObject->getVertexNum() );
 
     glLineWidth( 1.0f );
@@ -175,29 +174,28 @@ void C03GimbalLock::drawAxisObject(float scale_factor) const
 
 void C03GimbalLock::drawTeapotObject(const glm::mat4& to_world) const
 {
-    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glUseProgram( ObjectShader->getShaderProgram() );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( lighting::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform1i( u::UseTexture, 0 );
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, TeapotObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, TeapotObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, TeapotObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, TeapotObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, TeapotObject->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ObjectShader->uniform1i( lighting::UseTexture, 0 );
+    ObjectShader->uniform4fv( lighting::Material + m::EmissionColor, TeapotObject->getEmissionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::AmbientColor, TeapotObject->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, TeapotObject->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::SpecularColor, TeapotObject->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( lighting::Material + m::SpecularExponent, TeapotObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( lighting::UseLight, Lights->isLightOn() ? 1 : 0 );
     if (Lights->isLightOn()) {
-        ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-        ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ObjectShader->uniform1i( lighting::LightNum, Lights->getTotalLightNum() );
+        ObjectShader->uniform4fv( lighting::GlobalAmbient, Lights->getGlobalAmbientColor() );
         for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-            const int offset = u::Lights + l::UniformNum * i;
+            const int offset = lighting::Lights + l::UniformNum * i;
             ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
             ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
             ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );

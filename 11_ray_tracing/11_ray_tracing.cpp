@@ -2,8 +2,8 @@
 
 C11RayTracing::C11RayTracing()
     : FrameIndex( 0 ),
-      RayTracingShader( std::make_unique<RayTracingShaderGL>() ),
-      ScreenShader( std::make_unique<SceneShaderGL>() ),
+      RayTracingShader( std::make_unique<ShaderGL>() ),
+      ScreenShader( std::make_unique<ShaderGL>() ),
       ScreenObject( std::make_unique<ObjectGL>() ),
       FinalCanvas( std::make_unique<CanvasGL>() )
 {
@@ -42,14 +42,14 @@ void C11RayTracing::render() const
 
     glUseProgram( RayTracingShader->getShaderProgram() );
     const auto sphere_size = static_cast<int>(Spheres.size());
-    RayTracingShader->uniform1i( RayTracingShaderGL::FrameIndex, FrameIndex );
-    RayTracingShader->uniform1i( RayTracingShaderGL::SphereNum, sphere_size );
+    RayTracingShader->uniform1i( ray_tracing::FrameIndex, FrameIndex );
+    RayTracingShader->uniform1i( ray_tracing::SphereNum, sphere_size );
     for (int i = 0; i < sphere_size; ++i) {
-        const int offset = RayTracingShaderGL::Sphere + RayTracingShaderGL::UniformNum * i;
-        RayTracingShader->uniform1i( offset + RayTracingShaderGL::Type, static_cast<int>(Spheres[i].Type) );
-        RayTracingShader->uniform1f( offset + RayTracingShaderGL::Radius, Spheres[i].Radius );
-        RayTracingShader->uniform3fv( offset + RayTracingShaderGL::Albedo, Spheres[i].Albedo );
-        RayTracingShader->uniform3fv( offset + RayTracingShaderGL::Center, Spheres[i].Center );
+        const int offset = ray_tracing::Sphere + ray_tracing::UniformNum * i;
+        RayTracingShader->uniform1i( offset + ray_tracing::Type, static_cast<int>(Spheres[i].Type) );
+        RayTracingShader->uniform1f( offset + ray_tracing::Radius, Spheres[i].Radius );
+        RayTracingShader->uniform3fv( offset + ray_tracing::Albedo, Spheres[i].Albedo );
+        RayTracingShader->uniform3fv( offset + ray_tracing::Center, Spheres[i].Center );
     }
 
     glBindImageTexture( 0, FinalCanvas->getColor0TextureID(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA8 );
@@ -61,7 +61,7 @@ void C11RayTracing::render() const
 
     const glm::mat4 to_world = scale( glm::mat4( 1.0f ), glm::vec3( FrameWidth, FrameHeight, 1.0f ) );
     ScreenShader->uniformMat4fv(
-        SceneShaderGL::ModelViewProjectionMatrix,
+        scene::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
     glBindTextureUnit( 0, FinalCanvas->getColor0TextureID() );

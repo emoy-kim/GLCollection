@@ -1,7 +1,27 @@
 #pragma once
 
 #include "../common/include/renderer.h"
-#include "bump_mapping_shader.h"
+#include "../common/include/shader.h"
+
+namespace bump_mapping
+{
+    enum UNIFORM
+    {
+        WorldMatrix = 0,
+        ViewMatrix,
+        ModelViewProjectionMatrix,
+        Lights,
+        Material = 291,
+        UseBumpMapping = 296,
+        LightNum,
+        GlobalAmbient
+    };
+}
+
+namespace box_blur
+{
+    enum UNIFORM { IsHorizontal = 0, BlurRadius };
+}
 
 class C06BumpMapping final : public RendererGL
 {

@@ -1,7 +1,17 @@
 #pragma once
 
 #include "../common/include/renderer.h"
-#include "distance_transform_shader.h"
+#include "../common/include/shader.h"
+
+namespace mvp
+{
+    enum UNIFORM { ModelViewProjectionMatrix = 0 };
+}
+
+namespace distance_transform
+{
+    enum UNIFORM { Phase = 0, DistanceType };
+}
 
 class C09DistanceTransform final : public RendererGL
 {
@@ -24,9 +34,9 @@ protected:
     GLuint OutsideColumnScannerBuffer;
     GLuint InsideDistanceFieldBuffer;
     GLuint OutsideDistanceFieldBuffer;
-    std::unique_ptr<MVPShaderGL> ObjectShader;
-    std::unique_ptr<MVPShaderGL> FieldShader;
-    std::unique_ptr<DistanceTransformShaderGL> TransformShader;
+    std::unique_ptr<ShaderGL> ObjectShader;
+    std::unique_ptr<ShaderGL> FieldShader;
+    std::unique_ptr<ShaderGL> TransformShader;
     std::unique_ptr<ObjectGL> ImageObject;
     std::unique_ptr<ObjectGL> DistanceObject;
     std::unique_ptr<CanvasGL> Canvas;

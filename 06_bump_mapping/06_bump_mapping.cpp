@@ -108,9 +108,9 @@ void C06BumpMapping::createNormalMap(ObjectGL* object)
     int t = 0;
     const std::array<GLuint, 2> textures{ object->getTextureID( 1 ), object->getTextureID( 2 ) };
     glUseProgram( BoxBlurShader->getShaderProgram() );
-    BoxBlurShader->uniform1f( BoxBlurShaderGL::BlurRadius, 3.0f );
+    BoxBlurShader->uniform1f( box_blur::BlurRadius, 3.0f );
     for (int i = 0; i < 3; ++i) {
-        BoxBlurShader->uniform1i( BoxBlurShaderGL::IsHorizontal, 1 );
+        BoxBlurShader->uniform1i( box_blur::IsHorizontal, 1 );
         glBindImageTexture( 0, texture_id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8 );
         glBindImageTexture( 1, textures[t], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8 );
         glDispatchCompute( getGroupSize( size.y ), 1, 1 );
@@ -118,7 +118,7 @@ void C06BumpMapping::createNormalMap(ObjectGL* object)
         texture_id = textures[t];
         t ^= 1;
 
-        BoxBlurShader->uniform1i( BoxBlurShaderGL::IsHorizontal, 0 );
+        BoxBlurShader->uniform1i( box_blur::IsHorizontal, 0 );
         glBindImageTexture( 0, texture_id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8 );
         glBindImageTexture( 1, textures[t], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8 );
         glDispatchCompute( getGroupSize( size.x ), 1, 1 );
@@ -149,27 +149,26 @@ void C06BumpMapping::setWallObjects()
 
 void C06BumpMapping::drawWallObject(const ObjectGL* object, const glm::mat4& to_world) const
 {
-    using u = BumpMappingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glUseProgram( ObjectShader->getShaderProgram() );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( bump_mapping::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( bump_mapping::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        bump_mapping::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform1i( u::UseBumpMapping, UseBumpMapping ? 1 : 0 );
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, object->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, object->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, object->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, object->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, object->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-    ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+    ObjectShader->uniform1i( bump_mapping::UseBumpMapping, UseBumpMapping ? 1 : 0 );
+    ObjectShader->uniform4fv( bump_mapping::Material + m::EmissionColor, object->getEmissionColor() );
+    ObjectShader->uniform4fv( bump_mapping::Material + m::AmbientColor, object->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( bump_mapping::Material + m::DiffuseColor, object->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( bump_mapping::Material + m::SpecularColor, object->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( bump_mapping::Material + m::SpecularExponent, object->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( bump_mapping::LightNum, Lights->getTotalLightNum() );
+    ObjectShader->uniform4fv( bump_mapping::GlobalAmbient, Lights->getGlobalAmbientColor() );
     for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-        const int offset = u::Lights + l::UniformNum * i;
+        const int offset = bump_mapping::Lights + l::UniformNum * i;
         ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
         ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
         ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );

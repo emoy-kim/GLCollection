@@ -1,7 +1,29 @@
 #pragma once
 
 #include "../common/include/renderer.h"
-#include "shadow_shader.h"
+#include "../common/include/shader.h"
+
+namespace shadow
+{
+    enum UNIFORM
+    {
+        WorldMatrix = 0,
+        ViewMatrix,
+        ModelViewProjectionMatrix,
+        LightViewProjectionMatrix,
+        Lights,
+        Material = 292,
+        UseTexture = 297,
+        UseLight,
+        LightIndex,
+        GlobalAmbient
+    };
+}
+
+namespace simple
+{
+    enum UNIFORM { ModelViewProjectionMatrix = 0 };
+}
 
 class C10ShadowMapping final : public RendererGL
 {
@@ -21,8 +43,8 @@ private:
     GLuint FBO;
     GLuint DepthTextureID;
     std::unique_ptr<CameraGL> LightCamera;
-    std::unique_ptr<SimpleShaderGL> ObjectShader;
-    std::unique_ptr<ShadowShaderGL> ShadowShader;
+    std::unique_ptr<ShaderGL> ObjectShader;
+    std::unique_ptr<ShaderGL> ShadowShader;
     std::unique_ptr<ObjectGL> GroundObject;
     std::unique_ptr<ObjectGL> TigerObject;
     std::unique_ptr<ObjectGL> PandaObject;

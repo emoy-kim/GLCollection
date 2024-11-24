@@ -2,7 +2,25 @@
 
 #include "../common/include/renderer.h"
 #include "../common/include/video_reader.h"
-#include "projector_shader.h"
+#include "../common/include/shader.h"
+
+namespace projector
+{
+    enum UNIFORM
+    {
+        WorldMatrix = 0,
+        ViewMatrix,
+        ModelViewProjectionMatrix,
+        ProjectorViewMatrix,
+        ProjectorProjectionMatrix,
+        Lights,
+        Material = 293,
+        WhichObject = 298,
+        UseLight,
+        LightNum,
+        GlobalAmbient
+    };
+}
 
 class C02Projector final : public RendererGL
 {

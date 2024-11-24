@@ -9,6 +9,7 @@ C01Lighting::C01Lighting()
 {
     MainCamera = std::make_unique<CameraGL>();
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
+    MainCamera->setMoveSensitivity( 0.005f );
 
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/01_lighting/shaders";
     ObjectShader->setShader(
@@ -108,7 +109,6 @@ void C01Lighting::setObject() const
 
 void C01Lighting::drawObject(const float& scale_factor) const
 {
-    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
@@ -130,24 +130,24 @@ void C01Lighting::drawObject(const float& scale_factor) const
         ) * to_world;
     }
 
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( lighting::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform1i( u::UseTexture, 1 );
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, Object->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, Object->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, Object->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, Object->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, Object->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ObjectShader->uniform1i( lighting::UseTexture, 1 );
+    ObjectShader->uniform4fv( lighting::Material + m::EmissionColor, Object->getEmissionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::AmbientColor, Object->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, Object->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::SpecularColor, Object->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( lighting::Material + m::SpecularExponent, Object->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( lighting::UseLight, Lights->isLightOn() ? 1 : 0 );
     if (Lights->isLightOn()) {
-        ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-        ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ObjectShader->uniform1i( lighting::LightNum, Lights->getTotalLightNum() );
+        ObjectShader->uniform4fv( lighting::GlobalAmbient, Lights->getGlobalAmbientColor() );
         for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-            const int offset = u::Lights + l::UniformNum * i;
+            const int offset = lighting::Lights + l::UniformNum * i;
             ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
             ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
             ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );

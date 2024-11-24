@@ -1,8 +1,28 @@
 #pragma once
 
-#include "../common/include/renderer.h"
-#include "../01_lighting/lighting_shader.h"
-#include "cloth_shader.h"
+#include "../01_lighting/01_lighting.h"
+#include "../common/include/shader.h"
+
+namespace cloth
+{
+    enum UNIFORM
+    {
+        SpringRestLength = 0,
+        SpringStiffness,
+        SpringDamping,
+        ShearStiffness,
+        ShearDamping,
+        FlexionStiffness,
+        FlexionDamping,
+        DeltaTime,
+        Mass,
+        ClothPointNumSize,
+        ClothWorldMatrix,
+        SphereRadius,
+        SpherePosition,
+        SphereWorldMatrix
+    };
+}
 
 class C08ClothSimulation final : public RendererGL
 {

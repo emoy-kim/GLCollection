@@ -1,7 +1,23 @@
 #pragma once
 
 #include "../common/include/renderer.h"
-#include "lighting_shader.h"
+#include "../common/include/shader.h"
+
+namespace lighting
+{
+    enum UNIFORM
+    {
+        WorldMatrix = 0,
+        ViewMatrix,
+        ModelViewProjectionMatrix,
+        Lights,
+        Material = 291,
+        UseTexture = 296,
+        UseLight,
+        LightNum,
+        GlobalAmbient
+    };
+}
 
 class C01Lighting final : public RendererGL
 {

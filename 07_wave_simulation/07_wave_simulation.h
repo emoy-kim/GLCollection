@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../common/include/renderer.h"
-#include "../01_lighting/lighting_shader.h"
+#include "../01_lighting/01_lighting.h"
+#include "../common/include/shader.h"
 
 class C07WaveSimulation final : public RendererGL
 {

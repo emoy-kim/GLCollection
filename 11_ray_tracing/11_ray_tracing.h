@@ -1,7 +1,19 @@
 #pragma once
 
 #include "../common/include/renderer.h"
-#include "ray_tracing_shader.h"
+#include "../common/include/shader.h"
+
+namespace ray_tracing
+{
+    enum UNIFORM { FrameIndex = 0, SphereNum, Sphere };
+
+    enum SPHERE_UNIFORM { Type = 0, Radius, Albedo, Center, UniformNum };
+}
+
+namespace scene
+{
+    enum UNIFORM { ModelViewProjectionMatrix = 0 };
+}
 
 class C11RayTracing final : public RendererGL
 {
@@ -34,7 +46,7 @@ private:
 
     int FrameIndex;
     std::vector<Sphere> Spheres;
-    std::unique_ptr<RayTracingShaderGL> RayTracingShader;
+    std::unique_ptr<ShaderGL> RayTracingShader;
     std::unique_ptr<ShaderGL> ScreenShader;
     std::unique_ptr<ObjectGL> ScreenObject;
     std::unique_ptr<CanvasGL> FinalCanvas;

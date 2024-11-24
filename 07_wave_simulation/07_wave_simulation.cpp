@@ -137,29 +137,28 @@ void C07WaveSimulation::render()
 
     WaveTargetIndex = (WaveTargetIndex + 1) % 3;
 
-    using u = LightingShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glUseProgram( ObjectShader->getShaderProgram() );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, glm::mat4( 1.0f ) );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( lighting::WorldMatrix, glm::mat4( 1.0f ) );
+    ObjectShader->uniformMat4fv( lighting::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        lighting::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix()
     );
-    ObjectShader->uniform1i( u::UseTexture, 1 );
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, WaveObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, WaveObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, WaveObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, WaveObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, WaveObject->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ObjectShader->uniform1i( lighting::UseTexture, 1 );
+    ObjectShader->uniform4fv( lighting::Material + m::EmissionColor, WaveObject->getEmissionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::AmbientColor, WaveObject->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::DiffuseColor, WaveObject->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( lighting::Material + m::SpecularColor, WaveObject->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( lighting::Material + m::SpecularExponent, WaveObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( lighting::UseLight, Lights->isLightOn() ? 1 : 0 );
     if (Lights->isLightOn()) {
-        ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-        ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ObjectShader->uniform1i( lighting::LightNum, Lights->getTotalLightNum() );
+        ObjectShader->uniform4fv( lighting::GlobalAmbient, Lights->getGlobalAmbientColor() );
         for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-            const int offset = u::Lights + l::UniformNum * i;
+            const int offset = lighting::Lights + l::UniformNum * i;
             ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
             ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
             ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );

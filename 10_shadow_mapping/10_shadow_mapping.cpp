@@ -5,8 +5,8 @@ C10ShadowMapping::C10ShadowMapping()
       FBO( 0 ),
       DepthTextureID( 0 ),
       LightCamera( std::make_unique<CameraGL>() ),
-      ObjectShader( std::make_unique<SimpleShaderGL>() ),
-      ShadowShader( std::make_unique<ShadowShaderGL>() ),
+      ObjectShader( std::make_unique<ShaderGL>() ),
+      ShadowShader( std::make_unique<ShaderGL>() ),
       GroundObject( std::make_unique<ObjectGL>() ),
       TigerObject( std::make_unique<ObjectGL>() ),
       PandaObject( std::make_unique<ObjectGL>() ),
@@ -160,7 +160,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
         rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 0.3f ) );
     ObjectShader->uniformMat4fv(
-        SimpleShaderGL::ModelViewProjectionMatrix,
+        simple::ModelViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix() * to_world
     );
     glBindVertexArray( TigerObject->getVAO() );
@@ -170,7 +170,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
         translate( glm::mat4( 1.0f ), glm::vec3( 250.0f, -5.0f, 180.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 20.0f ) );
     ObjectShader->uniformMat4fv(
-        SimpleShaderGL::ModelViewProjectionMatrix,
+        simple::ModelViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix() * to_world
     );
     glBindVertexArray( PandaObject->getVAO() );
@@ -181,7 +181,7 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
         rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 512.0f ) );
     ObjectShader->uniformMat4fv(
-        SimpleShaderGL::ModelViewProjectionMatrix,
+        simple::ModelViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix() * to_world
     );
     glBindVertexArray( GroundObject->getVAO() );
@@ -191,7 +191,6 @@ void C10ShadowMapping::drawDepthMapFromLightView(int light_index) const
 
 void C10ShadowMapping::drawShadow(int light_index) const
 {
-    using u = ShadowShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
@@ -200,14 +199,14 @@ void C10ShadowMapping::drawShadow(int light_index) const
     glUseProgram( ShadowShader->getShaderProgram() );
 
     ShadowShader->uniformMat4fv(
-        u::LightViewProjectionMatrix,
+        shadow::LightViewProjectionMatrix,
         LightCamera->getProjectionMatrix() * LightCamera->getViewMatrix()
     );
-    ShadowShader->uniform1i( u::UseTexture, 1 );
-    ShadowShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
-    ShadowShader->uniform1i( u::LightIndex, light_index );
+    ShadowShader->uniform1i( shadow::UseTexture, 1 );
+    ShadowShader->uniform1i( shadow::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ShadowShader->uniform1i( shadow::LightIndex, light_index );
     if (Lights->isLightOn()) {
-        const int offset = u::Lights + l::UniformNum * light_index;
+        const int offset = shadow::Lights + l::UniformNum * light_index;
         ShadowShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( light_index ) ? 1 : 0 );
         ShadowShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( light_index ) );
         ShadowShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( light_index ) );
@@ -217,7 +216,7 @@ void C10ShadowMapping::drawShadow(int light_index) const
         ShadowShader->uniform1f( offset + l::SpotlightCutoffAngle, Lights->getSpotlightCutoffAngles( light_index ) );
         ShadowShader->uniform1f( offset + l::SpotlightFeather, Lights->getSpotlightFeathers( light_index ) );
         ShadowShader->uniform1f( offset + l::FallOffRadius, Lights->getFallOffRadii( light_index ) );
-        ShadowShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ShadowShader->uniform4fv( shadow::GlobalAmbient, Lights->getGlobalAmbientColor() );
     }
 
     glBindTextureUnit( 1, DepthTextureID );
@@ -227,17 +226,17 @@ void C10ShadowMapping::drawShadow(int light_index) const
         rotate( glm::mat4( 1.0f ), glm::radians( 180.0f ), glm::vec3( 0.0f, 1.0f, 0.0f ) ) *
         rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 0.3f ) );
-    ShadowShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ShadowShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ShadowShader->uniformMat4fv( shadow::WorldMatrix, to_world );
+    ShadowShader->uniformMat4fv( shadow::ViewMatrix, MainCamera->getViewMatrix() );
     ShadowShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        shadow::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ShadowShader->uniform4fv( u::Material + m::EmissionColor, TigerObject->getEmissionColor() );
-    ShadowShader->uniform4fv( u::Material + m::AmbientColor, TigerObject->getAmbientReflectionColor() );
-    ShadowShader->uniform4fv( u::Material + m::DiffuseColor, TigerObject->getDiffuseReflectionColor() );
-    ShadowShader->uniform4fv( u::Material + m::SpecularColor, TigerObject->getSpecularReflectionColor() );
-    ShadowShader->uniform1f( u::Material + m::SpecularExponent, TigerObject->getSpecularReflectionExponent() );
+    ShadowShader->uniform4fv( shadow::Material + m::EmissionColor, TigerObject->getEmissionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::AmbientColor, TigerObject->getAmbientReflectionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::DiffuseColor, TigerObject->getDiffuseReflectionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::SpecularColor, TigerObject->getSpecularReflectionColor() );
+    ShadowShader->uniform1f( shadow::Material + m::SpecularExponent, TigerObject->getSpecularReflectionExponent() );
     glBindTextureUnit( 0, TigerObject->getTextureID( 0 ) );
     glBindVertexArray( TigerObject->getVAO() );
     glDrawArrays( TigerObject->getDrawMode(), 0, TigerObject->getVertexNum() );
@@ -245,17 +244,17 @@ void C10ShadowMapping::drawShadow(int light_index) const
     to_world =
         translate( glm::mat4( 1.0f ), glm::vec3( 250.0f, -5.0f, 180.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 20.0f ) );
-    ShadowShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ShadowShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ShadowShader->uniformMat4fv( shadow::WorldMatrix, to_world );
+    ShadowShader->uniformMat4fv( shadow::ViewMatrix, MainCamera->getViewMatrix() );
     ShadowShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        shadow::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ShadowShader->uniform4fv( u::Material + m::EmissionColor, PandaObject->getEmissionColor() );
-    ShadowShader->uniform4fv( u::Material + m::AmbientColor, PandaObject->getAmbientReflectionColor() );
-    ShadowShader->uniform4fv( u::Material + m::DiffuseColor, PandaObject->getDiffuseReflectionColor() );
-    ShadowShader->uniform4fv( u::Material + m::SpecularColor, PandaObject->getSpecularReflectionColor() );
-    ShadowShader->uniform1f( u::Material + m::SpecularExponent, PandaObject->getSpecularReflectionExponent() );
+    ShadowShader->uniform4fv( shadow::Material + m::EmissionColor, PandaObject->getEmissionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::AmbientColor, PandaObject->getAmbientReflectionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::DiffuseColor, PandaObject->getDiffuseReflectionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::SpecularColor, PandaObject->getSpecularReflectionColor() );
+    ShadowShader->uniform1f( shadow::Material + m::SpecularExponent, PandaObject->getSpecularReflectionExponent() );
     glBindTextureUnit( 0, PandaObject->getTextureID( 0 ) );
     glBindVertexArray( PandaObject->getVAO() );
     glDrawArrays( PandaObject->getDrawMode(), 0, PandaObject->getVertexNum() );
@@ -264,17 +263,17 @@ void C10ShadowMapping::drawShadow(int light_index) const
         translate( glm::mat4( 1.0f ), glm::vec3( 0.0f, 0.0f, 512.0f ) ) *
         rotate( glm::mat4( 1.0f ), glm::radians( -90.0f ), glm::vec3( 1.0f, 0.0f, 0.0f ) ) *
         scale( glm::mat4( 1.0f ), glm::vec3( 512.0f ) );
-    ShadowShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ShadowShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ShadowShader->uniformMat4fv( shadow::WorldMatrix, to_world );
+    ShadowShader->uniformMat4fv( shadow::ViewMatrix, MainCamera->getViewMatrix() );
     ShadowShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        shadow::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ShadowShader->uniform4fv( u::Material + m::EmissionColor, GroundObject->getEmissionColor() );
-    ShadowShader->uniform4fv( u::Material + m::AmbientColor, GroundObject->getAmbientReflectionColor() );
-    ShadowShader->uniform4fv( u::Material + m::DiffuseColor, GroundObject->getDiffuseReflectionColor() );
-    ShadowShader->uniform4fv( u::Material + m::SpecularColor, GroundObject->getSpecularReflectionColor() );
-    ShadowShader->uniform1f( u::Material + m::SpecularExponent, GroundObject->getSpecularReflectionExponent() );
+    ShadowShader->uniform4fv( shadow::Material + m::EmissionColor, GroundObject->getEmissionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::AmbientColor, GroundObject->getAmbientReflectionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::DiffuseColor, GroundObject->getDiffuseReflectionColor() );
+    ShadowShader->uniform4fv( shadow::Material + m::SpecularColor, GroundObject->getSpecularReflectionColor() );
+    ShadowShader->uniform1f( shadow::Material + m::SpecularExponent, GroundObject->getSpecularReflectionExponent() );
     glBindTextureUnit( 0, GroundObject->getTextureID( 0 ) );
     glBindVertexArray( GroundObject->getVAO() );
     glDrawArrays( GroundObject->getDrawMode(), 0, GroundObject->getVertexNum() );

@@ -269,31 +269,30 @@ void C02Projector::prepareSlide()
 
 void C02Projector::drawWallObject() const
 {
-    using u = ProjectorShaderGL::UNIFORM;
     using l = ShaderGL::LIGHT_UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
-    ObjectShader->uniformMat4fv( u::WorldMatrix, glm::mat4( 1.0f ) );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( projector::WorldMatrix, glm::mat4( 1.0f ) );
+    ObjectShader->uniformMat4fv( projector::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        projector::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix()
     );
-    ObjectShader->uniformMat4fv( u::ProjectorViewMatrix, Projector->getViewMatrix() );
-    ObjectShader->uniformMat4fv( u::ProjectorProjectionMatrix, Projector->getProjectionMatrix() );
-    ObjectShader->uniform1i( u::WhichObject, WALL );
+    ObjectShader->uniformMat4fv( projector::ProjectorViewMatrix, Projector->getViewMatrix() );
+    ObjectShader->uniformMat4fv( projector::ProjectorProjectionMatrix, Projector->getProjectionMatrix() );
+    ObjectShader->uniform1i( projector::WhichObject, WALL );
 
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, WallObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, WallObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, WallObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, WallObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, WallObject->getSpecularReflectionExponent() );
-    ObjectShader->uniform1i( u::UseLight, Lights->isLightOn() ? 1 : 0 );
+    ObjectShader->uniform4fv( projector::Material + m::EmissionColor, WallObject->getEmissionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::AmbientColor, WallObject->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::DiffuseColor, WallObject->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::SpecularColor, WallObject->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( projector::Material + m::SpecularExponent, WallObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform1i( projector::UseLight, Lights->isLightOn() ? 1 : 0 );
     if (Lights->isLightOn()) {
-        ObjectShader->uniform1i( u::LightNum, Lights->getTotalLightNum() );
-        ObjectShader->uniform4fv( u::GlobalAmbient, Lights->getGlobalAmbientColor() );
+        ObjectShader->uniform1i( projector::LightNum, Lights->getTotalLightNum() );
+        ObjectShader->uniform4fv( projector::GlobalAmbient, Lights->getGlobalAmbientColor() );
         for (int i = 0; i < Lights->getTotalLightNum(); ++i) {
-            const int offset = u::Lights + l::UniformNum * i;
+            const int offset = projector::Lights + l::UniformNum * i;
             ObjectShader->uniform1i( offset + l::LightSwitch, Lights->isActivated( i ) ? 1 : 0 );
             ObjectShader->uniform4fv( offset + l::LightPosition, Lights->getPosition( i ) );
             ObjectShader->uniform4fv( offset + l::LightAmbientColor, Lights->getAmbientColors( i ) );
@@ -313,25 +312,24 @@ void C02Projector::drawWallObject() const
 
 void C02Projector::drawScreenObject() const
 {
-    using u = ProjectorShaderGL::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     const glm::mat4 to_world = inverse( Projector->getViewMatrix() ) *
         scale( glm::mat4( 1.0f ), glm::vec3( Projector->getWidth(), Projector->getHeight(), 1.0f ) ) *
         translate( glm::mat4( 1.0f ), glm::vec3( -0.5f, -0.5f, -Projector->getNearPlane() ) );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( projector::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( projector::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        projector::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform1i( u::WhichObject, SCREEN );
+    ObjectShader->uniform1i( projector::WhichObject, SCREEN );
 
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, ScreenObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, ScreenObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, ScreenObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, ScreenObject->getSpecularReflectionColor() );
-    ObjectShader->uniform1f( u::Material + m::SpecularExponent, ScreenObject->getSpecularReflectionExponent() );
+    ObjectShader->uniform4fv( projector::Material + m::EmissionColor, ScreenObject->getEmissionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::AmbientColor, ScreenObject->getAmbientReflectionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::DiffuseColor, ScreenObject->getDiffuseReflectionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::SpecularColor, ScreenObject->getSpecularReflectionColor() );
+    ObjectShader->uniform1f( projector::Material + m::SpecularExponent, ScreenObject->getSpecularReflectionExponent() );
 
     glBindTextureUnit( 0, ScreenObject->getTextureID( 0 ) );
     glBindVertexArray( ScreenObject->getVAO() );
@@ -340,26 +338,35 @@ void C02Projector::drawScreenObject() const
 
 void C02Projector::drawProjectorObject() const
 {
-    using u = ProjectorShaderGL::UNIFORM;
     using m = ShaderGL::MATERIAL_UNIFORM;
 
     glLineWidth( 3.0f );
 
     const glm::mat4 to_world = inverse( Projector->getViewMatrix() );
-    ObjectShader->uniformMat4fv( u::WorldMatrix, to_world );
-    ObjectShader->uniformMat4fv( u::ViewMatrix, MainCamera->getViewMatrix() );
+    ObjectShader->uniformMat4fv( projector::WorldMatrix, to_world );
+    ObjectShader->uniformMat4fv( projector::ViewMatrix, MainCamera->getViewMatrix() );
     ObjectShader->uniformMat4fv(
-        u::ModelViewProjectionMatrix,
+        projector::ModelViewProjectionMatrix,
         MainCamera->getProjectionMatrix() * MainCamera->getViewMatrix() * to_world
     );
-    ObjectShader->uniform1i( u::WhichObject, PROJECTOR );
+    ObjectShader->uniform1i( projector::WhichObject, PROJECTOR );
 
-    ObjectShader->uniform4fv( u::Material + m::EmissionColor, ProjectorPyramidObject->getEmissionColor() );
-    ObjectShader->uniform4fv( u::Material + m::AmbientColor, ProjectorPyramidObject->getAmbientReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::DiffuseColor, ProjectorPyramidObject->getDiffuseReflectionColor() );
-    ObjectShader->uniform4fv( u::Material + m::SpecularColor, ProjectorPyramidObject->getSpecularReflectionColor() );
+    ObjectShader->uniform4fv( projector::Material + m::EmissionColor, ProjectorPyramidObject->getEmissionColor() );
+    ObjectShader->uniform4fv(
+        projector::Material + m::AmbientColor,
+        ProjectorPyramidObject->getAmbientReflectionColor()
+    );
+    ObjectShader->uniform4fv(
+        projector::Material + m::DiffuseColor,
+        ProjectorPyramidObject->getDiffuseReflectionColor()
+    );
+    ObjectShader->uniform4fv(
+        projector::Material + m::SpecularColor,
+        ProjectorPyramidObject->getSpecularReflectionColor()
+    );
     ObjectShader->uniform1f(
-        u::Material + m::SpecularExponent, ProjectorPyramidObject->getSpecularReflectionExponent()
+        projector::Material + m::SpecularExponent,
+        ProjectorPyramidObject->getSpecularReflectionExponent()
     );
 
     glBindVertexArray( ProjectorPyramidObject->getVAO() );
