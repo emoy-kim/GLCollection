@@ -25,6 +25,7 @@
 #include <memory>
 #include <algorithm>
 #include <stdexcept>
+#include <regex>
 
 #include "project_constants.h"
 
