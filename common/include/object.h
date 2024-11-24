@@ -111,14 +111,20 @@ public:
         const std::vector<glm::vec3>& normals,
         const std::vector<glm::vec2>& textures
     );
-    void updateTexture(const uint8_t* image_buffer, int index, int width, int height) const;
+    void updateTexture(const uint8_t* image_buffer, int index, int width, int height, GLenum format) const;
     static void updateCubeTextures(const std::array<uint8_t*, 6>& textures, int width, int height);
     void replaceVertices(const std::vector<glm::vec3>& vertices, bool normals_exist, bool textures_exist);
     void replaceVertices(const std::vector<float>& vertices, bool normals_exist, bool textures_exist);
+    [[nodiscard]] static bool readObjectFile(std::vector<glm::vec3>& vertices, const std::string& file_path);
     [[nodiscard]] static bool readObjectFile(
         std::vector<glm::vec3>& vertices,
         std::vector<glm::vec3>& normals,
         std::vector<glm::vec2>& textures,
+        const std::string& file_path
+    );
+    [[nodiscard]] static bool readTextFile(
+        std::vector<glm::vec3>& vertices,
+        std::vector<glm::vec3>& normals,
         const std::string& file_path
     );
     [[nodiscard]] static bool readTextFile(

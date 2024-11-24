@@ -115,7 +115,7 @@ int ObjectGL::addTexture(const uint8_t* image_buffer, int width, int height, boo
         0,
         width,
         height,
-        is_grayscale ? GL_RED : GL_RGBA,
+        is_grayscale ? GL_RED : GL_BGRA,
         GL_UNSIGNED_BYTE,
         image_buffer
     );
@@ -510,12 +510,12 @@ void ObjectGL::updateDataBuffer(
     DataBuffer.clear();
 }
 
-void ObjectGL::updateTexture(const uint8_t* image_buffer, int index, int width, int height) const
+void ObjectGL::updateTexture(const uint8_t* image_buffer, int index, int width, int height, GLenum format) const
 {
     glTextureSubImage2D(
         TextureID[index], 0, 0, 0,
         width, height,
-        GL_RGBA,
+        format,
         GL_UNSIGNED_BYTE,
         image_buffer
     );
@@ -581,6 +581,48 @@ void ObjectGL::replaceVertices(
     );
 }
 
+bool ObjectGL::readObjectFile(std::vector<glm::vec3>& vertices, const std::string& file_path)
+{
+    std::ifstream file( file_path );
+    if (!file.is_open()) {
+        std::cout << "The object file is not correct.\n";
+        return false;
+    }
+
+    std::vector<glm::vec3> vertex_buffer;
+    std::vector<int> vertex_indices;
+    while (!file.eof()) {
+        std::string word;
+        file >> word;
+
+        if (word == "v") {
+            glm::vec3 vertex;
+            file >> vertex.x >> vertex.y >> vertex.z;
+            vertex_buffer.emplace_back( vertex );
+        }
+        else if (word == "f") {
+            std::string line;
+            std::getline( file, line );
+
+            const std::regex delimiter( "[ /]" );
+            const std::sregex_token_iterator it( line.begin() + 1, line.end(), delimiter, -1 );
+            const std::vector<std::string> n( it, std::sregex_token_iterator() );
+
+            assert( n.size() == 3 );
+
+            vertex_indices.emplace_back( std::stof( n[0] ) );
+            vertex_indices.emplace_back( std::stof( n[1] ) );
+            vertex_indices.emplace_back( std::stof( n[2] ) );
+        }
+        else std::getline( file, word );
+    }
+
+    for (const auto i : vertex_indices) {
+        vertices.emplace_back( vertex_buffer[i - 1] );
+    }
+    return true;
+}
+
 bool ObjectGL::readObjectFile(
     std::vector<glm::vec3>& vertices,
     std::vector<glm::vec3>& normals,
@@ -617,31 +659,24 @@ bool ObjectGL::readObjectFile(
             normal_buffer.emplace_back( normal );
         }
         else if (word == "f") {
-            char c;
-            vertex_indices.emplace_back();
-            file >> vertex_indices.back();
-            file >> c;
-            texture_indices.emplace_back();
-            file >> texture_indices.back();
-            file >> c;
-            normal_indices.emplace_back();
-            file >> normal_indices.back();
-            vertex_indices.emplace_back();
-            file >> vertex_indices.back();
-            file >> c;
-            texture_indices.emplace_back();
-            file >> texture_indices.back();
-            file >> c;
-            normal_indices.emplace_back();
-            file >> normal_indices.back();
-            vertex_indices.emplace_back();
-            file >> vertex_indices.back();
-            file >> c;
-            texture_indices.emplace_back();
-            file >> texture_indices.back();
-            file >> c;
-            normal_indices.emplace_back();
-            file >> normal_indices.back();
+            std::string line;
+            std::getline( file, line );
+
+            const std::regex delimiter( "[ /]" );
+            const std::sregex_token_iterator it( line.begin() + 1, line.end(), delimiter, -1 );
+            const std::vector<std::string> n( it, std::sregex_token_iterator() );
+
+            assert( n.size() == 9 );
+
+            vertex_indices.emplace_back( std::stof( n[0] ) );
+            texture_indices.emplace_back( std::stof( n[1] ) );
+            normal_indices.emplace_back( std::stof( n[2] ) );
+            vertex_indices.emplace_back( std::stof( n[3] ) );
+            texture_indices.emplace_back( std::stof( n[4] ) );
+            normal_indices.emplace_back( std::stof( n[5] ) );
+            vertex_indices.emplace_back( std::stof( n[6] ) );
+            texture_indices.emplace_back( std::stof( n[7] ) );
+            normal_indices.emplace_back( std::stof( n[8] ) );
         }
         else std::getline( file, word );
     }
@@ -651,6 +686,37 @@ bool ObjectGL::readObjectFile(
         normals.emplace_back( normal_buffer[normal_indices[i] - 1] );
         textures.emplace_back( texture_buffer[texture_indices[i] - 1] );
     }
+    return true;
+}
+
+bool ObjectGL::readTextFile(
+    std::vector<glm::vec3>& vertices,
+    std::vector<glm::vec3>& normals,
+    const std::string& file_path
+)
+{
+    std::ifstream file( file_path );
+    if (!file.is_open()) {
+        std::cout << "The object file is not correct.\n";
+        return false;
+    }
+
+    int polygon_num;
+    file >> polygon_num;
+
+    const int vertex_num = polygon_num * 3;
+    vertices.resize( vertex_num );
+    normals.resize( vertex_num );
+    for (int i = 0; i < polygon_num; ++i) {
+        int triangle_vertex_num;
+        file >> triangle_vertex_num;
+        for (int v = 0; v < triangle_vertex_num; ++v) {
+            const int index = i * triangle_vertex_num + v;
+            file >> vertices[index].x >> vertices[index].y >> vertices[index].z;
+            file >> normals[index].x >> normals[index].y >> normals[index].z;
+        }
+    }
+    file.close();
     return true;
 }
 
