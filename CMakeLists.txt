@@ -100,3 +100,6 @@ target_link_libraries(11_ray_tracing ${ALL_LIBS})
 
 add_executable(12_animation 12_animation/12_animation.cpp ${COMMON_FILES})
 target_link_libraries(12_animation ${ALL_LIBS})
+
+add_executable(13_environment_mapping 13_environment_mapping/13_environment_mapping.cpp ${COMMON_FILES})
+target_link_libraries(13_environment_mapping ${ALL_LIBS})
