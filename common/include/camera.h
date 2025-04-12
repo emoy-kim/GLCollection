@@ -40,15 +40,13 @@ public:
         const glm::vec3& view_reference_position,
         const glm::vec3& view_up_vector
     );
-    void pitch(int angle);
-    void yaw(int angle);
-    void rotateAroundWorldY(int angle);
-    void moveForward(int delta = 1);
-    void moveBackward(int delta = 1);
-    void moveLeft(int delta = 1);
-    void moveRight(int delta = 1);
-    void moveUp(int delta = 1);
-    void moveDown(int delta = 1);
+    void pitch(int delta);
+    void yaw(int delta);
+    void roll(int delta);
+    void rotateAroundWorldY(int delta);
+    void moveForward(int delta);
+    void moveHorizontally(int delta);
+    void moveVertically(int delta);
     void zoomIn();
     void zoomOut();
     void resetCamera();

@@ -23,26 +23,26 @@ void C01Lighting::keyboard(GLFWwindow* window, int key, int scancode, int action
 {
     std::ignore = scancode;
     std::ignore = mods;
-    if (action != GLFW_PRESS) return;
+    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
     switch (key) {
         case GLFW_KEY_UP:
-            MainCamera->moveForward();
+            MainCamera->moveForward( 100 );
             break;
         case GLFW_KEY_DOWN:
-            MainCamera->moveBackward();
+            MainCamera->moveForward( -100 );
             break;
         case GLFW_KEY_LEFT:
-            MainCamera->moveLeft();
+            MainCamera->moveHorizontally( 100 );
             break;
         case GLFW_KEY_RIGHT:
-            MainCamera->moveRight();
+            MainCamera->moveHorizontally( -100 );
             break;
         case GLFW_KEY_W:
-            MainCamera->moveUp();
+            MainCamera->moveVertically( -100 );
             break;
         case GLFW_KEY_S:
-            MainCamera->moveDown();
+            MainCamera->moveVertically( 100 );
             break;
         case GLFW_KEY_I:
             MainCamera->resetCamera();

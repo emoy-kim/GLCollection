@@ -16,6 +16,7 @@ C06BumpMapping::C06BumpMapping()
         glm::vec3( 1.5f, 1.5f, 0.0f ),
         glm::vec3( 0.0f, 1.0f, 0.0f )
     );
+    MainCamera->setMoveSensitivity( 0.005f );
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
 
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/06_bump_mapping/shaders";
@@ -30,26 +31,26 @@ C06BumpMapping::C06BumpMapping()
 
 void C06BumpMapping::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (action != GLFW_PRESS) return;
+    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
     switch (key) {
         case GLFW_KEY_UP:
-            MainCamera->moveForward();
+            MainCamera->moveForward( 1 );
             break;
         case GLFW_KEY_DOWN:
-            MainCamera->moveBackward();
+            MainCamera->moveForward( -1 );
             break;
         case GLFW_KEY_LEFT:
-            MainCamera->moveLeft();
+            MainCamera->moveHorizontally( 1 );
             break;
         case GLFW_KEY_RIGHT:
-            MainCamera->moveRight();
+            MainCamera->moveHorizontally( -1 );
             break;
         case GLFW_KEY_W:
-            MainCamera->moveUp();
+            MainCamera->moveVertically( -1 );
             break;
         case GLFW_KEY_S:
-            MainCamera->moveDown();
+            MainCamera->moveVertically( 1 );
             break;
         case GLFW_KEY_I:
             MainCamera->resetCamera();

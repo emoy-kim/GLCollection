@@ -18,7 +18,7 @@ C10ShadowMapping::C10ShadowMapping()
         glm::vec3( 0.0f, 1.0f, 0.0f )
     );
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
-    MainCamera->setRotationSensitivity( 0.0001f );
+    MainCamera->setRotationSensitivity( 0.001f );
 
     LightCamera = std::make_unique<CameraGL>();
     LightCamera->update3DCamera( FrameWidth, FrameHeight );

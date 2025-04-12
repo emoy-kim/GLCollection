@@ -53,30 +53,27 @@ void RendererGL::cursor(GLFWwindow* window, double xpos, double ypos)
         const auto y = static_cast<int>(std::round( ypos ));
         const int dx = x - ClickedPoint.x;
         const int dy = y - ClickedPoint.y;
-        MainCamera->moveForward( -dy );
-        MainCamera->rotateAroundWorldY( -dx );
-
         if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_RIGHT ) == GLFW_PRESS) {
-            MainCamera->pitch( -dy );
+            MainCamera->moveForward( dy );
         }
-
-        ClickedPoint.x = x;
-        ClickedPoint.y = y;
+        else {
+            MainCamera->pitch( dy );
+            MainCamera->yaw( dx );
+        }
+        ClickedPoint = { x, y };
     }
 }
 
 void RendererGL::mouse(GLFWwindow* window, int button, int action, int mods)
 {
     std::ignore = mods;
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        const bool moving_state = action == GLFW_PRESS;
-        if (moving_state) {
-            double x, y;
-            glfwGetCursorPos( window, &x, &y );
-            ClickedPoint.x = static_cast<int>(std::round( x ));
-            ClickedPoint.y = static_cast<int>(std::round( y ));
-        }
-        MainCamera->setMovingState( moving_state );
+    if (action != GLFW_PRESS) MainCamera->setMovingState( false );
+    else if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        double x, y;
+        glfwGetCursorPos( window, &x, &y );
+        ClickedPoint.x = static_cast<int>(std::round( x ));
+        ClickedPoint.y = static_cast<int>(std::round( y ));
+        MainCamera->setMovingState( true );
     }
 }
 

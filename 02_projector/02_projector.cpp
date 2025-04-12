@@ -43,20 +43,26 @@ void C02Projector::keyboard(GLFWwindow* window, int key, int scancode, int actio
 {
     std::ignore = scancode;
     std::ignore = mods;
-    if (action != GLFW_PRESS) return;
+    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
     switch (key) {
-        case GLFW_KEY_UP: MainCamera->moveForward();
+        case GLFW_KEY_UP:
+            MainCamera->moveForward( 5 );
             break;
-        case GLFW_KEY_DOWN: MainCamera->moveBackward();
+        case GLFW_KEY_DOWN:
+            MainCamera->moveForward( -5 );
             break;
-        case GLFW_KEY_LEFT: MainCamera->moveLeft();
+        case GLFW_KEY_LEFT:
+            MainCamera->moveHorizontally( 5 );
             break;
-        case GLFW_KEY_RIGHT: MainCamera->moveRight();
+        case GLFW_KEY_RIGHT:
+            MainCamera->moveHorizontally( -5 );
             break;
-        case GLFW_KEY_W: MainCamera->moveUp();
+        case GLFW_KEY_W:
+            MainCamera->moveVertically( -5 );
             break;
-        case GLFW_KEY_S: MainCamera->moveDown();
+        case GLFW_KEY_S:
+            MainCamera->moveVertically( 5 );
             break;
         case GLFW_KEY_I:
             MainCamera->resetCamera();
@@ -98,15 +104,14 @@ void C02Projector::cursor(GLFWwindow* window, double xpos, double ypos)
         const auto y = static_cast<int>(std::round( ypos ));
         const int dx = x - ClickedPoint.x;
         const int dy = y - ClickedPoint.y;
-        camera->moveForward( -dy );
-        camera->rotateAroundWorldY( -dx );
-
         if (glfwGetMouseButton( window, GLFW_MOUSE_BUTTON_RIGHT ) == GLFW_PRESS) {
-            camera->pitch( -dy );
+            camera->moveForward( dy );
         }
-
-        ClickedPoint.x = x;
-        ClickedPoint.y = y;
+        else {
+            camera->pitch( dy );
+            camera->yaw( dx );
+        }
+        ClickedPoint = { x, y };
     }
 }
 

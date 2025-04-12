@@ -22,6 +22,7 @@ C13EnvironmentMapping::C13EnvironmentMapping()
         glm::vec3( 5.0f, 25.0f, -15.0f ),
         glm::vec3( 0.0f, 1.0f, 0.0f )
     );
+    MainCamera->setMoveSensitivity( 0.01f );
     MainCamera->update3DCamera( FrameWidth, FrameHeight );
 
     const std::string shader_directory_path = std::string( CMAKE_SOURCE_DIR ) + "/13_environment_mapping/shaders";
@@ -45,26 +46,26 @@ C13EnvironmentMapping::~C13EnvironmentMapping()
 
 void C13EnvironmentMapping::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (action != GLFW_PRESS) return;
+    if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
     switch (key) {
         case GLFW_KEY_UP:
-            MainCamera->moveForward();
+            MainCamera->moveForward( 100 );
             break;
         case GLFW_KEY_DOWN:
-            MainCamera->moveBackward();
+            MainCamera->moveForward( -100 );
             break;
         case GLFW_KEY_LEFT:
-            MainCamera->moveLeft();
+            MainCamera->moveHorizontally( 100 );
             break;
         case GLFW_KEY_RIGHT:
-            MainCamera->moveRight();
+            MainCamera->moveHorizontally( -100 );
             break;
         case GLFW_KEY_W:
-            MainCamera->moveUp();
+            MainCamera->moveVertically( -100 );
             break;
         case GLFW_KEY_S:
-            MainCamera->moveDown();
+            MainCamera->moveVertically( 100 );
             break;
         case GLFW_KEY_I:
             MainCamera->resetCamera();
