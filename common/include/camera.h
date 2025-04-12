@@ -43,7 +43,6 @@ public:
     void pitch(int delta);
     void yaw(int delta);
     void roll(int delta);
-    void rotateAroundWorldY(int delta);
     void moveForward(int delta);
     void moveHorizontally(int delta);
     void moveVertically(int delta);

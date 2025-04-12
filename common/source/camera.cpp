@@ -111,15 +111,6 @@ void CameraGL::roll(int delta)
     updateCamera();
 }
 
-void CameraGL::rotateAroundWorldY(int delta)
-{
-    constexpr glm::vec3 world_y( 0.0f, 1.0f, 0.0f );
-    ViewMatrix = rotate(
-        glm::mat4( 1.0f ), static_cast<float>(-delta) * RotationSensitivity, world_y
-    ) * ViewMatrix;
-    updateCamera();
-}
-
 void CameraGL::moveForward(int delta)
 {
     ViewMatrix = translate(
