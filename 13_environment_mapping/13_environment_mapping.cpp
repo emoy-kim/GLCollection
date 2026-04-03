@@ -282,7 +282,7 @@ std::vector<glm::ivec2> C13EnvironmentMapping::estimateLightPoints()
     const float scale = 1.0f / static_cast<float>(EnvironmentHeight - 1);
     for (int j = 0; j < EnvironmentHeight; ++j) {
         const float adjuster = std::sin( static_cast<float>(j) * scale * glm::pi<float>() );
-        const u_int8_t* ptr = LatitudeLongitude + j * EnvironmentWidth * 4;
+        const uint8_t* ptr = LatitudeLongitude + j * EnvironmentWidth * 4;
         float* adjusted_ptr = AdjustedIntensities + j * EnvironmentWidth;
         for (int i = 0; i < EnvironmentWidth; ++i) {
             const float gray = static_cast<float>(ptr[4 * i] + ptr[4 * i + 1] + ptr[4 * i + 2]) / 3.0f;
@@ -292,7 +292,7 @@ std::vector<glm::ivec2> C13EnvironmentMapping::estimateLightPoints()
 
     constexpr int light_num_to_find = 5;
     constexpr int light_num = getNextHighestPowerOf2( light_num_to_find );
-    constexpr int iteration = light_num == 0 ? 0 : static_cast<int>(std::log2( light_num ));
+    const int iteration = light_num == 0 ? 0 : static_cast<int>(std::log2( light_num ));
 
     std::map<float, glm::ivec2> light_infos;
     medianCut( light_infos, { 0, 0, EnvironmentWidth, EnvironmentHeight }, iteration );
@@ -319,7 +319,7 @@ void C13EnvironmentMapping::findLightsFromImage()
     constexpr glm::vec4 ambient_color( 1.0f, 1.0f, 1.0f, 1.0f );
     constexpr glm::vec4 specular_color( 0.9f, 0.9f, 0.9f, 1.0f );
     for (const auto& light : light_points) {
-        const u_int8_t* ptr = ImageBuffer + light.y * EnvironmentWidth * 4;
+        const uint8_t* ptr = ImageBuffer + light.y * EnvironmentWidth * 4;
         const glm::vec4 diffuse_color(
             static_cast<float>(ptr[4 * light.x]) * color_scale,
             static_cast<float>(ptr[4 * light.x + 1]) * color_scale,

@@ -1,7 +1,5 @@
 #include "06_bump_mapping.h"
 
-#include <unistd.h>
-
 C06BumpMapping::C06BumpMapping()
     : UseBumpMapping( true ),
       NormalTextureIndex( -1 ),

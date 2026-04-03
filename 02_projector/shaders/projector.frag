@@ -121,7 +121,7 @@ vec4 getProjectorColor()
     if (zero <= projector_tex_coord.x && projector_tex_coord.x <= projector_tex_coord.z &&
         zero <= projector_tex_coord.y && projector_tex_coord.y <= projector_tex_coord.z &&
         zero < projector_tex_coord.z) {
-        return texture2DProj( BaseTexture, projector_tex_coord );
+        return textureProj( BaseTexture, projector_tex_coord );
     }
     return Material.DiffuseColor;
 }
