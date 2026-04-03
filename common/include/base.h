@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <glfw3.h>
+#include <GLFW/glfw3.h>
 #include <glm.hpp>
 #include <common.hpp>
 #include <gtc/type_ptr.hpp>
@@ -15,6 +15,7 @@
 #include <FreeImage.h>
 #include <iostream>
 #include <iomanip>
+#include <array>
 #include <vector>
 #include <string>
 #include <map>
