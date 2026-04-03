@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(GLCollection)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include(CheckCXXCompilerFlag)
 
@@ -11,47 +11,68 @@ message(STATUS ">> Version : ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS ">> Path    : ${CMAKE_CXX_COMPILER}")
 
 if (${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
-    check_cxx_compiler_flag(-std=c++17 cxx_17)
+    check_cxx_compiler_flag(-std=c++20 cxx_20)
     check_cxx_compiler_flag(-Wall high_warning_level)
 elseif (${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
-    check_cxx_compiler_flag(-std=gnu++17 cxx_17)
+    check_cxx_compiler_flag(-std=gnu++20 cxx_20)
     check_cxx_compiler_flag(-Wextra high_warning_level)
 endif ()
 
 configure_file(
         ${CMAKE_SOURCE_DIR}/common/include/project_constants.h.in
-        ${CMAKE_SOURCE_DIR}/project_constants.h @ONLY
+        ${CMAKE_SOURCE_DIR}/common/include/project_constants.h @ONLY
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/common/include")
+include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glm")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glad/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glfw3/include")
-include_directories("${CMAKE_SOURCE_DIR}/3rd_party/glm")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/include")
-link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glad/lib/linux")
-link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glfw3/lib/linux")
-link_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/lib/linux")
-link_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/lib/linux")
 
-set(
-        ALL_LIBS
-        glad
-        glfw3
-        pthread
-        dl
-        X11
-        freeimage
+if (WIN32)
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glad/lib/windows")
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glfw3/lib/windows")
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/lib/windows")
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/lib/windows")
 
-        avdevice
-        avfilter
-        avformat
-        avcodec
-        swresample
-        swscale
-        avutil
-        x264
-)
+    set(
+            ALL_LIBS
+            glad
+            glfw3dll
+            FreeImage
+            avdevice
+            avfilter
+            avformat
+            avcodec
+            swresample
+            swscale
+            avutil
+    )
+else ()
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glad/lib/linux")
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/glfw3/lib/linux")
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/freeimage/lib/linux")
+    link_directories("${CMAKE_SOURCE_DIR}/3rd_party/ffmpeg/lib/linux")
+
+    set(
+            ALL_LIBS
+            glad
+            glfw3
+            pthread
+            dl
+            X11
+            freeimage
+            avdevice
+            avfilter
+            avformat
+            avcodec
+            swresample
+            swscale
+            avutil
+            x264
+    )
+endif ()
 
 set(
         COMMON_FILES
