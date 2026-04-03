@@ -124,3 +124,11 @@ target_link_libraries(12_animation ${ALL_LIBS})
 
 add_executable(13_environment_mapping 13_environment_mapping/13_environment_mapping.cpp ${COMMON_FILES})
 target_link_libraries(13_environment_mapping ${ALL_LIBS})
+
+if (WIN32)
+    file(GLOB ALL_DLLS "${CMAKE_SOURCE_DIR}/3rd_party/bin/*.dll")
+    foreach (DLL_PATH ${ALL_DLLS})
+        get_filename_component(DLL_NAME ${DLL_PATH} NAME)
+        configure_file(${DLL_PATH} ${PROJECT_BINARY_DIR}/${DLL_NAME} COPYONLY)
+    endforeach ()
+endif ()
