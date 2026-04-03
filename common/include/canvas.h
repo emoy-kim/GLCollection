@@ -17,7 +17,7 @@ public:
 
     void clearColor(int buffer_index = 0) const
     {
-        constexpr std::array<GLfloat, 4> clear_color = { 0.0f, 0.0f, 0.0f, 0.0f };
+        constexpr std::array clear_color = { 0.0f, 0.0f, 0.0f, 0.0f };
         glClearNamedFramebufferfv( CanvasID, GL_COLOR, buffer_index, &clear_color[0] );
     }
 
