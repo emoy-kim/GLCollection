@@ -1,7 +1,5 @@
 #include "light.h"
 
-LightGL::LightGL() : TurnLightOn( true ), GlobalAmbientColor( 0.2f, 0.2f, 0.2f, 1.0f ), TotalLightNum( 0 ) {}
-
 void LightGL::addLight(
     const glm::vec4& light_position,
     const glm::vec4& ambient_color,

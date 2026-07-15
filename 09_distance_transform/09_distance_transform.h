@@ -19,27 +19,27 @@ public:
     C09DistanceTransform();
     ~C09DistanceTransform() override = default;
 
+    C09DistanceTransform(C09DistanceTransform&&) = delete;
     C09DistanceTransform(const C09DistanceTransform&) = delete;
-    C09DistanceTransform(const C09DistanceTransform&&) = delete;
+    C09DistanceTransform& operator=(C09DistanceTransform&&) = delete;
     C09DistanceTransform& operator=(const C09DistanceTransform&) = delete;
-    C09DistanceTransform& operator=(const C09DistanceTransform&&) = delete;
 
     void play();
 
 protected:
     enum class DISTANCE_TYPE { EUCLIDEAN = 1, MANHATTAN, CHESSBOARD };
 
-    DISTANCE_TYPE DistanceType;
-    GLuint InsideColumnScannerBuffer;
-    GLuint OutsideColumnScannerBuffer;
-    GLuint InsideDistanceFieldBuffer;
-    GLuint OutsideDistanceFieldBuffer;
-    std::unique_ptr<ShaderGL> ObjectShader;
-    std::unique_ptr<ShaderGL> FieldShader;
-    std::unique_ptr<ShaderGL> TransformShader;
-    std::unique_ptr<ObjectGL> ImageObject;
-    std::unique_ptr<ObjectGL> DistanceObject;
-    std::unique_ptr<CanvasGL> Canvas;
+    DISTANCE_TYPE DistanceType = DISTANCE_TYPE::EUCLIDEAN;
+    GLuint InsideColumnScannerBuffer = 0;
+    GLuint OutsideColumnScannerBuffer = 0;
+    GLuint InsideDistanceFieldBuffer = 0;
+    GLuint OutsideDistanceFieldBuffer = 0;
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> FieldShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> TransformShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ObjectGL> ImageObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> DistanceObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<CanvasGL> Canvas = std::make_unique<CanvasGL>();
 
     void cursor(GLFWwindow* window, double xpos, double ypos) override {}
     void mouse(GLFWwindow* window, int button, int action, int mods) override {}

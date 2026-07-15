@@ -10,20 +10,20 @@ public:
     C04CubeMapping();
     ~C04CubeMapping() override;
 
+    C04CubeMapping(C04CubeMapping&&) = delete;
     C04CubeMapping(const C04CubeMapping&) = delete;
-    C04CubeMapping(const C04CubeMapping&&) = delete;
+    C04CubeMapping& operator=(C04CubeMapping&&) = delete;
     C04CubeMapping& operator=(const C04CubeMapping&) = delete;
-    C04CubeMapping& operator=(const C04CubeMapping&&) = delete;
 
     void play();
 
 private:
     enum UNIFORM { ModelViewProjectionMatrix = 0, Color };
 
-    bool IsVideo;
-    int VideoFrameIndex;
-    std::array<uint8_t*, 6> FrameBuffers;
-    std::unique_ptr<ShaderGL> ObjectShader;
+    bool IsVideo = false;
+    int VideoFrameIndex = 0;
+    std::array<uint8_t*, 6> FrameBuffers{};
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
     std::unique_ptr<ObjectGL> CubeObject;
     std::array<std::unique_ptr<VideoReader>, 6> Videos;
 

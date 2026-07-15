@@ -11,18 +11,18 @@ public:
     RendererGL();
     virtual ~RendererGL() = default;
 
+    RendererGL(RendererGL&&) = delete;
     RendererGL(const RendererGL&) = delete;
-    RendererGL(const RendererGL&&) = delete;
+    RendererGL& operator=(RendererGL&&) = delete;
     RendererGL& operator=(const RendererGL&) = delete;
-    RendererGL& operator=(const RendererGL&&) = delete;
 
 protected:
     static constexpr int ThreadGroupSize = 32;
     inline static RendererGL* Renderer = nullptr;
-    GLFWwindow* Window;
-    int FrameWidth;
-    int FrameHeight;
-    glm::ivec2 ClickedPoint;
+    GLFWwindow* Window = nullptr;
+    int FrameWidth = 1920;
+    int FrameHeight = 1080;
+    glm::ivec2 ClickedPoint{ -1, -1 };
     std::unique_ptr<CameraGL> MainCamera;
 
     void registerCallbacks() const;

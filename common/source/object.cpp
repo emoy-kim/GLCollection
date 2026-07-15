@@ -1,18 +1,5 @@
 #include "object.h"
 
-ObjectGL::ObjectGL()
-    : ImageBuffer( nullptr ),
-      VAO( 0 ),
-      VBO( 0 ),
-      IBO( 0 ),
-      DrawMode( 0 ),
-      VerticesCount( 0 ),
-      EmissionColor( 0.0f, 0.0f, 0.0f, 1.0f ),
-      AmbientReflectionColor( 0.2f, 0.2f, 0.2f, 1.0f ),
-      DiffuseReflectionColor( 0.8f, 0.8f, 0.8f, 1.0f ),
-      SpecularReflectionColor( 0.0f, 0.0f, 0.0f, 1.0f ),
-      SpecularReflectionExponent( 0.0f ) {}
-
 ObjectGL::~ObjectGL()
 {
     if (IBO != 0)

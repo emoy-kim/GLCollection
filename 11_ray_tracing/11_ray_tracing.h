@@ -21,10 +21,10 @@ public:
     C11RayTracing();
     ~C11RayTracing() override = default;
 
+    C11RayTracing(C11RayTracing&&) = delete;
     C11RayTracing(const C11RayTracing&) = delete;
-    C11RayTracing(const C11RayTracing&&) = delete;
+    C11RayTracing& operator=(C11RayTracing&&) = delete;
     C11RayTracing& operator=(const C11RayTracing&) = delete;
-    C11RayTracing& operator=(const C11RayTracing&&) = delete;
 
     void play();
 
@@ -33,23 +33,23 @@ private:
     {
         enum class TYPE { METAL = 1, LAMBERTIAN };
 
-        TYPE Type;
-        float Radius;
-        glm::vec3 Center;
-        glm::vec3 Albedo;
+        TYPE Type = TYPE::METAL;
+        float Radius = 0.0f;
+        glm::vec3 Center{};
+        glm::vec3 Albedo{};
 
-        Sphere() : Type( TYPE::METAL ), Radius( 0.0f ), Center(), Albedo() {}
+        Sphere() = default;
 
         Sphere(TYPE type, float radius, const glm::vec3& center, const glm::vec3& albedo)
             : Type( type ), Radius( radius ), Center( center ), Albedo( albedo ) {}
     };
 
-    int FrameIndex;
+    int FrameIndex = 0;
     std::vector<Sphere> Spheres;
-    std::unique_ptr<ShaderGL> RayTracingShader;
-    std::unique_ptr<ShaderGL> ScreenShader;
-    std::unique_ptr<ObjectGL> ScreenObject;
-    std::unique_ptr<CanvasGL> FinalCanvas;
+    std::unique_ptr<ShaderGL> RayTracingShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> ScreenShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ObjectGL> ScreenObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<CanvasGL> FinalCanvas = std::make_unique<CanvasGL>();
 
     void cursor(GLFWwindow* window, double xpos, double ypos) override {}
     void mouse(GLFWwindow* window, int button, int action, int mods) override {}

@@ -5,7 +5,7 @@
 class CanvasGL final
 {
 public:
-    CanvasGL() : CanvasID( 0 ), COLOR0TextureID( 0 ), COLOR1TextureID( 0 ), StencilTextureID( 0 ) {}
+    CanvasGL() = default;
     ~CanvasGL() { deleteAllTextures(); }
 
     [[nodiscard]] GLuint getCanvasID() const { return CanvasID; }
@@ -45,10 +45,10 @@ public:
     }
 
 private:
-    GLuint CanvasID;
-    GLuint COLOR0TextureID;
-    GLuint COLOR1TextureID;
-    GLuint StencilTextureID;
+    GLuint CanvasID = 0;
+    GLuint COLOR0TextureID = 0;
+    GLuint COLOR1TextureID = 0;
+    GLuint StencilTextureID = 0;
 
     void deleteAllTextures();
 };

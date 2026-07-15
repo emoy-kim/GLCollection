@@ -31,24 +31,24 @@ public:
     C10ShadowMapping();
     ~C10ShadowMapping() override;
 
+    C10ShadowMapping(C10ShadowMapping&&) = delete;
     C10ShadowMapping(const C10ShadowMapping&) = delete;
-    C10ShadowMapping(const C10ShadowMapping&&) = delete;
+    C10ShadowMapping& operator=(C10ShadowMapping&&) = delete;
     C10ShadowMapping& operator=(const C10ShadowMapping&) = delete;
-    C10ShadowMapping& operator=(const C10ShadowMapping&&) = delete;
 
     void play();
 
 private:
-    float LightTheta;
-    GLuint FBO;
-    GLuint DepthTextureID;
-    std::unique_ptr<CameraGL> LightCamera;
-    std::unique_ptr<ShaderGL> ObjectShader;
-    std::unique_ptr<ShaderGL> ShadowShader;
-    std::unique_ptr<ObjectGL> GroundObject;
-    std::unique_ptr<ObjectGL> TigerObject;
-    std::unique_ptr<ObjectGL> PandaObject;
-    std::unique_ptr<LightGL> Lights;
+    float LightTheta = 0.0f;
+    GLuint FBO = 0;
+    GLuint DepthTextureID = 0;
+    std::unique_ptr<CameraGL> LightCamera = std::make_unique<CameraGL>();
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> ShadowShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ObjectGL> GroundObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> TigerObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> PandaObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<LightGL> Lights = std::make_unique<LightGL>();
 
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;
     void setLights() const;

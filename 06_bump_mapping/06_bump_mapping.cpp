@@ -1,13 +1,6 @@
 #include "06_bump_mapping.h"
 
 C06BumpMapping::C06BumpMapping()
-    : UseBumpMapping( true ),
-      NormalTextureIndex( -1 ),
-      LightTheta( 0.0f ),
-      Lights( std::make_unique<LightGL>() ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      BoxBlurShader( std::make_unique<ShaderGL>() ),
-      NormalMapShader( std::make_unique<ShaderGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 1.5f, 1.5f, 7.0f ),

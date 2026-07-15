@@ -28,8 +28,13 @@ public:
         SpecularExponent
     };
 
-    ShaderGL();
+    ShaderGL() = default;
     virtual ~ShaderGL();
+
+    ShaderGL(ShaderGL&&) = delete;
+    ShaderGL(const ShaderGL&) = delete;
+    ShaderGL& operator=(ShaderGL&&) = delete;
+    ShaderGL& operator=(const ShaderGL&) = delete;
 
     void setShader(
         const char* vertex_shader_path,
@@ -125,7 +130,7 @@ public:
         glProgramUniformMatrix4fv( ShaderProgram, location, count, GL_FALSE, glm::value_ptr( *value ) );
     }
 
-    void uniformMat43fv(int location, const glm::mat<3, 4, float, glm::highp>& value) const
+    void uniformMat43fv(int location, const glm::mat<3, 4, float>& value) const
     {
         glProgramUniformMatrix4x3fv( ShaderProgram, location, 1, GL_FALSE, glm::value_ptr( value ) );
     }
@@ -133,7 +138,7 @@ public:
     [[nodiscard]] GLuint getShaderProgram() const { return ShaderProgram; }
 
 protected:
-    GLuint ShaderProgram;
+    GLuint ShaderProgram = 0;
 
     static void readShaderFile(std::string& shader_contents, const char* shader_path);
     [[nodiscard]] static std::string getShaderTypeString(GLenum shader_type);

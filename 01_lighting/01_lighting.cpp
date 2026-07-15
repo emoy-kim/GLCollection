@@ -1,11 +1,6 @@
 #include "01_lighting.h"
 
 C01Lighting::C01Lighting()
-    : ObjectShader( std::make_unique<ShaderGL>() ),
-      Object( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() ),
-      DrawMovingObject( false ),
-      ObjectRotationAngle( 0 )
 {
     MainCamera = std::make_unique<CameraGL>();
     MainCamera->update3DCamera( FrameWidth, FrameHeight );

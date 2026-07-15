@@ -1,16 +1,6 @@
 #include "10_shadow_mapping.h"
 
 C10ShadowMapping::C10ShadowMapping()
-    : LightTheta( 0.0f ),
-      FBO( 0 ),
-      DepthTextureID( 0 ),
-      LightCamera( std::make_unique<CameraGL>() ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      ShadowShader( std::make_unique<ShaderGL>() ),
-      GroundObject( std::make_unique<ObjectGL>() ),
-      TigerObject( std::make_unique<ObjectGL>() ),
-      PandaObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 1024.0f, 500.0f, 1024.0f ),

@@ -1,10 +1,6 @@
 #include "04_cube_mapping.h"
 
 C04CubeMapping::C04CubeMapping()
-    : IsVideo( false ),
-      VideoFrameIndex( 0 ),
-      FrameBuffers{},
-      ObjectShader( std::make_unique<ShaderGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 0.0f, 0.0f, 0.0f ),

@@ -1,21 +1,6 @@
 #include "13_environment_mapping.h"
 
 C13EnvironmentMapping::C13EnvironmentMapping()
-    : DrawMovingObject( false ),
-      ActivatedLightIndex( 0 ),
-      TigerIndex( 0 ),
-      TigerRotationAngle( 180 ),
-      EnvironmentWidth( 0 ),
-      EnvironmentHeight( 0 ),
-      EnvironmentRadius( 50.0f ),
-      AdjustedIntensities( nullptr ),
-      ImageBuffer( nullptr ),
-      LatitudeLongitude( nullptr ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      EnvironmentShader( std::make_unique<ShaderGL>() ),
-      EnvironmentObject( std::make_unique<ObjectGL>() ),
-      CowObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( -20.0f, 5.0f, 20.0f ),

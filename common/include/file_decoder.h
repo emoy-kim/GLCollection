@@ -21,13 +21,13 @@ extern "C" {
 class FileDecoder final
 {
 public:
-    FileDecoder();
+    FileDecoder() = default;
     ~FileDecoder();
 
+    FileDecoder(FileDecoder&&) = delete;
     FileDecoder(const FileDecoder&) = delete;
-    FileDecoder(const FileDecoder&&) = delete;
+    FileDecoder& operator=(FileDecoder&&) = delete;
     FileDecoder& operator=(const FileDecoder&) = delete;
-    FileDecoder& operator=(const FileDecoder&&) = delete;
 
     [[nodiscard]] int getFrameWidth() const { return FrameWidth; }
     [[nodiscard]] int getFrameHeight() const { return FrameHeight; }
@@ -68,23 +68,23 @@ public:
 private:
     enum DECODED_TYPE { KEEP_GOING = 0, AUDIO_DECODED, VIDEO_DECODED };
 
-    int FrameWidth;
-    int FrameHeight;
-    int FrameIndex;
-    int64_t Timestamp;
-    double Framerate;
-    AVCodecID VideoCodecID;
-    AVPixelFormat PixelFormat;
-    SwsContext* SWSContext;
-    AVCodecContext* VideoCodecContext;
-    AVPacket* Packet;
-    bool FileClosed;
-    double ElapsedTimeInSec;
-    uint8_t* DecodedImageBuffer;
-    AVFrame* DecodedFrame;
-    AVFrame* RGBAFrame;
+    int FrameWidth = 0;
+    int FrameHeight = 0;
+    int FrameIndex = -1;
+    int64_t Timestamp = 0;
+    double Framerate = 0.0;
+    AVCodecID VideoCodecID = AV_CODEC_ID_NONE;
+    AVPixelFormat PixelFormat = AV_PIX_FMT_RGBA;
+    SwsContext* SWSContext = nullptr;
+    AVCodecContext* VideoCodecContext = nullptr;
+    AVPacket* Packet = nullptr;
+    bool FileClosed = false;
+    double ElapsedTimeInSec = 0.0f;
+    uint8_t* DecodedImageBuffer = nullptr;
+    AVFrame* DecodedFrame = nullptr;
+    AVFrame* RGBAFrame = nullptr;
 
-    void setCodecContext(AVCodecContext** CodecContext, const AVStream* stream);
+    void setCodecContext(AVCodecContext** codec_context, const AVStream* stream);
     void getRGBAImage(uint8_t* image_buffer);
     int readFrame(int video_track_id);
     void decode(AVFormatContext* format_context, int video_track_id);

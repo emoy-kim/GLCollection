@@ -12,33 +12,33 @@ public:
         glm::vec3 Color{};
         glm::vec2 Translation{};
         glm::vec2 Scale{};
-        float RotationAngle;
+        float RotationAngle = 0.0f;
 
-        Animation() : RotationAngle( 0.0f ) {}
+        Animation() = default;
     };
 
     // The object in a keyframe is defined in the coordinates whose origin is at the TOP-LEFT.
     struct Keyframe
     {
-        FILL_TYPE FillType;
-        int ObjectWidth;
-        int ObjectHeight;
-        float Duration;
-        glm::ivec2 TopLeft;
-        glm::vec2 Anchor;
+        FILL_TYPE FillType = FILL_TYPE::FILL;
+        int ObjectWidth = 0;
+        int ObjectHeight = 0;
+        float Duration = 0.0f;
+        glm::ivec2 TopLeft{};
+        glm::vec2 Anchor{};
         Animation Start;
         Animation End;
 
-        Keyframe()
-            : FillType( FILL_TYPE::FILL ),
-              ObjectWidth( 0 ),
-              ObjectHeight( 0 ),
-              Duration( 0.0f ),
-              TopLeft(),
-              Anchor() {}
+        Keyframe() = default;
     };
 
-    Animator2D() : TotalKeyframesNum( 0 ) {}
+    Animator2D() = default;
+    ~Animator2D() = default;
+
+    Animator2D(Animator2D&&) = delete;
+    Animator2D(const Animator2D&) = delete;
+    Animator2D& operator=(Animator2D&&) = delete;
+    Animator2D& operator=(const Animator2D&) = delete;
 
     [[nodiscard]] int getTotalKeyframesNum() const { return TotalKeyframesNum; }
 
@@ -109,6 +109,6 @@ public:
     }
 
 private:
-    int TotalKeyframesNum;
+    int TotalKeyframesNum = 0;
     std::vector<Keyframe> Keyframes;
 };

@@ -1,15 +1,6 @@
 #include "03_gimbal_lock.h"
 
 C03GimbalLock::C03GimbalLock()
-    : CapturedFrameIndex( 0 ),
-      EulerAngle(),
-      CapturedEulerAngles{ 5 },
-      CapturedQuaternions{ 5 },
-      Animator( std::make_unique<Animation>() ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      AxisObject( std::make_unique<ObjectGL>() ),
-      TeapotObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 0.0f, 30.0f, 50.0f ),

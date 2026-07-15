@@ -1,7 +1,5 @@
 #include "shader.h"
 
-ShaderGL::ShaderGL() : ShaderProgram( 0 ) {}
-
 ShaderGL::~ShaderGL()
 {
     if (ShaderProgram != 0)

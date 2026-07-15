@@ -7,8 +7,13 @@ class ObjectGL final
 public:
     enum LayoutLocation { VertexLocation = 0, NormalLocation, TextureLocation };
 
-    ObjectGL();
+    ObjectGL() = default;
     ~ObjectGL();
+
+    ObjectGL(ObjectGL&&) = delete;
+    ObjectGL(const ObjectGL&) = delete;
+    ObjectGL& operator=(ObjectGL&&) = delete;
+    ObjectGL& operator=(const ObjectGL&) = delete;
 
     void setEmissionColor(const glm::vec4& emission_color) { EmissionColor = emission_color; }
 
@@ -174,25 +179,25 @@ public:
     }
 
 private:
-    uint8_t* ImageBuffer;
-    GLuint VAO;
-    GLuint VBO;
-    GLuint IBO;
-    GLenum DrawMode;
+    uint8_t* ImageBuffer = nullptr;
+    GLuint VAO = 0;
+    GLuint VBO = 0;
+    GLuint IBO = 0;
+    GLenum DrawMode = 0;
     std::vector<GLfloat> DataBuffer;
     std::vector<GLuint> TextureID;
     std::vector<GLuint> CustomBuffers;
     std::map<GLuint, glm::ivec2> TextureIDToSize;
-    GLsizei VerticesCount;
-    glm::vec4 EmissionColor;
+    GLsizei VerticesCount = 0;
+    glm::vec4 EmissionColor{ 0.0f, 0.0f, 0.0f, 1.0f };
 
     // It is usually set to the same color with DiffuseReflectionColor.
     // Otherwise, it should be in balance with DiffuseReflectionColor.
-    glm::vec4 AmbientReflectionColor;
+    glm::vec4 AmbientReflectionColor{ 0.2f, 0.2f, 0.2f, 1.0f };
 
-    glm::vec4 DiffuseReflectionColor; // The intrinsic color
-    glm::vec4 SpecularReflectionColor;
-    float SpecularReflectionExponent;
+    glm::vec4 DiffuseReflectionColor{ 0.8f, 0.8f, 0.8f, 1.0f }; // The intrinsic color
+    glm::vec4 SpecularReflectionColor{ 0.0f, 0.0f, 0.0f, 1.0f };
+    float SpecularReflectionExponent = 0.0f;
 
     [[nodiscard]] bool prepareTexture2DUsingFreeImage(const std::string& file_path, bool is_grayscale);
     void prepareTexture(bool normals_exist) const;

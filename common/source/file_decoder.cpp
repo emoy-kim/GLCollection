@@ -1,21 +1,5 @@
 #include "file_decoder.h"
-
-FileDecoder::FileDecoder()
-    : FrameWidth( 0 ),
-      FrameHeight( 0 ),
-      FrameIndex( -1 ),
-      Timestamp( 0 ),
-      Framerate( 0 ),
-      VideoCodecID( AV_CODEC_ID_NONE ),
-      PixelFormat( AV_PIX_FMT_RGBA ),
-      SWSContext( nullptr ),
-      VideoCodecContext( nullptr ),
-      Packet( nullptr ),
-      FileClosed( false ),
-      ElapsedTimeInSec( 0.0 ),
-      DecodedImageBuffer( nullptr ),
-      DecodedFrame( nullptr ),
-      RGBAFrame( nullptr ) {}
+#include <stdexcept>
 
 FileDecoder::~FileDecoder()
 {
@@ -27,15 +11,15 @@ FileDecoder::~FileDecoder()
     }
 }
 
-void FileDecoder::setCodecContext(AVCodecContext** CodecContext, const AVStream* stream)
+void FileDecoder::setCodecContext(AVCodecContext** codec_context, const AVStream* stream)
 {
     const AVCodec* decoder = avcodec_find_decoder( stream->codecpar->codec_id );
     if (decoder == nullptr) return;
 
-    *CodecContext = avcodec_alloc_context3( decoder );
-    if (*CodecContext == nullptr) return;
-    if (avcodec_parameters_to_context( *CodecContext, stream->codecpar ) < 0) return;
-    if (*CodecContext == VideoCodecContext) {
+    *codec_context = avcodec_alloc_context3( decoder );
+    if (*codec_context == nullptr) return;
+    if (avcodec_parameters_to_context( *codec_context, stream->codecpar ) < 0) return;
+    if (*codec_context == VideoCodecContext) {
         FrameWidth = VideoCodecContext->width;
         FrameHeight = VideoCodecContext->height;
 
@@ -48,7 +32,7 @@ void FileDecoder::setCodecContext(AVCodecContext** CodecContext, const AVStream*
         DecodedFrame->format = VideoCodecContext->pix_fmt;
         RGBAFrame->format = static_cast<int>(PixelFormat);
     }
-    avcodec_open2( *CodecContext, decoder, nullptr );
+    avcodec_open2( *codec_context, decoder, nullptr );
 }
 
 void FileDecoder::openVideo(const AVStream* video_stream)

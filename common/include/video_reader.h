@@ -5,13 +5,13 @@
 class VideoReader final
 {
 public:
-    VideoReader();
+    VideoReader() = default;
     ~VideoReader() { close(); }
 
+    VideoReader(VideoReader&&) = delete;
     VideoReader(const VideoReader&) = delete;
-    VideoReader(const VideoReader&&) = delete;
+    VideoReader& operator=(VideoReader&&) = delete;
     VideoReader& operator=(const VideoReader&) = delete;
-    VideoReader& operator=(const VideoReader&&) = delete;
 
     void close();
     bool open(const std::string& video_file_path);
@@ -36,12 +36,12 @@ private:
               NextKeyFrameIndex( 0 ) {}
     };
 
-    int StartFrame;
-    int VideoTrackID;
-    int TotalFrameNumber;
-    int FrameWidth;
-    int FrameHeight;
-    double Framerate;
+    int StartFrame = 0;
+    int VideoTrackID = -1;
+    int TotalFrameNumber = 0;
+    int FrameWidth = 0;
+    int FrameHeight = 0;
+    double Framerate = 0.0;
     Video VideoInfo;
 
     void seek(Video& video, int frame_index_to_decode) const;

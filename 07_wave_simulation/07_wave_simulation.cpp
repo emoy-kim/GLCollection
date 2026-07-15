@@ -1,16 +1,6 @@
 #include "07_wave_simulation.h"
 
 C07WaveSimulation::C07WaveSimulation()
-    : WaveTargetIndex( 0 ),
-      WaveFactor( 20.0f ),
-      WavePointNum( 100 ),
-      WaveGridSize( 25, 25 ),
-      WaveBuffers{},
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      WaveShader( std::make_unique<ShaderGL>() ),
-      WaveNormalShader( std::make_unique<ShaderGL>() ),
-      WaveObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 50.0f, 20.0f, 50.0f ),

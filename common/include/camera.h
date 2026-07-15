@@ -21,6 +21,11 @@ public:
         float far_plane = 1.0f
     );
 
+    CameraGL(CameraGL&&) = delete;
+    CameraGL(const CameraGL&) = delete;
+    CameraGL& operator=(CameraGL&&) = delete;
+    CameraGL& operator=(const CameraGL&) = delete;
+
     [[nodiscard]] int getWidth() const { return Width; }
     [[nodiscard]] int getHeight() const { return Height; }
     [[nodiscard]] float getNearPlane() const { return NearPlane; }

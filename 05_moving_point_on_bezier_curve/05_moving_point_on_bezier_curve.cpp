@@ -1,20 +1,6 @@
 #include "05_moving_point_on_bezier_curve.h"
 
 C05MovingPointOnBezierCurve::C05MovingPointOnBezierCurve()
-    : PositionMode( false ),
-      VelocityMode( false ),
-      MoveType( MOVE_TYPE::NONE ),
-      FrameIndex( 0 ),
-      PositionCurveSamplePointNum( 101 ),
-      TotalPositionCurvePointNum( 201 ),
-      TotalVelocityCurvePointNum( 201 ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      AxisObject( std::make_unique<ObjectGL>() ),
-      PositionObject( std::make_unique<ObjectGL>() ),
-      VelocityObject( std::make_unique<ObjectGL>() ),
-      PositionCurveObject( std::make_unique<ObjectGL>() ),
-      VelocityCurveObject( std::make_unique<ObjectGL>() ),
-      MovingObject( std::make_unique<ObjectGL>() )
 {
     MainCamera = std::make_unique<CameraGL>( FrameWidth, FrameHeight );
 

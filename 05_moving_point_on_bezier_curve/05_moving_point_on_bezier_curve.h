@@ -9,10 +9,10 @@ public:
     C05MovingPointOnBezierCurve();
     ~C05MovingPointOnBezierCurve() override = default;
 
+    C05MovingPointOnBezierCurve(C05MovingPointOnBezierCurve&&) = delete;
     C05MovingPointOnBezierCurve(const C05MovingPointOnBezierCurve&) = delete;
-    C05MovingPointOnBezierCurve(const C05MovingPointOnBezierCurve&&) = delete;
+    C05MovingPointOnBezierCurve& operator=(C05MovingPointOnBezierCurve&&) = delete;
     C05MovingPointOnBezierCurve& operator=(const C05MovingPointOnBezierCurve&) = delete;
-    C05MovingPointOnBezierCurve& operator=(const C05MovingPointOnBezierCurve&&) = delete;
 
     void play();
 
@@ -21,26 +21,26 @@ private:
 
     enum UNIFORM { ModelViewProjectionMatrix = 0, Color };
 
-    bool PositionMode;
-    bool VelocityMode;
-    MOVE_TYPE MoveType;
-    int FrameIndex;
-    int PositionCurveSamplePointNum;
-    int TotalPositionCurvePointNum;
-    int TotalVelocityCurvePointNum;
+    bool PositionMode = false;
+    bool VelocityMode = false;
+    MOVE_TYPE MoveType = MOVE_TYPE::NONE;
+    int FrameIndex = 0;
+    int PositionCurveSamplePointNum = 101;
+    int TotalPositionCurvePointNum = 201;
+    int TotalVelocityCurvePointNum = 201;
     std::vector<glm::vec3> PositionControlPoints;
     std::vector<glm::vec3> VelocityControlPoints;
     std::vector<glm::vec3> PositionCurve;
     std::vector<glm::vec3> VelocityCurve;
     std::vector<glm::vec3> UniformVelocityCurve;
     std::vector<glm::vec3> VariableVelocityCurve;
-    std::unique_ptr<ShaderGL> ObjectShader;
-    std::unique_ptr<ObjectGL> AxisObject;
-    std::unique_ptr<ObjectGL> PositionObject;
-    std::unique_ptr<ObjectGL> VelocityObject;
-    std::unique_ptr<ObjectGL> PositionCurveObject;
-    std::unique_ptr<ObjectGL> VelocityCurveObject;
-    std::unique_ptr<ObjectGL> MovingObject;
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ObjectGL> AxisObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> PositionObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> VelocityObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> PositionCurveObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> VelocityCurveObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> MovingObject = std::make_unique<ObjectGL>();
 
     void mousewheel(GLFWwindow* window, double xoffset, double yoffset) const override {}
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;

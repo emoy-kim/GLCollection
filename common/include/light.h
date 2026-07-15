@@ -5,8 +5,13 @@
 class LightGL final
 {
 public:
-    LightGL();
+    LightGL() = default;
     ~LightGL() = default;
+
+    LightGL(LightGL&&) = delete;
+    LightGL(const LightGL&) = delete;
+    LightGL& operator=(LightGL&&) = delete;
+    LightGL& operator=(const LightGL&) = delete;
 
     [[nodiscard]] bool isLightOn() const { return TurnLightOn; }
     void toggleLightSwitch() { TurnLightOn = !TurnLightOn; }
@@ -36,9 +41,9 @@ public:
     [[nodiscard]] float getFallOffRadii(int light_index) const { return FallOffRadii[light_index]; }
 
 private:
-    bool TurnLightOn;
-    int TotalLightNum;
-    glm::vec4 GlobalAmbientColor;
+    bool TurnLightOn = true;
+    int TotalLightNum = 0;
+    glm::vec4 GlobalAmbientColor{ 0.2f, 0.2f, 0.2f, 1.0f };
     std::vector<bool> IsActivated;
     std::vector<glm::vec4> Positions;
     std::vector<glm::vec4> AmbientColors;

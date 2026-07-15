@@ -1,11 +1,6 @@
 #include "11_ray_tracing.h"
 
 C11RayTracing::C11RayTracing()
-    : FrameIndex( 0 ),
-      RayTracingShader( std::make_unique<ShaderGL>() ),
-      ScreenShader( std::make_unique<ShaderGL>() ),
-      ScreenObject( std::make_unique<ObjectGL>() ),
-      FinalCanvas( std::make_unique<CanvasGL>() )
 {
     MainCamera = std::make_unique<CameraGL>( FrameWidth, FrameHeight );
 

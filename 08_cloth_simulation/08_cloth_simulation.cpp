@@ -1,24 +1,6 @@
 #include "08_cloth_simulation.h"
 
 C08ClothSimulation::C08ClothSimulation()
-    : Moving( false ),
-      SphereRadius( 20.0f ),
-      ClothTargetIndex( 0 ),
-      ClothPointNumSize( 100, 100 ),
-      ClothGridSize( 50, 50 ),
-      SpherePosition( 0.0f, 0.0f, 0.0f ),
-      ClothWorldMatrix(
-          translate( glm::mat4( 1.0f ), glm::vec3( 150.0f, 50.0f, 0.0f ) ) *
-          rotate( glm::mat4( 1.0f ), glm::radians( 90.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ) ) *
-          scale( glm::mat4( 1.0f ), glm::vec3( 3.0f ) )
-      ),
-      SphereWorldMatrix( translate( glm::mat4( 1.0f ), glm::vec3( 100.0f, 120.0f, 30.0f ) ) ),
-      ClothBuffers{},
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      ClothShader( std::make_unique<ShaderGL>() ),
-      ClothObject( std::make_unique<ObjectGL>() ),
-      SphereObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
 {
     MainCamera = std::make_unique<CameraGL>(
         glm::vec3( 0.0f, 150.0f, 350.0f ),

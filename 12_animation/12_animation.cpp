@@ -1,9 +1,6 @@
 #include "12_animation.h"
 
 C12Animation::C12Animation()
-    : StartTiming( 0.0 ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      Animator( std::make_unique<Animator2D>() )
 {
     MainCamera = std::make_unique<CameraGL>( FrameWidth, FrameHeight );
 

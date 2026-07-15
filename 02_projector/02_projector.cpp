@@ -1,21 +1,6 @@
 #include "02_projector.h"
 
 C02Projector::C02Projector()
-    : VideoFrameIndex( 0 ),
-      IsVideo( true ),
-      Pause( false ),
-      SlideBuffer( nullptr ),
-      Projector(
-          std::make_unique<CameraGL>(
-              glm::vec3{ 40.0f, 30.0f, 20.0f },
-              glm::vec3{ 0.0f, 0.0f, 0.0f },
-              glm::vec3{ 0.0f, 1.0f, 0.0f },
-              0.0f, 10.0f, 60.0f
-          )
-      ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      WallObject( std::make_unique<ObjectGL>() ),
-      Lights( std::make_unique<LightGL>() )
 {
     av_log_set_level( AV_LOG_ERROR );
 

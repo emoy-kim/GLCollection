@@ -29,21 +29,21 @@ public:
     C06BumpMapping();
     ~C06BumpMapping() override = default;
 
+    C06BumpMapping(C06BumpMapping&&) = delete;
     C06BumpMapping(const C06BumpMapping&) = delete;
-    C06BumpMapping(const C06BumpMapping&&) = delete;
+    C06BumpMapping& operator=(C06BumpMapping&&) = delete;
     C06BumpMapping& operator=(const C06BumpMapping&) = delete;
-    C06BumpMapping& operator=(const C06BumpMapping&&) = delete;
 
     void play();
 
 private:
-    bool UseBumpMapping;
-    int NormalTextureIndex;
-    float LightTheta;
-    std::unique_ptr<LightGL> Lights;
-    std::unique_ptr<ShaderGL> ObjectShader;
-    std::unique_ptr<ShaderGL> BoxBlurShader;
-    std::unique_ptr<ShaderGL> NormalMapShader;
+    bool UseBumpMapping = true;
+    int NormalTextureIndex = -1;
+    float LightTheta = 0.0f;
+    std::unique_ptr<LightGL> Lights = std::make_unique<LightGL>();
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> BoxBlurShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> NormalMapShader = std::make_unique<ShaderGL>();
     std::array<std::unique_ptr<ObjectGL>, 9> WallObjects;
 
     void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods) override;

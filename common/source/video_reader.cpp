@@ -1,13 +1,5 @@
 #include "video_reader.h"
 
-VideoReader::VideoReader()
-    : StartFrame( 0 ),
-      VideoTrackID( -1 ),
-      TotalFrameNumber( 0 ),
-      FrameWidth( 0 ),
-      FrameHeight( 0 ),
-      Framerate( 0.0 ) {}
-
 void VideoReader::close()
 {
     if (VideoInfo.FormatContext != nullptr) avformat_close_input( &VideoInfo.FormatContext );

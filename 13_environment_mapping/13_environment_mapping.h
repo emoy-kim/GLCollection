@@ -31,10 +31,10 @@ public:
     C13EnvironmentMapping();
     ~C13EnvironmentMapping() override;
 
+    C13EnvironmentMapping(C13EnvironmentMapping&&) = delete;
     C13EnvironmentMapping(const C13EnvironmentMapping&) = delete;
-    C13EnvironmentMapping(const C13EnvironmentMapping&&) = delete;
+    C13EnvironmentMapping& operator=(C13EnvironmentMapping&&) = delete;
     C13EnvironmentMapping& operator=(const C13EnvironmentMapping&) = delete;
-    C13EnvironmentMapping& operator=(const C13EnvironmentMapping&&) = delete;
 
     void play();
 
@@ -48,22 +48,22 @@ private:
         Rect(int x, int y, int w, int h) : TopLeft( x, y ), Size( w, h ) {}
     };
 
-    bool DrawMovingObject;
-    int ActivatedLightIndex;
-    int TigerIndex;
-    int TigerRotationAngle;
-    int EnvironmentWidth;
-    int EnvironmentHeight;
-    float EnvironmentRadius;
-    float* AdjustedIntensities;
-    uint8_t* ImageBuffer;
-    uint8_t* LatitudeLongitude;
-    std::unique_ptr<ShaderGL> ObjectShader;
-    std::unique_ptr<ShaderGL> EnvironmentShader;
-    std::unique_ptr<ObjectGL> EnvironmentObject;
-    std::unique_ptr<ObjectGL> CowObject;
+    bool DrawMovingObject = false;
+    int ActivatedLightIndex = 0;
+    int TigerIndex = 0;
+    int TigerRotationAngle = 180;
+    int EnvironmentWidth = 0;
+    int EnvironmentHeight = 0;
+    float EnvironmentRadius = 50.0f;
+    float* AdjustedIntensities = nullptr;
+    uint8_t* ImageBuffer = nullptr;
+    uint8_t* LatitudeLongitude = nullptr;
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ShaderGL> EnvironmentShader = std::make_unique<ShaderGL>();
+    std::unique_ptr<ObjectGL> EnvironmentObject = std::make_unique<ObjectGL>();
+    std::unique_ptr<ObjectGL> CowObject = std::make_unique<ObjectGL>();
     std::vector<std::unique_ptr<ObjectGL>> MovingTigerObjects;
-    std::unique_ptr<LightGL> Lights;
+    std::unique_ptr<LightGL> Lights = std::make_unique<LightGL>();
 
     // https://graphics.stanford.edu/%7Eseander/bithacks.html#RoundUpPowerOf2
     static constexpr uint getNextHighestPowerOf2(uint v)

@@ -1,10 +1,6 @@
 #include "renderer.h"
 
 RendererGL::RendererGL()
-    : Window( nullptr ),
-      FrameWidth( 1920 ),
-      FrameHeight( 1080 ),
-      ClickedPoint( -1, -1 )
 {
     Renderer = this;
 

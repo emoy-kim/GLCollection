@@ -1,17 +1,6 @@
 #include "09_distance_transform.h"
 
 C09DistanceTransform::C09DistanceTransform()
-    : DistanceType( DISTANCE_TYPE::EUCLIDEAN ),
-      InsideColumnScannerBuffer( 0 ),
-      OutsideColumnScannerBuffer( 0 ),
-      InsideDistanceFieldBuffer( 0 ),
-      OutsideDistanceFieldBuffer( 0 ),
-      ObjectShader( std::make_unique<ShaderGL>() ),
-      FieldShader( std::make_unique<ShaderGL>() ),
-      TransformShader( std::make_unique<ShaderGL>() ),
-      ImageObject( std::make_unique<ObjectGL>() ),
-      DistanceObject( std::make_unique<ObjectGL>() ),
-      Canvas( std::make_unique<CanvasGL>() )
 {
     MainCamera = std::make_unique<CameraGL>( FrameWidth, FrameHeight );
 

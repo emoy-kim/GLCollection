@@ -10,20 +10,20 @@ public:
     C12Animation();
     ~C12Animation() override = default;
 
+    C12Animation(C12Animation&&) = delete;
     C12Animation(const C12Animation&) = delete;
-    C12Animation(const C12Animation&&) = delete;
+    C12Animation& operator=(C12Animation&&) = delete;
     C12Animation& operator=(const C12Animation&) = delete;
-    C12Animation& operator=(const C12Animation&&) = delete;
 
     void play();
 
 private:
     enum UNIFORM { ModelViewProjectionMatrix = 0, Color };
 
-    double StartTiming;
-    std::unique_ptr<ShaderGL> ObjectShader;
+    double StartTiming = 0.0;
+    std::unique_ptr<ShaderGL> ObjectShader = std::make_unique<ShaderGL>();
     std::vector<std::unique_ptr<ObjectGL>> Objects;
-    std::unique_ptr<Animator2D> Animator;
+    std::unique_ptr<Animator2D> Animator = std::make_unique<Animator2D>();
 
     void cursor(GLFWwindow* window, double xpos, double ypos) override {}
     void mouse(GLFWwindow* window, int button, int action, int mods) override {}
